@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #063c1a;
+  --color-primary: #7fde80;
+  --color-secondary: #011504;
+  --color-accentText: #063c1a;
+  --font-sans: "Inter Tight", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: white;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* CSS grid is handled by React components to ensure accuracy and dashed borders */
