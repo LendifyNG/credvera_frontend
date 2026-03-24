@@ -37,7 +37,7 @@ export default function Features() {
         </div>
       </div>
 
-      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-16 lg:py-20">
+      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-12 lg:py-16">
         
         {/* CSS Grid for Mobile -> Desktop re-ordering */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 lg:gap-y-0 lg:gap-x-12">
@@ -53,10 +53,10 @@ export default function Features() {
             <motion.span variants={itemVariants} className="text-gray-500 font-medium text-[15px] mb-4">
               Solutions
             </motion.span>
-            <motion.h2 variants={itemVariants} className="text-[2.5rem] lg:text-[3.8rem] font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%]">
+            <motion.h2 variants={itemVariants} className="text-3xl lg:text-4xl font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%]">
               Open Your Business Account Online
             </motion.h2>
-            <motion.p variants={itemVariants} className="text-gray-500 text-[1.1rem] md:text-[1.15rem] leading-[1.65] w-full lg:max-w-[85%] font-medium">
+            <motion.p variants={itemVariants} className="text-gray-500 text-base leading-[1.65] w-full lg:max-w-[85%] font-medium">
               Keep your business account and all your finance needs safely organized under one roof. Manage money quickly, easily & efficiently. Whether you're alone or leading a team.
             </motion.p>
           </motion.div>
@@ -72,10 +72,10 @@ export default function Features() {
             <motion.span variants={itemVariants} className="text-gray-500 font-medium text-[15px] mb-4">
               Payment
             </motion.span>
-            <motion.h2 variants={itemVariants} className="text-[2.5rem] lg:text-[3.8rem] font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%] text-left">
+            <motion.h2 variants={itemVariants} className="text-3xl lg:text-4xl font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%] text-left">
               Accept and Optimize Payment Globally
             </motion.h2>
-            <motion.p variants={itemVariants} className="text-gray-500 text-[1.1rem] md:text-[1.15rem] leading-[1.65] w-full lg:max-w-[85%] font-medium mb-10 text-left">
+            <motion.p variants={itemVariants} className="text-gray-500 text-base leading-[1.65] w-full lg:max-w-[85%] font-medium mb-10 text-left">
               Keep your business account and all your finance needs safely organized under one roof. Manage money quickly, easily & efficiently. Whether you're alone or leading a team.
             </motion.p>
             <motion.button variants={itemVariants} className="bg-primary text-[#063c1a] font-semibold text-[16px] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-transform active:scale-95 leading-none shadow-sm w-fit">

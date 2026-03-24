@@ -42,7 +42,7 @@ export default function BuiltForGrowth() {
         </div>
       </div>
 
-      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-16 lg:py-20 flex flex-col items-start">
+      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-12 lg:py-16 flex flex-col items-start">
         
         {/* Top Header Block */}
         <motion.div 
@@ -55,10 +55,10 @@ export default function BuiltForGrowth() {
           <motion.span variants={itemVariants} className="text-gray-500 font-medium text-[15.5px] mb-4">
             Built for Growth
           </motion.span>
-          <motion.h2 variants={itemVariants} className="text-[2.6rem] lg:text-[3.8rem] font-bold text-[#080808] leading-[1.05] tracking-tight mb-6">
+          <motion.h2 variants={itemVariants} className="text-3xl lg:text-4xl font-bold text-[#080808] leading-[1.05] tracking-tight mb-6">
             Take Your Business Faster
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-gray-500 text-[1.1rem] md:text-[1.15rem] leading-[1.65] font-medium w-full">
+          <motion.p variants={itemVariants} className="text-gray-500 text-base leading-[1.65] font-medium w-full">
             Amet lacus ipsum morbi nisl ac. Vel morbi turpis vitae nulla lobortis integer purus consectetur. Parturient ut tempor massa mi
           </motion.p>
         </motion.div>
@@ -77,10 +77,10 @@ export default function BuiltForGrowth() {
             <div className="w-full relative mb-8 flex items-center justify-center overflow-hidden rounded-md transition-transform duration-500 group-hover:-translate-y-2">
               <img src={business1} alt="Sell to Businesses" className="w-full h-auto object-cover" />
             </div>
-            <h3 className="text-[1.5rem] lg:text-[1.7rem] font-bold text-[#080808] tracking-tight mb-3 transition-colors">
+            <h3 className="text-xl lg:text-2xl font-bold text-[#080808] tracking-tight mb-3 transition-colors">
               Sell to Businesses
             </h3>
-            <p className="text-gray-500 text-[1.05rem] md:text-[1.1rem] leading-[1.6] font-medium pr-4">
+            <p className="text-gray-500 text-sm md:text-base leading-[1.6] font-medium pr-4">
               Launch a B2B business and collect one-time or recurring payments from customers.
             </p>
           </motion.div>
@@ -90,10 +90,10 @@ export default function BuiltForGrowth() {
             <div className="w-full relative mb-8 flex items-center justify-center overflow-hidden rounded-md transition-transform duration-500 group-hover:-translate-y-2">
               <img src={business2} alt="Validate Your Idea" className="w-full h-auto object-cover" />
             </div>
-            <h3 className="text-[1.5rem] lg:text-[1.7rem] font-bold text-[#080808] tracking-tight mb-3 transition-colors">
+            <h3 className="text-xl lg:text-2xl font-bold text-[#080808] tracking-tight mb-3 transition-colors">
               Validate Your Idea
             </h3>
-            <p className="text-gray-500 text-[1.05rem] md:text-[1.1rem] leading-[1.6] font-medium pr-4">
+            <p className="text-gray-500 text-sm md:text-base leading-[1.6] font-medium pr-4">
               Test your product idea by launching payments with little to no code.
             </p>
           </motion.div>
@@ -103,10 +103,10 @@ export default function BuiltForGrowth() {
             <div className="w-full relative mb-8 flex items-center justify-center overflow-hidden rounded-md transition-transform duration-500 group-hover:-translate-y-2">
               <img src={business3} alt="Sell to Consumer" className="w-full h-auto object-cover" />
             </div>
-            <h3 className="text-[1.5rem] lg:text-[1.7rem] font-bold text-[#080808] tracking-tight mb-3 transition-colors">
+            <h3 className="text-xl lg:text-2xl font-bold text-[#080808] tracking-tight mb-3 transition-colors">
               Sell to Consumer
             </h3>
-            <p className="text-gray-500 text-[1.05rem] md:text-[1.1rem] leading-[1.6] font-medium pr-4">
+            <p className="text-gray-500 text-sm md:text-base leading-[1.6] font-medium pr-4">
               Launch a B2C business with a prebuilt payment page that's optimized for conversion.
             </p>
           </motion.div>

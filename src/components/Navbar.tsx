@@ -30,19 +30,19 @@ export default function Navbar() {
         
         {/* Center: Navigation Links */}
         <div className="hidden lg:flex items-center gap-12 ml-4">
-          <a href="#features" className="text-[16px] font-normal text-white hover:text-white/70 transition-colors tracking-wide">Features</a>
-          <a href="#about" className="text-[16px] font-normal text-white hover:text-white/70 transition-colors tracking-wide">About</a>
-          <a href="#contact" className="text-[16px] font-normal text-white hover:text-white/70 transition-colors tracking-wide">Contact</a>
-          <a href="#pricing" className="text-[16px] font-normal text-white hover:text-white/70 transition-colors tracking-wide">Pricing</a>
+          <a href="#features" className="text-sm font-normal text-white hover:text-white/70 transition-colors tracking-wide">Features</a>
+          <a href="#about" className="text-sm font-normal text-white hover:text-white/70 transition-colors tracking-wide">About</a>
+          <a href="#contact" className="text-sm font-normal text-white hover:text-white/70 transition-colors tracking-wide">Contact</a>
+          <a href="#pricing" className="text-sm font-normal text-white hover:text-white/70 transition-colors tracking-wide">Pricing</a>
         </div>
       </div>
 
       {/* Right: Buttons */}
       <div className="hidden md:flex items-center gap-5">
-        <button className="text-white font-medium text-[15.5px] px-7 py-2.5 rounded-full border border-white hover:bg-white/10 transition-colors">
+        <button className="text-white font-medium text-sm px-6 py-2 rounded-full border border-white hover:bg-white/10 transition-colors">
           Sign In
         </button>
-        <button className="bg-primary text-[#063c1a] font-semibold text-[15.5px] px-8 py-2.5 rounded-full hover:opacity-90 transition-opacity">
+        <button className="bg-primary text-[#063c1a] font-semibold text-sm px-7 py-2 rounded-full hover:opacity-90 transition-opacity">
           Open an Account
         </button>
       </div>

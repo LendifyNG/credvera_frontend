@@ -41,7 +41,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full px-[5%] md:px-[7%] pt-16 pb-25 lg:pt-24 lg:pb-35 flex flex-col justify-between min-h-[calc(100vh-80px)]">
+      <div className="relative z-10 w-full px-[5%] md:px-[7%] pt-12 pb-20 lg:pt-20 lg:pb-30 flex flex-col justify-between min-h-[calc(100vh-80px)]">
         
         {/* Main 45/55 Split Content */}
         <div className="flex flex-col lg:flex-row items-center justify-between w-full h-full grow gap-16 lg:gap-10">
@@ -53,11 +53,11 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
           >
-            <motion.h1 variants={textVariants} className="text-white text-[3.2rem] md:text-[4.2rem] lg:text-[4.5rem] font-semibold leading-[1.1] tracking-tight mb-6 w-full max-w-[90%]">
+            <motion.h1 variants={textVariants} className="text-white text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight mb-6 w-full max-w-[90%]">
               All In One App Finance for Your Business
             </motion.h1>
             
-            <motion.p variants={textVariants} className="text-white/80 text-[1.1rem] md:text-[1.2rem] leading-[1.6] max-w-112.5 mb-10 font-medium">
+            <motion.p variants={textVariants} className="text-white/80 text-base md:text-lg leading-[1.6] max-w-100 mb-10 font-medium">
               Join millions of businesses trusting Credvera to manage payments and finances across Africa and outside.
             </motion.p>
             
@@ -84,7 +84,7 @@ export default function Hero() {
             <img 
               src={bannerImage} 
               alt="Credvera Dashboard Native Flow Mockups" 
-              className="w-full h-auto max-w-200 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+              className="w-full h-auto max-w-150 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
               loading="eager"
             />
           </motion.div>

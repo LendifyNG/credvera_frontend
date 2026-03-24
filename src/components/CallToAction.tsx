@@ -38,11 +38,11 @@ export default function CallToAction() {
         </div>
       </div>
 
-      <div className="w-full relative z-10 py-16 lg:py-24 px-[5%] md:px-[7%]">
+      <div className="w-full relative z-10 py-12 lg:py-16 px-[5%] md:px-[7%]">
         
         {/* Dark Green Bounded Block (respecting padding) */}
         <motion.div 
-          className="w-full bg-[#063c1a] py-20 lg:py-28 px-6 md:px-12 flex flex-col items-center justify-center text-center shadow-lg"
+          className="w-full bg-[#063c1a] py-12 lg:py-16 px-6 md:px-12 flex flex-col items-center justify-center text-center shadow-lg"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -50,14 +50,14 @@ export default function CallToAction() {
         >
           <motion.h2 
             variants={itemVariants} 
-            className="text-[2.8rem] md:text-[3.5rem] lg:text-[4.5rem] font-bold text-white leading-[1.05] tracking-tight mb-6 max-w-212.5"
+            className="text-4xl md:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-6 max-w-212.5"
           >
             Simplifying Payments for <br className="hidden md:block" /> Growing Business
           </motion.h2>
           
           <motion.p 
             variants={itemVariants} 
-            className="text-white/70 text-[1.05rem] lg:text-[1.1rem] font-medium mb-10 lg:mb-12 max-w-150 leading-[1.6]"
+            className="text-white/70 text-base font-medium mb-10 lg:mb-12 max-w-150 leading-[1.6]"
           >
             Join over 300+ partners and customers already growing with Finto
           </motion.p>

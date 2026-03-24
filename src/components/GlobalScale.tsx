@@ -32,7 +32,7 @@ export default function GlobalScale() {
     <section id="global-scale" className="w-full flex flex-col lg:flex-row font-sans">
       
       {/* Left Panel: Dark Theme */}
-      <div className="w-full lg:w-1/2 bg-[#063c1a] px-[5%] lg:pl-[7%] lg:pr-16 py-20 lg:py-28 flex flex-col justify-center">
+      <div className="w-full lg:w-1/2 bg-[#063c1a] px-[5%] lg:pl-[7%] lg:pr-16 py-12 lg:py-16 flex flex-col justify-center">
         <motion.div 
           className="w-full max-w-162.5 mx-auto lg:ml-auto lg:mr-0"
           variants={containerVariants}
@@ -43,26 +43,26 @@ export default function GlobalScale() {
           <motion.span variants={itemVariants} className="text-primary font-medium text-[15.5px] mb-4 block">
             Global Scale
           </motion.span>
-          <motion.h2 variants={itemVariants} className="text-[2.6rem] lg:text-[3.8rem] font-bold text-white leading-[1.05] tracking-tight mb-6">
+          <motion.h2 variants={itemVariants} className="text-3xl lg:text-4xl font-bold text-white leading-[1.05] tracking-tight mb-6">
             Sell Everywhere In Global Commerce
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-white/70 text-[1.1rem] md:text-[1.15rem] leading-[1.65] font-medium mb-16 max-w-[95%]">
+          <motion.p variants={itemVariants} className="text-white/70 text-base leading-[1.65] font-medium mb-16 max-w-[95%]">
             When you sell your software products to global customers, accepting local payment methods is critical in capturing the total market opportunity. Don't let payment friction get in the way of a single sale. Allow customers to pay in their local currency.
           </motion.p>
 
           {/* Stats Grid */}
           <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-0 mt-8">
             <div className="flex-1 md:pr-6">
-              <h4 className="text-primary text-[2.5rem] lg:text-[3rem] font-bold tracking-tight mb-1 leading-none">132+</h4>
-              <p className="text-white/60 text-[1.05rem] font-medium w-full max-w-37.5">Currencies supported</p>
+              <h4 className="text-primary text-3xl lg:text-4xl font-bold tracking-tight mb-1 leading-none">132+</h4>
+              <p className="text-white/60 text-sm md:text-base font-medium w-full max-w-37.5">Currencies supported</p>
             </div>
             <div className="flex-1 md:px-8 md:border-l border-white/10">
-              <h4 className="text-primary text-[2.5rem] lg:text-[3rem] font-bold tracking-tight mb-1 leading-none">85.5%</h4>
-              <p className="text-white/60 text-[1.05rem] font-medium w-full max-w-37.5">businesses using Finto</p>
+              <h4 className="text-primary text-3xl lg:text-4xl font-bold tracking-tight mb-1 leading-none">85.5%</h4>
+              <p className="text-white/60 text-sm md:text-base font-medium w-full max-w-37.5">businesses using Finto</p>
             </div>
             <div className="flex-1 md:pl-8 md:border-l border-white/10">
-              <h4 className="text-primary text-[2.5rem] lg:text-[3rem] font-bold tracking-tight mb-1 leading-none">150M</h4>
-              <p className="text-white/60 text-[1.05rem] font-medium w-full max-w-37.5">API request per day</p>
+              <h4 className="text-primary text-3xl lg:text-4xl font-bold tracking-tight mb-1 leading-none">150M</h4>
+              <p className="text-white/60 text-sm md:text-base font-medium w-full max-w-37.5">API request per day</p>
             </div>
           </motion.div>
         </motion.div>
@@ -95,7 +95,7 @@ export default function GlobalScale() {
             viewport={{ once: true }}
             src={usaImage} 
             alt="USA scale metric" 
-            className="absolute top-[0%] md:top-[10%] left-[0%] md:left-[-5%] w-[65%] md:w-[45%] lg:w-[48%] max-w-75 h-auto object-contain drop-shadow-2xl z-10" 
+            className="absolute top-[0%] md:top-[10%] left-[0%] md:left-[-5%] w-[65%] md:w-[45%] lg:w-[48%] max-w-60 h-auto object-contain drop-shadow-2xl z-10" 
           />
           <motion.img 
             initial={{ opacity: 0 }}
@@ -107,7 +107,7 @@ export default function GlobalScale() {
             viewport={{ once: true }}
             src={uaeImage} 
             alt="UAE scale metric" 
-            className="absolute top-[25%] md:top-[32%] right-[-5%] md:right-[-10%] w-[65%] md:w-[45%] lg:w-[48%] max-w-75 h-auto object-contain drop-shadow-2xl z-20" 
+            className="absolute top-[25%] md:top-[32%] right-[-5%] md:right-[-10%] w-[65%] md:w-[45%] lg:w-[48%] max-w-60 h-auto object-contain drop-shadow-2xl z-20" 
           />
           <motion.img 
             initial={{ opacity: 0 }}
@@ -119,7 +119,7 @@ export default function GlobalScale() {
             viewport={{ once: true }}
             src={paraguayImage} 
             alt="Paraguay scale metric" 
-            className="absolute bottom-[28%] md:bottom-[35%] left-[5%] md:left-[2%] w-[65%] md:w-[45%] lg:w-[48%] max-w-75 h-auto object-contain drop-shadow-2xl z-30" 
+            className="absolute bottom-[28%] md:bottom-[35%] left-[5%] md:left-[2%] w-[65%] md:w-[45%] lg:w-[48%] max-w-60 h-auto object-contain drop-shadow-2xl z-30" 
           />
           <motion.img 
             initial={{ opacity: 0 }}
@@ -131,7 +131,7 @@ export default function GlobalScale() {
             viewport={{ once: true }}
             src={indiaImage} 
             alt="India scale metric" 
-            className="absolute bottom-[0%] md:bottom-[5%] right-[5%] md:right-[5%] w-[65%] md:w-[45%] lg:w-[48%] max-w-75 h-auto object-contain drop-shadow-2xl z-40" 
+            className="absolute bottom-[0%] md:bottom-[5%] right-[5%] md:right-[5%] w-[65%] md:w-[45%] lg:w-[48%] max-w-60 h-auto object-contain drop-shadow-2xl z-40" 
           />
         </motion.div>
       </div>

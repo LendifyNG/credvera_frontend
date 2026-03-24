@@ -40,7 +40,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="w-full relative z-10 px-[5%] md:px-[7%] pt-20 lg:pt-28 pb-10">
+      <div className="w-full relative z-10 px-[5%] md:px-[7%] pt-12 lg:pt-16 pb-10">
         
         {/* Top Links Grid - Mapped precisely to the 6-column background grid */}
         <motion.div 
@@ -54,15 +54,15 @@ export default function Footer() {
           {/* Brand Column (Spans 2 logical columns pushing 'Features' to exactly intersect Grid Line 3) */}
           <motion.div variants={itemVariants} className="col-span-2 md:col-span-3 lg:col-span-2 flex flex-col items-start pr-8">
             <a href="/" className="flex items-center gap-2 mb-8">
-              <img src={favicon} alt="Credvera" className="h-9 w-auto object-contain" />
-              <span className="text-primary font-bold text-[1.5rem] tracking-tight ml-2">credvera</span>
+              <img src={favicon} alt="Credvera" className="h-8 w-auto object-contain" />
+              <span className="text-primary font-bold text-xl tracking-tight ml-2">credvera</span>
             </a>
           </motion.div>
 
           {/* Column 3: Features */}
           <motion.div variants={itemVariants} className="col-span-1 flex flex-col gap-5">
-            <h4 className="text-[#888888] font-medium text-[15px] mb-3">Features</h4>
-            <a href="#" className="text-[#0c0c0c] hover:text-primary font-medium text-[15.5px] transition-colors">Payment Link</a>
+            <h4 className="text-[#888888] font-bold text-xs uppercase tracking-wider mb-3">{/* Section Name */}</h4>
+            <a href="#" className="text-[#0c0c0c] hover:text-primary font-medium text-sm transition-colors">{/* Link Name */}</a>
             <a href="#" className="text-[#0c0c0c] hover:text-primary font-medium text-[15.5px] transition-colors">Recurring Billing</a>
             <a href="#" className="text-[#0c0c0c] hover:text-primary font-medium text-[15.5px] transition-colors">Invoicing</a>
             <a href="#" className="text-[#0c0c0c] hover:text-primary font-medium text-[15.5px] transition-colors">Checkout</a>

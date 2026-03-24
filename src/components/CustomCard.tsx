@@ -36,7 +36,7 @@ export default function CustomCard() {
         </div>
       </div>
 
-      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-16 lg:py-20 flex flex-col-reverse lg:flex-row items-center justify-between gap-16 lg:gap-12">
+      <div className="w-full px-[5%] md:px-[7%] relative z-10 py-12 lg:py-16 flex flex-col-reverse lg:flex-row items-center justify-between gap-16 lg:gap-12">
         
         {/* Left Column: Text Content */}
         <motion.div 
@@ -49,10 +49,10 @@ export default function CustomCard() {
           <motion.span variants={itemVariants} className="text-gray-500 font-medium text-[15.5px] mb-4">
             Custom Card
           </motion.span>
-          <motion.h2 variants={itemVariants} className="text-[2.6rem] lg:text-[3.8rem] font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%]">
+          <motion.h2 variants={itemVariants} className="text-3xl lg:text-4xl font-bold text-[#080808] leading-[1.05] tracking-tight mb-6 w-full lg:max-w-[95%]">
             Build a Fintech with Banking as a Service
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-gray-500 text-[1.1rem] md:text-[1.15rem] leading-[1.65] font-medium w-full lg:max-w-[90%] mb-10">
+          <motion.p variants={itemVariants} className="text-gray-500 text-base leading-[1.65] font-medium w-full lg:max-w-[90%] mb-10">
             Keep your business account and all your finance needs safely organized under one roof. Manage money quickly, easily & efficiently. Whether you're alone or leading a team.
           </motion.p>
 

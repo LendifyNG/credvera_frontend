@@ -112,7 +112,7 @@ export default function Testimonials() {
         </div>
       </div>
 
-      <div className="w-full relative z-10 py-16 lg:py-24 flex flex-col items-start overflow-hidden">
+      <div className="w-full relative z-10 py-12 lg:py-16 flex flex-col items-start overflow-hidden">
         {/* Header Block */}
         <motion.div
           className="flex flex-col mb-12 lg:mb-16 w-full px-[5%] md:px-[7%]"
@@ -129,7 +129,7 @@ export default function Testimonials() {
           </motion.span>
           <motion.h2
             variants={itemVariants}
-            className="text-[2.6rem] lg:text-[4rem] font-bold text-[#0c0c0c] leading-[1.05] tracking-tight whitespace-nowrap"
+            className="text-3xl lg:text-4xl font-bold text-[#0c0c0c] leading-[1.05] tracking-tight whitespace-nowrap"
           >
             What Customer Says
           </motion.h2>
@@ -156,7 +156,7 @@ export default function Testimonials() {
                 key={`top-${card.id}-${index}`}
                 className="w-95 shrink-0 mr-8 bg-white border border-black/5 p-8 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between min-h-65"
               >
-                <p className="text-gray-400 text-[1.05rem] leading-[1.65] font-medium mb-10 w-full">
+                <p className="text-gray-400 text-sm md:text-base leading-[1.65] font-medium mb-10 w-full">
                   {testimonialText}
                 </p>
                 <div className="flex items-center gap-4 mt-auto">
@@ -168,10 +168,10 @@ export default function Testimonials() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bold text-[#0c0c0c] text-[0.95rem] tracking-tight">
+                    <span className="font-bold text-[#0c0c0c] text-sm tracking-tight">
                       {card.name}
                     </span>
-                    <span className="text-gray-400 text-[0.85rem] font-medium">
+                    <span className="text-gray-400 text-xs font-medium">
                       {card.role}
                     </span>
                   </div>
@@ -191,7 +191,7 @@ export default function Testimonials() {
                 key={`bottom-${card.id}-${index}`}
                 className="w-95 shrink-0 mr-8 bg-white border border-black/5 p-8 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between min-h-65"
               >
-                <p className="text-gray-400 text-[1.05rem] leading-[1.65] font-medium mb-10 w-full">
+                <p className="text-gray-400 text-sm md:text-base leading-[1.65] font-medium mb-10 w-full">
                   {testimonialText}
                 </p>
                 <div className="flex items-center gap-4 mt-auto">
@@ -203,10 +203,10 @@ export default function Testimonials() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bold text-[#0c0c0c] text-[0.95rem] tracking-tight">
+                    <span className="font-bold text-[#0c0c0c] text-sm tracking-tight">
                       {card.name}
                     </span>
-                    <span className="text-gray-400 text-[0.85rem] font-medium">
+                    <span className="text-gray-400 text-xs font-medium">
                       {card.role}
                     </span>
                   </div>
@@ -223,7 +223,7 @@ export default function Testimonials() {
               key={card.id}
               className="w-full bg-white border border-black/5 p-8 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] flex flex-col justify-between"
             >
-              <p className="text-gray-400 text-[1.05rem] leading-[1.65] font-medium mb-10">
+              <p className="text-gray-400 text-sm md:text-base leading-[1.65] font-medium mb-10">
                 {testimonialText}
               </p>
               <div className="flex items-center gap-4 mt-auto">
@@ -235,10 +235,10 @@ export default function Testimonials() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-[#0c0c0c] text-[0.95rem] tracking-tight">
+                  <span className="font-bold text-[#0c0c0c] text-sm tracking-tight">
                     {card.name}
                   </span>
-                  <span className="text-gray-400 text-[0.85rem] font-medium">
+                  <span className="text-gray-400 text-xs font-medium">
                     {card.role}
                   </span>
                 </div>
