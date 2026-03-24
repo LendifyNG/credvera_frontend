@@ -1,12 +1,10 @@
-import React from 'react';
-// eslint-disable-next-line no-unused-vars
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import business1 from '../assets/business1.png';
 import business2 from '../assets/business2.png';
 import business3 from '../assets/business3.png';
 
 export default function BuiltForGrowth() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
@@ -14,9 +12,18 @@ export default function BuiltForGrowth() {
     }
   };
   
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, rotateX: 60, y: 50, transformPerspective: 1000 },
-    visible: { opacity: 1, rotateX: 0, y: 0, transition: { type: 'spring', stiffness: 120, damping: 15 } }
+    visible: { 
+      opacity: 1, 
+      rotateX: 0, 
+      y: 0, 
+      transition: { 
+        type: 'spring', 
+        stiffness: 120, 
+        damping: 15 
+      } 
+    }
   };
 
   return (

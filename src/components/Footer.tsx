@@ -1,11 +1,9 @@
-import React from 'react';
-// eslint-disable-next-line no-unused-vars
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import favicon from '../assets/favicon.png';
 
 
 export default function Footer() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
@@ -13,9 +11,17 @@ export default function Footer() {
     }
   };
   
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 24 } }
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        type: 'spring', 
+        stiffness: 200, 
+        damping: 24 
+      } 
+    }
   };
 
   return (

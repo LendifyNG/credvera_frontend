@@ -1,6 +1,4 @@
-import React from 'react';
-// eslint-disable-next-line no-unused-vars
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 
 import worldImage from '../assets/world.png';
 import usaImage from '../assets/usa.png';
@@ -9,7 +7,7 @@ import paraguayImage from '../assets/paraguay.png';
 import indiaImage from '../assets/india.png';
 
 export default function GlobalScale() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
@@ -17,9 +15,17 @@ export default function GlobalScale() {
     }
   };
   
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 24 } }
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        type: 'spring', 
+        stiffness: 200, 
+        damping: 24 
+      } 
+    }
   };
 
   return (

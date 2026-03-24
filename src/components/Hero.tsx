@@ -1,10 +1,8 @@
-import React from 'react';
-// eslint-disable-next-line no-unused-vars
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import bannerImage from '../assets/banner_image.png';
 
 export default function Hero() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
@@ -12,17 +10,17 @@ export default function Hero() {
     }
   };
   
-  const textVariants = {
+  const textVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } }
   };
 
-  const imageVariants = {
+  const imageVariants: Variants = {
     hidden: { opacity: 0, scale: 0.8, x: 50 },
     visible: { opacity: 1, scale: 1, x: 0, transition: { type: 'spring', stiffness: 100, damping: 20, delay: 0.4 } }
   };
 
-  const clientVariants = {
+  const clientVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay: 0.8 } }
   };
