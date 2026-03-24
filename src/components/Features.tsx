@@ -78,9 +78,9 @@ export default function Features() {
             <motion.p variants={itemVariants} className="text-gray-500 text-base leading-[1.65] w-full lg:max-w-[85%] font-medium mb-10 text-left">
               Keep your business account and all your finance needs safely organized under one roof. Manage money quickly, easily & efficiently. Whether you're alone or leading a team.
             </motion.p>
-            <motion.button variants={itemVariants} className="bg-primary text-[#063c1a] font-semibold text-[16px] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-transform active:scale-95 leading-none shadow-sm w-fit">
+            <motion.button variants={itemVariants} className="bg-primary text-[#063c1a] font-semibold text-sm px-6 py-2.5 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-transform active:scale-95 leading-none shadow-sm w-fit">
               Learn More 
-              <span className="text-lg font-bold ml-1 mb-0.5">→</span>
+              <span className="text-base font-bold ml-1 mb-0.5">→</span>
             </motion.button>
           </motion.div>
 

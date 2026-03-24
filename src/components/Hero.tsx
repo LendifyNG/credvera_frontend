@@ -82,12 +82,12 @@ export default function Hero() {
               variants={textVariants}
               className="flex flex-col sm:flex-row items-center w-full sm:w-auto gap-4"
             >
-              <button className="w-full sm:w-auto bg-primary text-[#063c1a] font-bold text-[16px] px-8 py-3.5 rounded-full hover:opacity-90 transition-transform active:scale-95 shadow-[0_4px_30px_rgba(127,222,128,0.2)]">
+              <button className="w-full sm:w-auto bg-primary text-[#063c1a] font-bold text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-transform active:scale-95 shadow-[0_4px_30px_rgba(127,222,128,0.2)]">
                 Start for free
               </button>
-              <button className="w-full sm:w-auto group flex items-center justify-center gap-2 text-white font-medium text-[16px] px-8 py-3.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
-                <div className="w-6 h-6 rounded-full border border-white/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+              <button className="w-full sm:w-auto group flex items-center justify-center gap-2 text-white font-medium text-sm px-6 py-2.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
+                <div className="w-5 h-5 rounded-full border border-white/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-1 h-1 bg-white rounded-full"></div>
                 </div>
                 Contact Sales
               </button>
