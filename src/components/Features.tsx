@@ -95,7 +95,7 @@ export default function Features() {
             <img 
               src={paywithImage} 
               alt="Payment Options Interface" 
-              className="w-full max-w-137.5 lg:w-full lg:max-w-none h-auto object-contain object-left drop-shadow-[0_25px_35px_rgba(0,0,0,0.1)]"
+              className="w-full max-w-80 lg:max-w-112.5 h-auto object-contain object-left drop-shadow-[0_25px_35px_rgba(0,0,0,0.1)]"
             />
           </motion.div>
 

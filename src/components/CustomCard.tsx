@@ -71,7 +71,7 @@ export default function CustomCard() {
           viewport={{ once: true, margin: '-100px' }}
         >
           <motion.div 
-             className="relative w-full max-w-162.5 flex items-center justify-center rounded-4xl overflow-visible"
+             className="relative w-full max-w-140 flex items-center justify-center rounded-4xl overflow-visible"
              animate={{ y: [0, -15, 0] }}
              transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
           >
