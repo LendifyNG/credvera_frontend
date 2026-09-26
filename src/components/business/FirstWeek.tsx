@@ -2,7 +2,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ctaFor } from '../../lib/site';
-import StoreButtons from './StoreButtons';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const cta = ctaFor('business');
@@ -87,12 +86,11 @@ export default function FirstWeek() {
             Start on Monday · {cta.label}
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-          <StoreButtons />
           <Link to="/business/contact" className="text-[15px] font-semibold text-graphite/60 underline-offset-4 hover:text-graphite hover:underline">
             Talk to our team first
           </Link>
         </div>
-        <p className="mt-6 font-ledger text-[11.5px] text-graphite/45">We review your documents in one or two working days. You can use the account meanwhile.</p>
+        <p className="mt-6 text-[14px] text-graphite/50">We review your documents in one or two working days. You can use the account meanwhile.</p>
       </div>
     </section>
   );

@@ -19,8 +19,9 @@
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   /* Editorial accent: italic words inside headlines. */
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
-  /* Business: figures and labels, like a statement. */
-  --font-ledger: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Business figures: the house typeface with evenly spaced digits (set on
+     .font-ledger below), so amounts line up without a typewriter look. */
+  --font-ledger: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -52,6 +53,11 @@
 }
 
 @layer utilities {
+  /* Figures in tables and totals: digits of equal width, so columns line up. */
+  .font-ledger {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* A lime highlighter stroke under a word, like a marker on paper. */
   .mark {
     background-image: linear-gradient(transparent 62%, color-mix(in srgb, var(--color-primary) 75%, transparent) 62%, color-mix(in srgb, var(--color-primary) 75%, transparent) 92%, transparent 92%);

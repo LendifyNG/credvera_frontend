@@ -80,18 +80,15 @@ export default function SignIn() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [approved]);
 
-  // TODO(credvera): send and check the code, and the PIN, with the API.
+  // TODO(credvera): send and check the code with the API, then check the PIN
+  // and call finish() when both pass. Until that's connected, a full PIN
+  // simply waits here, like the scan.
   useEffect(() => {
     if (mode === 'code' && code.length === 6) {
       const t = window.setTimeout(() => setMode('pin'), 400);
       return () => clearTimeout(t);
     }
-    if (mode === 'pin' && pin.length === 4) {
-      const t = window.setTimeout(finish, 400);
-      return () => clearTimeout(t);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, pin, mode]);
+  }, [code, mode]);
 
   const ring = 2 * Math.PI * 9;
 
