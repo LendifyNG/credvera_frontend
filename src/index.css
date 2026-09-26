@@ -12,7 +12,15 @@
   --color-paper: #f5f7f2;
   --color-mist: #e6ede3;
 
+  /* Business: the app's business tone, graphite ink on a greyer paper. */
+  --color-graphite: #141c17;
+  --color-ledger: #f0f2ef;
+
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  /* Editorial accent: italic words inside headlines. */
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* Business: figures and labels, like a statement. */
+  --font-ledger: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -44,6 +52,31 @@
 }
 
 @layer utilities {
+  /* A lime highlighter stroke under a word, like a marker on paper. */
+  .mark {
+    background-image: linear-gradient(transparent 62%, color-mix(in srgb, var(--color-primary) 75%, transparent) 62%, color-mix(in srgb, var(--color-primary) 75%, transparent) 92%, transparent 92%);
+    padding-inline: 0.06em;
+  }
+
+  /* Opening video on large screens: fades in from the left and the top, so
+     it melts into the paper with no visible edge at any width. */
+  @media (min-width: 64rem) {
+    .hero-fade {
+      --fade-x: linear-gradient(to right, transparent 0%, rgb(0 0 0 / 0.12) 20%, rgb(0 0 0 / 0.55) 38%, #000 58%);
+      --fade-y: linear-gradient(to bottom, transparent 0%, #000 20%, #000 88%, transparent 100%);
+      mask-image: var(--fade-x), var(--fade-y);
+      mask-composite: intersect;
+      -webkit-mask-image: var(--fade-x), var(--fade-y);
+      -webkit-mask-composite: source-in;
+    }
+  }
+  /* Fine paper grain on cream sections, drawn in CSS. */
+  .paper {
+    background-color: var(--color-paper);
+    background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 6%, transparent) 0.6px, transparent 0.6px);
+    background-size: 3px 3px;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
@@ -51,6 +84,18 @@
   .marquee {
     animation: marquee var(--marquee-duration, 40s) linear infinite;
   }
+}
+
+/* The surface of the savings jar (GoalJar): one wave length is 150 units. */
+.jar-wave {
+  animation: jar-wave 3.2s linear infinite;
+}
+.jar-wave-slow {
+  animation: jar-wave 5.5s linear infinite reverse;
+}
+@keyframes jar-wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(150px); }
 }
 
 @keyframes marquee {

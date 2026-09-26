@@ -12,6 +12,6 @@ export function useIntroDone() {
  * never for visitors who prefer reduced motion.
  */
 export function shouldPlayIntro(pathname: string): boolean {
-  if (pathname !== '/') return false;
+  if (pathname !== '/' && pathname !== '/business') return false;
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

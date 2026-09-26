@@ -1,130 +1,171 @@
-import { Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import PageHero from '../components/layout/PageHero';
-import ButtonLink from '../components/ui/ButtonLink';
-import PlaceholderNote from '../components/ui/PlaceholderNote';
+import { Link, Navigate } from 'react-router-dom';
+import PageHeader from '../components/editorial/PageHeader';
 import Reveal from '../components/ui/Reveal';
-import { company, navLinks } from '../lib/site';
+import { useAudience } from '../lib/audience';
+import { company } from '../lib/site';
 
 const channels = [
-  { icon: Mail, label: 'Email us', value: company.email, href: `mailto:${company.email}` },
-  { icon: Phone, label: 'Call us', value: company.phone, href: `tel:${company.phone.replace(/\s+/g, '')}` },
-  { icon: MapPin, label: 'Visit us', value: company.address },
-  { icon: Clock, label: 'Support hours', value: company.supportHours },
+  { label: 'Email', value: company.email, href: `mailto:${company.email}` },
+  { label: 'Call', value: company.phone, href: `tel:${company.phone.replace(/\s+/g, '')}` },
+  { label: 'Visit', value: company.address },
 ];
 
+// What people write about, worded to finish the sentence "I'm writing about …".
 const topics = [
-  ...navLinks.filter((l) => l.description && !['/about', '/faq', '/contact'].includes(l.to)).map((l) => l.label),
-  'Something else',
+  'my personal account',
+  'a payment',
+  'getting paid from abroad',
+  'my dollar card',
+  'Earnings Passport',
+  'my business account',
+  'paying suppliers abroad',
+  'a security concern',
+  'something else',
 ];
 
-const inputClass =
-  'w-full rounded-2xl border border-ink/15 bg-white px-4 py-3 text-[15px] text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-background';
+// Support hours in Lagos: Monday to Friday, 8am to 6pm (company.supportHours).
+// TODO(credvera): keep in step with the real support hours.
+function openNow() {
+  const lagos = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+  const day = lagos.getDay();
+  const hour = lagos.getHours();
+  const weekday = day >= 1 && day <= 5;
+  if (weekday && hour >= 8 && hour < 18) return { open: true, text: 'We’re open now' };
+  const nextDay = weekday && hour < 8 ? 'today' : day >= 1 && day <= 4 ? 'tomorrow' : 'Monday';
+  return { open: false, text: `Closed now · back ${nextDay} at 8am` };
+}
 
+// Inputs that sit inside the sentence, underlined like a form on paper.
+const blank =
+  'mx-1 inline-block min-w-0 border-b-2 border-ink/20 bg-transparent px-1 pb-0.5 font-semibold text-background outline-none transition-colors placeholder:font-normal placeholder:text-ink/30 focus:border-background';
+
+/** Contact: when we're around, how to reach us, and a message written as a sentence. */
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const { audience } = useAudience();
+  const status = openNow();
 
   // No backend yet: compose the message in the visitor's own email app.
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const subject = `${data.get('topic')} enquiry from ${data.get('name')}`;
-    const body = [
-      `Name: ${data.get('name')}`,
-      `Email: ${data.get('email')}`,
-      `Business: ${data.get('business') || '—'}`,
-      '',
-      String(data.get('message') ?? ''),
-    ].join('\n');
+    const body = [`Name: ${data.get('name')}`, `Email: ${data.get('email')}`, '', String(data.get('message') ?? '')].join('\n');
     window.location.href = `mailto:${company.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
 
+  // Business has its own contact page.
+  if (audience === 'business') return <Navigate to="/business/contact" replace />;
+
   return (
     <>
-      <PageHero
-        eyebrow="Contact"
-        title="Talk to the Credvera team."
-        intro="Questions about payments, school fees, suppliers or getting your business set up — we’re here to help."
-      />
+      <PageHeader label="Contact" title={'Talk to\n*people*, not a bot.'} lede="Questions about your account, a payment or getting your business set up. Pick the way that suits you.">
+        <p className={`mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${status.open ? 'bg-primary/25 text-background' : 'bg-ink/5 text-ink/60'}`}>
+          <span className={`size-2 rounded-full ${status.open ? 'animate-pulse bg-background' : 'bg-ink/30'}`} />
+          {status.text}
+        </p>
+      </PageHeader>
 
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-        <PlaceholderNote className="mb-10">Sample contact details — the real ones will be added before launch.</PlaceholderNote>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {channels.map(({ icon: Icon, label, value, href }, i) => (
-            <Reveal key={label} delay={i * 0.06}>
-              <div className="h-full rounded-3xl border border-ink/10 bg-white p-7 transition-transform duration-500 hover:-translate-y-1">
-                <span className="grid size-12 place-items-center rounded-2xl bg-background text-primary">
-                  <Icon className="size-5" />
-                </span>
-                <p className="mt-7 text-sm font-medium text-ink/50">{label}</p>
-                {href ? (
-                  <a href={href} className="mt-1 block text-lg font-semibold tracking-tight hover:text-background">
+      {/* The ways to reach us, big */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-8">
+        <ul className="border-t border-ink/15">
+          {channels.map(({ label, value, href }, i) => {
+            const row = (
+              <>
+                {/* Phones: the label sits above the value, and long values wrap rather than cut off. */}
+                <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-6">
+                  <span className="shrink-0 text-[13px] font-semibold text-ink/40 sm:w-28">{label}</span>
+                  <span className="min-w-0 break-words text-[clamp(1.5rem,5vw,4.2rem)] font-semibold leading-tight tracking-[-0.035em] transition-transform duration-500 group-hover:translate-x-3">
                     {value}
-                  </a>
-                ) : (
-                  <p className="mt-1 text-lg font-semibold tracking-tight">{value}</p>
-                )}
-              </div>
-            </Reveal>
-          ))}
-        </div>
+                  </span>
+                </span>
+                {href ? (
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-mist text-background transition-all duration-500 group-hover:rotate-45 group-hover:bg-primary">
+                    <ArrowUpRight className="size-5" />
+                  </span>
+                ) : null}
+              </>
+            );
+            return (
+              <Reveal key={label} delay={i * 0.06}>
+                <li className="border-b border-ink/15">
+                  {href ? (
+                    <a href={href} className="group flex items-center gap-6 py-7 sm:py-9">
+                      {row}
+                    </a>
+                  ) : (
+                    <div className="group flex items-center gap-6 py-7 sm:py-9">{row}</div>
+                  )}
+                </li>
+              </Reveal>
+            );
+          })}
+        </ul>
+        <p className="mt-5 text-sm text-ink/50">{company.supportHours}</p>
+      </section>
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-          <Reveal>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Send us a message</h2>
-            <p className="mt-4 max-w-md leading-relaxed text-ink/70">
-              Tell us what you need and we’ll get back to you within one working day. Prefer quick answers? Our FAQ covers
-              the basics.
+      {/* A message, written as a sentence */}
+      <section className="mx-auto max-w-5xl px-6 py-24 lg:px-8 lg:py-32">
+        <Reveal>
+          <p className="text-[13px] font-semibold text-background">Or write to us</p>
+        </Reveal>
+        <form onSubmit={handleSubmit} className="mt-8">
+          <p className="text-[clamp(1.5rem,3.4vw,2.6rem)] font-medium leading-[1.7] tracking-[-0.02em] text-ink/80">
+            Hi Credvera, I’m
+            <input name="name" required autoComplete="name" placeholder="your name" aria-label="Your name" className={`${blank} w-[9em]`} />, and you can reach me at
+            <input
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="your email"
+              aria-label="Your email"
+              className={`${blank} w-[11em]`}
+            />
+            . I’m writing about
+            <select name="topic" aria-label="Topic" defaultValue={topics[0]} className={`${blank} cursor-pointer appearance-none pr-2`}>
+              {topics.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+            .
+          </p>
+          <label htmlFor="contact-message" className="mt-10 block text-sm text-ink/55">
+            Tell us more
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            required
+            rows={4}
+            placeholder="How can we help?"
+            className="mt-2 w-full resize-y rounded-2xl border border-ink/15 bg-white px-5 py-4 text-lg outline-none transition-colors placeholder:text-ink/30 focus:border-background"
+          />
+          <div className="mt-6 flex flex-wrap items-center gap-5">
+            <button
+              type="submit"
+              className="group inline-flex items-center gap-3 rounded-full bg-secondary py-2 pl-6 pr-2 text-[15px] font-semibold text-white transition-colors hover:bg-background"
+            >
+              Send message
+              <span className="grid size-9 place-items-center rounded-full bg-primary text-secondary transition-transform duration-500 group-hover:rotate-45">
+                <ArrowUpRight className="size-4" />
+              </span>
+            </button>
+            <p className="text-sm text-ink/50" aria-live="polite">
+              {sent ? 'Your email app should have opened with your message.' : 'Opens your email app to send. We reply within one working day.'}
             </p>
-            <div className="mt-8">
-              <ButtonLink to="/faq" variant="outline-dark">
-                Read the FAQ
-              </ButtonLink>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <form onSubmit={handleSubmit} className="grid gap-4 rounded-3xl border border-ink/10 bg-white p-6 sm:grid-cols-2 sm:p-8">
-              <label className="grid gap-2 text-sm font-medium text-ink/70">
-                Full name
-                <input name="name" required autoComplete="name" className={inputClass} placeholder="Ada Okafor" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink/70">
-                Email
-                <input name="email" type="email" required autoComplete="email" className={inputClass} placeholder="ada@business.com" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink/70">
-                Business name <span className="sr-only">(optional)</span>
-                <input name="business" autoComplete="organization" className={inputClass} placeholder="Optional" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink/70">
-                Topic
-                <select name="topic" className={inputClass} defaultValue={topics[0]}>
-                  {topics.map((t) => (
-                    <option key={t}>{t}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink/70 sm:col-span-2">
-                Message
-                <textarea name="message" required rows={5} className={`${inputClass} resize-y`} placeholder="How can we help?" />
-              </label>
-              <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
-                <button
-                  type="submit"
-                  className="rounded-full bg-secondary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-background"
-                >
-                  Send message
-                </button>
-                <p className="text-sm text-ink/50" aria-live="polite">
-                  {sent ? 'Your email app should have opened with your message.' : 'Opens your email app to send.'}
-                </p>
-              </div>
-            </form>
-          </Reveal>
-        </div>
+          </div>
+        </form>
+        <p className="mt-14 text-ink/55">
+          Looking for a quick answer?{' '}
+          <Link to="/faq" className="font-semibold text-background underline-offset-4 hover:underline">
+            Read the FAQ
+          </Link>
+          .
+        </p>
       </section>
     </>
   );

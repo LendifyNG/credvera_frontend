@@ -1,77 +1,71 @@
-import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import PageHero from '../components/layout/PageHero';
-import ButtonLink from '../components/ui/ButtonLink';
-import PlaceholderNote from '../components/ui/PlaceholderNote';
+import { Link, Navigate } from 'react-router-dom';
+import AppBand from '../components/editorial/AppBand';
+import Headline from '../components/editorial/Headline';
+import PageHeader from '../components/editorial/PageHeader';
+import PriceCheck from '../components/editorial/PriceCheck';
 import Reveal from '../components/ui/Reveal';
-import StatCard from '../components/ui/StatCard';
-import { links, marketStats, pricing } from '../lib/site';
+import { useAudience } from '../lib/audience';
+import { pricingFor } from '../lib/site';
 
+/** Pricing: try a payment and see the receipt, then the whole price list. */
 export default function PricingPage() {
+  const { audience } = useAudience();
+  // Business has its own pricing page.
+  if (audience === 'business') return <Navigate to="/business/pricing" replace />;
+  const pricing = pricingFor.personal;
+
   return (
     <>
-      <PageHero
-        eyebrow="Pricing"
-        title="Clear pricing for every payment."
-        intro="Simple fees for each product, shown before you pay. No surprises."
-      >
-        <div className="mt-10 flex flex-wrap gap-3">
-          <ButtonLink to={links.openAccount}>Open an account</ButtonLink>
-          <ButtonLink to="/contact" variant="outline-light">
-            Talk to us
-          </ButtonLink>
+      <PageHeader
+        label="Pricing"
+        title={'Every *naira*,\naccounted for.'}
+        lede="Most of what you do is free. Where there’s a fee, it’s small, and you see it before you confirm. Try it below."
+      />
+
+      {/* Try a payment */}
+      <section className="border-y border-ink/10 bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
+          <PriceCheck audience="personal" />
         </div>
-      </PageHero>
+      </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-        <PlaceholderNote className="mb-10">
-          Sample fees for layout only — Credvera’s confirmed pricing will replace these before launch.
-        </PlaceholderNote>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {pricing.map((plan, i) => (
-            <Reveal key={plan.product} delay={(i % 3) * 0.06}>
-              <div className="flex h-full flex-col rounded-3xl border border-ink/10 bg-white p-8">
-                <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-xl font-semibold tracking-tight">{plan.product}</h2>
-                  <Link
-                    to={plan.to}
-                    aria-label={`About ${plan.product}`}
-                    className="grid size-9 shrink-0 place-items-center rounded-full bg-mist text-background transition-transform duration-500 hover:rotate-45"
-                  >
-                    <ArrowUpRight className="size-4" />
-                  </Link>
-                </div>
-                <dl className="mt-6 divide-y divide-ink/10 border-t border-ink/10">
-                  {plan.rows.map(([item, fee]) => (
-                    <div key={item} className="flex items-baseline justify-between gap-6 py-4">
-                      <dt className="text-sm text-ink/60">{item}</dt>
-                      <dd className="text-right text-sm font-semibold">{fee}</dd>
-                    </div>
-                  ))}
-                </dl>
+      {/* The whole price list, like a menu */}
+      <section className="mx-auto max-w-5xl px-6 py-24 lg:px-8 lg:py-32">
+        <Headline
+          text={'The whole\n*price list*.'}
+          className="text-[clamp(2.4rem,5.5vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]"
+        />
+        <div className="mt-16 space-y-16">
+          {pricing.map((group, g) => (
+            <Reveal key={group.product} delay={g * 0.05}>
+              <div className="flex items-baseline justify-between gap-6 border-b border-ink/15 pb-4">
+                <h2 className="font-serif text-[clamp(1.8rem,3.5vw,2.6rem)] italic leading-none">{group.product}</h2>
+                <Link to={group.to} className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-background">
+                  About it <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:rotate-45" />
+                </Link>
               </div>
+              <dl className="mt-2">
+                {group.rows.map(([item, fee]) => (
+                  <div key={item} className="flex items-baseline gap-3 py-3.5 text-[clamp(1rem,1.6vw,1.2rem)]">
+                    <dt className="text-ink/75">{item}</dt>
+                    <span aria-hidden className="min-w-8 flex-1 -translate-y-[0.3em] border-b-2 border-dotted border-ink/20" />
+                    <dd className={`max-w-[50%] shrink-0 text-right font-semibold ${fee.startsWith('Free') ? 'text-background' : ''}`}>{fee}</dd>
+                  </div>
+                ))}
+              </dl>
             </Reveal>
           ))}
         </div>
+        <Reveal>
+          <p className="mt-16 max-w-2xl border-l-2 border-background pl-6 leading-relaxed text-ink/60">
+            Prices can change. When they do, we’ll tell you in the app before they apply, and the app always shows the fee on
+            the payment itself.
+          </p>
+        </Reveal>
       </section>
 
-      <section className="bg-secondary text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:px-8 lg:py-28">
-          <Reveal>
-            <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
-              Moving money into Africa still costs too much.
-            </h2>
-            <p className="mt-6 max-w-lg leading-relaxed text-white/60">
-              Sub-Saharan Africa remains the most expensive region in the world to send money to. That’s the problem
-              Credvera is here to help Nigerian businesses and families with.
-            </p>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <StatCard stat={marketStats.remittanceCost} tone="dark" />
-          </Reveal>
-        </div>
-      </section>
+      <AppBand line={'Free to open.\n*Fair* to use.'} />
     </>
   );
 }

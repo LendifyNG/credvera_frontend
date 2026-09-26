@@ -1,19 +1,37 @@
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { company, isGroup, links, nav, type NavLinkItem } from '../../lib/site';
+import { homeOf, useAudience } from '../../lib/audience';
+import { company, ctaFor, isGroup, navByAudience, type NavLinkItem } from '../../lib/site';
+import StoreButtons from '../business/StoreButtons';
 import ButtonLink from '../ui/ButtonLink';
 
-const legal = [
-  { label: 'Privacy policy', to: '/privacy' },
-  { label: 'Terms of use', to: '/terms' },
-];
+// Each audience has its own legal pages.
+const legalFor = {
+  personal: [
+    { label: 'Privacy policy', to: '/privacy' },
+    { label: 'Terms of use', to: '/terms' },
+  ],
+  business: [
+    { label: 'Privacy notice', to: '/business/privacy' },
+    { label: 'Terms of use', to: '/business/terms' },
+  ],
+};
+
+// One line on what Credvera is, for each audience.
+const tagline = {
+  personal: 'Get paid from abroad, pay your bills and save, from one app.',
+  business: 'Collect, pay suppliers, invoice and trade across borders, from one account.',
+};
 
 export default function SiteFooter() {
+  const { audience } = useAudience();
+  const nav = navByAudience[audience];
+  const cta = ctaFor(audience);
   const groups = [
     ...nav.filter(isGroup).map((group) => ({ title: group.label, items: group.items })),
     {
       title: 'More',
-      items: [...nav.filter((entry): entry is NavLinkItem => !isGroup(entry)), ...legal],
+      items: [...nav.filter((entry): entry is NavLinkItem => !isGroup(entry)), ...legalFor[audience]],
     },
   ];
 
@@ -25,21 +43,20 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-7xl px-6 pb-10 pt-20 lg:px-8">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-sm">
-            <Link to="/" aria-label="Credvera home">
+            <Link to={homeOf(audience)} aria-label="Credvera home">
               <img src={logo} alt="Credvera" className="h-9 w-auto" />
             </Link>
-            <p className="mt-6 text-base leading-relaxed text-white/60">
-              Business, cross-border and school payments — built for Nigerians at home and abroad.
-            </p>
+            <p className="mt-6 text-base leading-relaxed text-white/60">{tagline[audience]}</p>
             <div className="mt-8">
-              <ButtonLink to={links.openAccount}>Open an account</ButtonLink>
+              <ButtonLink to={cta.to}>{cta.label}</ButtonLink>
+              {audience === 'business' && <StoreButtons tone="light" className="mt-4" />}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
             {groups.map((group) => (
               <div key={group.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">{group.title}</h3>
+                <h3 className="text-[13px] font-semibold text-white/40">{group.title}</h3>
                 <ul className="mt-5 space-y-3">
                   {group.items.map((item) => (
                     <li key={item.to}>

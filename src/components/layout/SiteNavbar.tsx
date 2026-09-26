@@ -2,8 +2,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import logoDark from '../../assets/logo-dark.png';
 import logo from '../../assets/logo.png';
-import { links, nav, navLinks } from '../../lib/site';
+import { homeOf, useAudience } from '../../lib/audience';
+import { ctaFor, navByAudience, navLinksFor } from '../../lib/site';
+import AudienceSwitch from '../audience/AudienceSwitch';
 import ButtonLink from '../ui/ButtonLink';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -13,6 +16,10 @@ export default function SiteNavbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { pathname } = useLocation();
+  const { audience } = useAudience();
+  const nav = navByAudience[audience];
+  const navLinks = navLinksFor(audience);
+  const cta = ctaFor(audience);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -35,17 +42,29 @@ export default function SiteNavbar() {
   }, [mobileOpen]);
 
   const solid = scrolled || mobileOpen;
+  // Cream pages (personal and the blog) get dark text; the menu overlay stays dark.
+  const light =
+    (pathname === '/' || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', '/business/fx', '/business/suppliers', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
+    !mobileOpen;
+  const linkIdle = light ? 'text-ink/70 hover:text-ink' : 'text-white/80 hover:text-white';
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6">
       <div
         className={`relative z-10 mx-auto flex h-16 max-w-7xl items-center justify-between rounded-full px-4 transition-all duration-500 sm:px-6 ${
-          solid ? 'bg-secondary/80 shadow-[0_8px_30px_rgba(0,0,0,0.25)] ring-1 ring-white/10 backdrop-blur-xl' : 'bg-transparent'
+          solid
+            ? light
+              ? 'bg-paper/85 shadow-[0_8px_30px_rgba(1,21,4,0.08)] ring-1 ring-ink/10 backdrop-blur-xl'
+              : 'bg-secondary/80 shadow-[0_8px_30px_rgba(0,0,0,0.25)] ring-1 ring-white/10 backdrop-blur-xl'
+            : 'bg-transparent'
         }`}
       >
-        <Link to="/" aria-label="Credvera home" className="shrink-0">
-          <img src={logo} alt="Credvera" className="h-8 w-auto" />
-        </Link>
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-5">
+          <Link to={homeOf(audience)} aria-label="Credvera home" className="shrink-0">
+            <img src={light ? logoDark : logo} alt="Credvera" className="h-6 w-auto shrink-0 sm:h-8" />
+          </Link>
+          <AudienceSwitch light={light} />
+        </div>
 
         <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setOpenMenu(null)} aria-label="Main">
           {nav.map((item) =>
@@ -53,7 +72,7 @@ export default function SiteNavbar() {
               <div key={item.label} className="relative" onMouseEnter={() => setOpenMenu(item.label)}>
                 <button
                   type="button"
-                  className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+                  className={`flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${linkIdle}`}
                   aria-expanded={openMenu === item.label}
                   onClick={() => setOpenMenu(openMenu === item.label ? null : item.label)}
                 >
@@ -71,7 +90,12 @@ export default function SiteNavbar() {
                     >
                       <div className="rounded-2xl bg-white p-2 shadow-2xl ring-1 ring-black/5">
                         {item.items.map((sub) => (
-                          <Link key={sub.to} to={sub.to} className="block rounded-xl px-4 py-3 transition-colors hover:bg-mist">
+                          <Link
+                            key={sub.to}
+                            to={sub.to}
+                            onClick={() => setOpenMenu(null)}
+                            className="block rounded-xl px-4 py-3 transition-colors hover:bg-mist"
+                          >
                             <span className="block text-sm font-semibold text-ink">{sub.label}</span>
                             <span className="block text-sm text-ink/60">{sub.description}</span>
                           </Link>
@@ -86,7 +110,7 @@ export default function SiteNavbar() {
                 key={item.label}
                 to={item.to}
                 className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive ? 'text-primary' : 'text-white/80 hover:text-white'}`
+                  `rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive ? (light ? 'text-background' : 'text-primary') : linkIdle}`
                 }
               >
                 {item.label}
@@ -95,13 +119,24 @@ export default function SiteNavbar() {
           )}
         </nav>
 
-        <div className="hidden lg:block">
-          <ButtonLink to={links.openAccount}>Open an account</ButtonLink>
+        <div className="hidden items-center gap-3 lg:flex">
+          {/* Business customers sign in to their web dashboard. */}
+          {audience === 'business' && (
+            <Link
+              to="/business/app/sign-in"
+              className={`inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-300 ${
+                light ? 'border border-ink/15 text-ink hover:bg-ink/5' : 'border border-white/30 text-white hover:bg-white/10'
+              }`}
+            >
+              Sign in
+            </Link>
+          )}
+          <ButtonLink to={cta.to}>{cta.label}</ButtonLink>
         </div>
 
         <button
           type="button"
-          className="grid size-10 place-items-center rounded-full text-white lg:hidden"
+          className={`grid size-10 place-items-center rounded-full lg:hidden ${light ? 'text-ink' : 'text-white'}`}
           onClick={() => setMobileOpen((v) => !v)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileOpen}
@@ -133,8 +168,9 @@ export default function SiteNavbar() {
                 >
                   <NavLink
                     to={item.to}
+                    onClick={() => setMobileOpen(false)}
                     className={({ isActive }) =>
-                      `block border-b border-white/10 py-4 text-2xl font-semibold tracking-tight ${isActive ? 'text-primary' : 'text-white'}`
+                      `block border-b border-white/10 py-4 text-2xl font-semibold tracking-tight ${isActive && !item.to.includes('#') ? 'text-primary' : 'text-white'}`
                     }
                   >
                     {item.label}
@@ -142,9 +178,14 @@ export default function SiteNavbar() {
                 </motion.li>
               ))}
             </motion.ul>
-            <div className="mt-auto pt-10">
-              <ButtonLink to={links.openAccount} className="w-full">
-                Open an account
+            <div className="mt-auto space-y-3 pt-10">
+              {audience === 'business' && (
+                <Link to="/business/app/sign-in" className="block rounded-full py-3 text-center text-[15px] font-semibold text-white ring-1 ring-white/25">
+                  Sign in
+                </Link>
+              )}
+              <ButtonLink to={cta.to} className="w-full">
+                {cta.label}
               </ButtonLink>
             </div>
           </motion.div>
