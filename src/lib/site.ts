@@ -1,12 +1,10 @@
+import type { Audience } from './audience';
+
 // Single source of truth for company details, links, statistics and navigation.
 // Every statistic below is a real, published figure with its source.
 
-/**
- * TODO(credvera): company details, contact channels, pricing and legal copy are
- * PLACEHOLDERS until Credvera supplies real ones. While this is true, the
- * Contact, Pricing and legal pages show a small "sample content" note.
- */
-export const PLACEHOLDER_CONTENT = true;
+// TODO(credvera): the company details, contact channels and pricing below (and the
+// legal copy in pages/LegalPage.tsx) are dummy data — replace before launch.
 
 export const company = {
   name: 'Credvera',
@@ -25,6 +23,12 @@ export const company = {
     instagram: '#', // placeholder
   } as Record<string, string | null>,
 };
+
+/** The main call to action for each audience. Both open in the app. */
+export const ctaFor = (a: Audience) =>
+  a === 'business'
+    ? { label: 'Open a business account', to: links.openAccount }
+    : { label: 'Get the app', to: links.openAccount };
 
 export const links = {
   // TODO: replace with the direct Play Store listing URL once available.
@@ -141,88 +145,121 @@ export type NavLinkItem = { label: string; to: string; description?: string };
 export type NavGroup = { label: string; items: NavLinkItem[] };
 export type NavEntry = NavLinkItem | NavGroup;
 
-export const nav: NavEntry[] = [
-  {
-    label: 'Products',
-    items: [
-      { label: 'Business payments', to: '/business-payments', description: 'Collect, pay and track naira payments' },
-      { label: 'Cross-border payments', to: '/cross-border', description: 'Pay and get paid beyond Nigeria' },
-      { label: 'Study abroad', to: '/study-abroad', description: 'School fees, proof of funds and allowances' },
-      { label: 'Supplier payments', to: '/supplier-payments', description: 'Pay suppliers in China and across Africa' },
-      { label: 'Pay Home', to: '/pay-home', description: 'For Nigerians abroad paying bills at home' },
-    ],
-  },
-  { label: 'Pricing', to: '/pricing' },
-  { label: 'Security', to: '/security' },
-  {
-    label: 'Company',
-    items: [
-      { label: 'About', to: '/about', description: 'Why we built Credvera' },
-      { label: 'FAQ', to: '/faq', description: 'Answers to common questions' },
-      { label: 'Contact', to: '/contact', description: 'Talk to our team' },
-    ],
-  },
-];
+const company_: NavGroup = {
+  label: 'Company',
+  items: [
+    { label: 'About', to: '/about', description: 'Why we built Credvera' },
+    { label: 'Blog', to: '/blog', description: 'Guides and notes on money' },
+    { label: 'FAQ', to: '/faq', description: 'Answers to common questions' },
+    { label: 'Contact', to: '/contact', description: 'Talk to our team' },
+  ],
+};
+
+/** The menu for each audience. Features link to sections of that audience's home page. */
+export const navByAudience: Record<Audience, NavEntry[]> = {
+  personal: [
+    {
+      label: 'Features',
+      items: [
+        { label: 'Get paid from abroad', to: '/personal/abroad', description: 'Dollar, pound and euro accounts in your name' },
+        { label: 'Everyday money', to: '/personal/everyday', description: 'Bills, airtime, transfers and a dollar card' },
+        { label: 'Save and split', to: '/personal/save', description: 'Goals, auto-save and getting paid back' },
+        { label: 'Earnings Passport', to: '/personal/passport', description: 'Prove your income without a bank statement' },
+      ],
+    },
+    { label: 'Pricing', to: '/pricing' },
+    { label: 'Security', to: '/security' },
+    company_,
+  ],
+  business: [
+    {
+      label: 'Features',
+      items: [
+        { label: 'Payments and invoices', to: '/business#payments', description: 'Collect, pay and send invoices with a link' },
+        { label: 'FX and currencies', to: '/business#fx', description: 'Hold, receive and convert at a clear rate' },
+        { label: 'Pay suppliers abroad', to: '/business#suppliers', description: 'Pay when it ships, with Supplier Passport' },
+        { label: 'Business cards', to: '/business#cards', description: 'Dollar and naira cards for online spend' },
+      ],
+    },
+    { label: 'Pricing', to: '/pricing' },
+    { label: 'Security', to: '/security' },
+    company_,
+  ],
+};
 
 export function isGroup(entry: NavEntry): entry is NavGroup {
   return 'items' in entry;
 }
 
-/** Every page link in menu order, with groups flattened. */
-export const navLinks: NavLinkItem[] = nav.flatMap((entry) => (isGroup(entry) ? entry.items : [entry]));
+/** Every link in an audience's menu, with groups flattened. */
+export const navLinksFor = (a: Audience): NavLinkItem[] =>
+  navByAudience[a].flatMap((entry) => (isGroup(entry) ? entry.items : [entry]));
 
-/** Credvera's four core pillars, shown in brand colours by the opening intro. */
+/** Credvera's four core pillars, shown in brand colours by the opening intro (both accounts). */
 export const pillars = [
-  { word: 'Collect', bg: '#7fde80', fg: '#011504' },
-  { word: 'Pay out', bg: '#063c1a', fg: '#7fde80' },
-  { word: 'Cross-border', bg: '#ffffff', fg: '#011504' },
+  { word: 'Get paid', bg: '#7fde80', fg: '#011504' },
+  { word: 'Pay', bg: '#063c1a', fg: '#7fde80' },
+  { word: 'Abroad', bg: '#ffffff', fg: '#011504' },
   { word: 'Secure', bg: '#011504', fg: '#7fde80' },
 ] as const;
 
-/** PLACEHOLDER pricing — replace every figure with Credvera's real fees before launch. */
-export const pricing = [
-  {
-    product: 'Business payments',
-    to: '/business-payments',
-    rows: [
-      ['Account opening', 'Free'],
-      ['Monthly fee', '₦0'],
-      ['Local transfers', '₦25 per transfer'],
-      ['Collections', '1% (capped at ₦2,000)'],
-    ],
-  },
-  {
-    product: 'Cross-border payments',
-    to: '/cross-border',
-    rows: [
-      ['Outgoing transfers', 'From $5 per transfer'],
-      ['Receiving from abroad', 'Free'],
-      ['Currency conversion', 'From 1.5% above mid-market'],
-    ],
-  },
-  {
-    product: 'Study abroad',
-    to: '/study-abroad',
-    rows: [
-      ['School fee payments', 'From $10 per payment'],
-      ['Study Vault', 'Free to open'],
-      ['Monthly allowance transfers', 'From $3 per transfer'],
-    ],
-  },
-  {
-    product: 'Supplier payments',
-    to: '/supplier-payments',
-    rows: [
-      ['China (CNY) payments', 'From 1% per payment'],
-      ['Africa payments', 'From 0.8% per payment'],
-    ],
-  },
-  {
-    product: 'Pay Home',
-    to: '/pay-home',
-    rows: [
-      ['Bill and school fee payments', 'From $2 per payment'],
-      ['Recurring payments', 'Free to set up'],
-    ],
-  },
-] as const;
+/**
+ * Fees for each account, as the app charges them today.
+ * TODO(credvera): confirm with the partner bank and Verto before launch; the
+ * FX margin is still to be set (FX_MARGIN_PERCENT in the app).
+ */
+export const pricingFor: Record<Audience, { product: string; to: string; rows: [string, string][] }[]> = {
+  personal: [
+    {
+      product: 'Everyday account',
+      to: '/personal/everyday',
+      rows: [
+        ['Opening an account', 'Free'],
+        ['Transfers to Nigerian banks', '₦10 per transfer'],
+        ['Airtime, TV and Remita bills', 'Free'],
+      ],
+    },
+    {
+      product: 'Money from abroad',
+      to: '/personal/abroad',
+      rows: [
+        ['Dollar, pound and euro accounts', 'Free to open'],
+        ['Receiving money', 'Free'],
+        ['Converting', 'Our rate, shown beside the market rate'],
+      ],
+    },
+    {
+      product: 'Earnings Passport',
+      to: '/personal/passport',
+      rows: [['Creating and sharing a Passport', 'Free']],
+    },
+  ],
+  business: [
+    {
+      product: 'Payments and invoices',
+      to: '/business#payments',
+      rows: [
+        ['Opening a business account', 'Free'],
+        ['Transfers to Nigerian banks', '₦25 per transfer'],
+        ['Invoices and payment links', 'Free to create'],
+      ],
+    },
+    {
+      product: 'FX and currencies',
+      to: '/business#fx',
+      rows: [
+        ['Currency accounts', 'Free to open'],
+        ['Converting', 'Our rate, shown beside the market rate'],
+      ],
+    },
+    {
+      product: 'Paying suppliers abroad',
+      to: '/business#suppliers',
+      rows: [
+        ['UK and euro countries', '₦2,500 per payment'],
+        ['United States', '₦3,500 per payment'],
+        ['China', '₦5,000 per payment'],
+      ],
+    },
+  ],
+};

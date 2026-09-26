@@ -1,91 +1,81 @@
-import { BadgeCheck, Landmark, ShieldAlert, UserCheck } from 'lucide-react';
-import PageHero from '../components/layout/PageHero';
-import ButtonLink from '../components/ui/ButtonLink';
+import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Headline from '../components/editorial/Headline';
+import PageHeader from '../components/editorial/PageHeader';
+import ScamTest from '../components/editorial/ScamTest';
 import Reveal from '../components/ui/Reveal';
-import { company } from '../lib/site';
 
-const pillars = [
-  {
-    icon: Landmark,
-    title: 'Licensed partners hold and move your money',
-    body: company.licenceStatement,
-  },
-  {
-    icon: UserCheck,
-    title: 'Every account is verified',
-    body: 'In line with Nigerian regulations, we verify the identity of every person and business before money can move. It keeps fraudsters out and your account yours.',
-  },
-  {
-    icon: BadgeCheck,
-    title: 'You stay in control',
-    body: 'Every payment you make or receive shows up in your Credvera app, so you always know where your money is and where it’s going.',
-  },
+const habits = [
+  ['Keep your PIN to yourself', 'Never share your PIN, password or one-time codes with anyone, including someone who says they work for Credvera.'],
+  ['Get the app from the store', 'Only download Credvera from the official app store listing, never from a link someone sends you.'],
+  ['Read the name before you send', 'Check the account name the app shows. Payments can be hard to reverse once they’ve gone.'],
+  ['When in doubt, stop', 'If something feels rushed or strange, don’t act. Contact us first, and we’ll help.'],
 ];
 
-const tips = [
-  'Never share your PIN, password or one-time codes with anyone — including anyone who says they work for Credvera.',
-  'Only download Credvera from the official Google Play Store listing.',
-  'Check who you’re paying before you confirm a transfer. Payments can be hard to reverse once sent.',
-  'If something feels wrong, stop and contact us before you act.',
-];
-
+/** Security: the scams people try, played against the app, then good habits. */
 export default function SecurityPage() {
   return (
     <>
-      <PageHero
-        eyebrow="Security"
-        title="Your business money deserves serious protection."
-        intro="How Credvera keeps your account safe — and how you can help keep it that way."
+      <PageHeader
+        label="Security"
+        title={'Built for the day\n*someone* tries.'}
+        lede="Your PIN on every payment, card details that hide themselves, extra care on a new phone, and the name shown before you send. Here’s how that plays out."
       />
 
-      <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-        <div className="grid gap-6 md:grid-cols-3">
-          {pillars.map(({ icon: Icon, title, body }, i) => (
-            <Reveal key={title} delay={i * 0.08}>
-              <div className="h-full rounded-3xl border border-ink/10 bg-white p-8">
-                <span className="grid size-12 place-items-center rounded-2xl bg-background text-primary">
-                  <Icon className="size-5" />
+      {/* Think like a scammer */}
+      <section className="px-3 sm:px-6">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-secondary px-6 py-16 text-white sm:px-10 lg:px-14 lg:py-20">
+          <div className="mb-12 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+            <Headline
+              text={'Think like\na *scammer*.'}
+              className="text-[clamp(2.4rem,5.5vw,4.6rem)] font-semibold leading-[0.95] tracking-[-0.035em]"
+            />
+            <Reveal delay={0.15}>
+              <p className="max-w-sm text-lg leading-relaxed text-white/60">Pick a trick people really use, and watch what happens when it meets Credvera.</p>
+            </Reveal>
+          </div>
+          <ScamTest />
+        </div>
+      </section>
+
+      {/* Habits */}
+      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+        <Headline
+          text={'Four habits that\n*keep* you safe.'}
+          className="text-[clamp(2.2rem,5vw,4.2rem)] font-semibold leading-[0.98] tracking-[-0.03em]"
+        />
+        <ol className="mt-14 grid gap-x-12 gap-y-10 border-t border-ink/15 pt-12 md:grid-cols-2">
+          {habits.map(([t, b], i) => (
+            <Reveal key={t} delay={(i % 2) * 0.08}>
+              <li className="flex gap-6">
+                <span className="font-serif text-4xl italic leading-none text-background">{i + 1}</span>
+                <span>
+                  <span className="block text-xl font-semibold tracking-tight">{t}</span>
+                  <span className="mt-2 block leading-relaxed text-ink/65">{b}</span>
                 </span>
-                <h2 className="mt-8 text-xl font-semibold tracking-tight">{title}</h2>
-                <p className="mt-3 leading-relaxed text-ink/70">{body}</p>
-              </div>
+              </li>
             </Reveal>
           ))}
-        </div>
+        </ol>
       </section>
 
-      <section className="bg-secondary text-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1fr_1.4fr] lg:px-8 lg:py-28">
-          <Reveal>
-            <span className="grid size-12 place-items-center rounded-2xl bg-primary text-secondary">
-              <ShieldAlert className="size-5" />
-            </span>
-            <h2 className="mt-8 text-3xl font-semibold tracking-tight sm:text-4xl">Staying safe from scams</h2>
-            <p className="mt-4 leading-relaxed text-white/60">A few habits that protect your business every day.</p>
-          </Reveal>
-          <ol className="space-y-4">
-            {tips.map((tip, i) => (
-              <Reveal key={tip} delay={i * 0.06}>
-                <li className="flex gap-5 rounded-2xl border border-white/10 p-6">
-                  <span className="text-sm font-semibold text-primary">0{i + 1}</span>
-                  <p className="leading-relaxed text-white/80">{tip}</p>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-6 py-20 text-center lg:px-8">
-        <Reveal>
-          <h2 className="text-3xl font-semibold tracking-tight">Spotted something suspicious?</h2>
-          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink/70">Tell us straight away and we’ll help you secure your account.</p>
-          <div className="mt-8 flex justify-center">
-            <ButtonLink to="/contact" variant="dark">
-              Report a concern
-            </ButtonLink>
+      {/* Report */}
+      <section className="border-t border-ink/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-6 py-16 lg:flex-row lg:items-center lg:px-8">
+          <div>
+            <p className="text-2xl font-semibold tracking-tight">Spotted something suspicious?</p>
+            <p className="mt-2 text-ink/60">Tell us straight away and we’ll help you secure your account.</p>
           </div>
-        </Reveal>
+          <Link
+            to="/contact"
+            className="group inline-flex items-center gap-3 rounded-full bg-secondary py-2 pl-6 pr-2 text-[15px] font-semibold text-white transition-colors hover:bg-background"
+          >
+            Report a concern
+            <span className="grid size-9 place-items-center rounded-full bg-primary text-secondary transition-transform duration-500 group-hover:rotate-45">
+              <ArrowUpRight className="size-4" />
+            </span>
+          </Link>
+        </div>
       </section>
     </>
   );

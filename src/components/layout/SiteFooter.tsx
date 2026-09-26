@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { company, isGroup, links, nav, type NavLinkItem } from '../../lib/site';
+import { homeOf, useAudience } from '../../lib/audience';
+import { company, ctaFor, isGroup, navByAudience, type NavLinkItem } from '../../lib/site';
 import ButtonLink from '../ui/ButtonLink';
 
 const legal = [
@@ -8,7 +9,16 @@ const legal = [
   { label: 'Terms of use', to: '/terms' },
 ];
 
+// One line on what Credvera is, for each audience.
+const tagline = {
+  personal: 'Get paid from abroad, pay your bills and save, from one app.',
+  business: 'Collect, pay suppliers, invoice and trade across borders, from one account.',
+};
+
 export default function SiteFooter() {
+  const { audience } = useAudience();
+  const nav = navByAudience[audience];
+  const cta = ctaFor(audience);
   const groups = [
     ...nav.filter(isGroup).map((group) => ({ title: group.label, items: group.items })),
     {
@@ -25,14 +35,12 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-7xl px-6 pb-10 pt-20 lg:px-8">
         <div className="grid gap-14 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-sm">
-            <Link to="/" aria-label="Credvera home">
+            <Link to={homeOf(audience)} aria-label="Credvera home">
               <img src={logo} alt="Credvera" className="h-9 w-auto" />
             </Link>
-            <p className="mt-6 text-base leading-relaxed text-white/60">
-              Business, cross-border and school payments — built for Nigerians at home and abroad.
-            </p>
+            <p className="mt-6 text-base leading-relaxed text-white/60">{tagline[audience]}</p>
             <div className="mt-8">
-              <ButtonLink to={links.openAccount}>Open an account</ButtonLink>
+              <ButtonLink to={cta.to}>{cta.label}</ButtonLink>
             </div>
           </div>
 

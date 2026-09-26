@@ -1,5 +1,4 @@
 import PageHero from '../components/layout/PageHero';
-import PlaceholderNote from '../components/ui/PlaceholderNote';
 import { company } from '../lib/site';
 
 type LegalPageProps = {
@@ -124,7 +123,6 @@ export default function LegalPage({ kind }: LegalPageProps) {
     <>
       <PageHero eyebrow="Legal" title={title} intro={intro} />
       <section className="mx-auto max-w-3xl px-6 py-20 lg:py-28">
-        <PlaceholderNote className="mb-12">Draft text for layout — the final {title.toLowerCase()} will replace it before launch.</PlaceholderNote>
         <p className="text-sm text-ink/50">Last updated: 1 September 2026</p>
         <div className="mt-10 space-y-12">
           {sections.map((section, i) => (
