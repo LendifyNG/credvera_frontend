@@ -64,7 +64,7 @@ function Detail({ to }: { to: string }): ReactNode {
   return (
     <div className="rounded-2xl bg-paper p-5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/45">Earnings Passport</span>
+        <span className="text-[13px] font-semibold text-ink/45">Earnings Passport</span>
         <span className="rounded-full bg-background px-2.5 py-1 text-[11px] font-semibold text-primary">Verified</span>
       </div>
       <p className="mt-4 text-sm text-ink/50">Monthly income from abroad</p>
@@ -103,7 +103,7 @@ export default function FeatureIndex() {
       <div className="grid gap-10 lg:grid-cols-[1fr_2.2fr] lg:gap-16">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink/45">What you can do</p>
+            <p className="text-[13px] font-semibold text-ink/45">What you can do</p>
           </Reveal>
           <Headline
             text={'Everything your\nmoney needs,\n*in one place*.'}

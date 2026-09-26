@@ -137,7 +137,7 @@ export default function ScamTest() {
 
       {/* The attempt, playing out */}
       <div className="relative min-h-[440px] overflow-hidden rounded-[1.75rem] bg-black/35 p-6 ring-1 ring-white/10 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/35">Attempt {String(which + 1).padStart(2, '0')}</p>
+        <p className="text-[13px] font-semibold text-white/35">Attempt {String(which + 1).padStart(2, '0')}</p>
         <div className="mt-6 space-y-3">
           <AnimatePresence mode="popLayout">
             {a.lines.slice(0, shown).map(([who, text], i) => (
@@ -155,7 +155,7 @@ export default function ScamTest() {
                       : 'ml-auto bg-white/10 text-white'
                 }`}
               >
-                <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-[0.2em] opacity-60">
+                <span className="mb-0.5 block text-[12px] font-semibold opacity-60">
                   {who === 'them' ? 'Scammer' : who === 'app' ? 'Credvera' : 'You'}
                 </span>
                 {text}

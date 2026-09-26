@@ -58,7 +58,7 @@ export default function MoneyRoute() {
           {/* The arrivals board */}
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">The route of a dollar</p>
+              <p className="text-[13px] font-semibold text-primary">The route of a dollar</p>
               <div className="mt-4 text-[14px] sm:text-[20px] lg:text-[24px]">
                 <SplitFlap text={current.board} length={26} />
               </div>

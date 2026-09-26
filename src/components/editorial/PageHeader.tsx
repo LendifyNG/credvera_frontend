@@ -14,7 +14,7 @@ export default function PageHeader({ label, title, lede, children }: PageHeaderP
   return (
     <header className="mx-auto max-w-7xl px-6 pb-16 pt-32 lg:px-8 lg:pb-20 lg:pt-40">
       <Reveal>
-        <p className="border-b border-ink/10 pb-5 text-xs font-semibold uppercase tracking-[0.22em] text-background">{label}</p>
+        <p className="border-b border-ink/10 pb-5 text-[13px] font-semibold text-background">{label}</p>
       </Reveal>
       <div className="mt-12 grid items-end gap-10 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
         <Headline as="h1" text={title} className="text-[clamp(2.8rem,7vw,6.2rem)] font-semibold leading-[0.95] tracking-[-0.035em]" />

@@ -12,9 +12,15 @@
   --color-paper: #f5f7f2;
   --color-mist: #e6ede3;
 
+  /* Business: the app's business tone, graphite ink on a greyer paper. */
+  --color-graphite: #141c17;
+  --color-ledger: #f0f2ef;
+
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   /* Editorial accent: italic words inside headlines. */
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* Business: figures and labels, like a statement. */
+  --font-ledger: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }

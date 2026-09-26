@@ -59,7 +59,7 @@ export default function PassportMirror() {
         <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="text-[13px] font-semibold text-primary">
                 <span className="mr-3 tabular-nums">02</span>Share and control
               </p>
             </Reveal>
@@ -79,7 +79,7 @@ export default function PassportMirror() {
         <div ref={ref} className="mt-14 grid gap-5 lg:grid-cols-[minmax(0,380px)_1fr]">
           {/* You, in the app */}
           <div className="rounded-[1.75rem] bg-paper p-6 text-ink">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/40">Your app</p>
+            <p className="text-[13px] font-semibold text-ink/40">Your app</p>
             <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-ink/5">
               <div className="flex items-start justify-between gap-3">
                 <div>

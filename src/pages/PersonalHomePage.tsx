@@ -71,7 +71,7 @@ export default function PersonalHomePage() {
 
         <div className="mx-auto max-w-7xl px-6 pb-20 pt-[52vh] lg:px-8 lg:pb-28 lg:pt-40">
           <Reveal>
-            <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-xs font-semibold uppercase tracking-[0.22em] text-ink/50 whitespace-nowrap lg:max-w-[54%]">
+            <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50 whitespace-nowrap lg:max-w-[54%]">
               <span className="text-background">Credvera Personal</span>
               <span className="h-px w-8 bg-ink/20" />
               <span className="hidden sm:inline">In more than one currency</span>
@@ -124,7 +124,7 @@ export default function PersonalHomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
           <div>
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Only on Credvera</p>
+              <p className="text-[13px] font-semibold text-primary">Only on Credvera</p>
             </Reveal>
             <Headline
               text={'Prove your income\n*without* a bank\nstatement.'}

@@ -3,14 +3,15 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import Figure from '../components/editorial/Figure';
 import Headline from '../components/editorial/Headline';
 import Reveal from '../components/ui/Reveal';
-import { postBySlug, postDate, posts } from '../lib/blog';
+import { personalPosts, postBySlug, postDate } from '../lib/blog';
 
 /** One blog post, set like a magazine article. */
 export default function BlogPostPage() {
   const { slug } = useParams();
   const post = postBySlug(slug);
   if (!post) return <Navigate to="/blog" replace />;
-  const others = posts.filter((p) => p.slug !== post.slug).slice(0, 2);
+  if (post.audience === 'business') return <Navigate to={`/business/blog/${post.slug}`} replace />;
+  const others = personalPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
 
   return (
     <article>
@@ -19,7 +20,7 @@ export default function BlogPostPage() {
           <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-ink/55 hover:text-background">
             <ArrowLeft className="size-4" /> The blog
           </Link>
-          <p className="mt-10 text-xs font-semibold uppercase tracking-[0.22em] text-background">
+          <p className="mt-10 text-[13px] font-semibold text-background">
             {post.category} · {post.minutes} min read · {postDate(post.date)}
           </p>
         </Reveal>
@@ -29,9 +30,11 @@ export default function BlogPostPage() {
         </Reveal>
       </header>
 
-      <div className="mx-auto max-w-5xl px-6">
-        <Figure {...post.cover} credit={post.cover.credit} priority />
-      </div>
+      {post.cover && (
+        <div className="mx-auto max-w-5xl px-6">
+          <Figure {...post.cover} credit={post.cover.credit} priority />
+        </div>
+      )}
 
       <div className="mx-auto max-w-2xl px-6 py-16 text-lg leading-[1.75] text-ink/80">
         {post.body.map((b, i) =>
@@ -57,11 +60,11 @@ export default function BlogPostPage() {
       </div>
 
       <section className="mx-auto max-w-5xl border-t border-ink/15 px-6 py-16">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink/45">Keep reading</p>
+        <p className="text-[13px] font-semibold text-ink/45">Keep reading</p>
         <div className="mt-8 grid gap-10 sm:grid-cols-2">
           {others.map((p) => (
             <Link key={p.slug} to={`/blog/${p.slug}`} className="group">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-background">{p.category}</p>
+              <p className="text-[13px] font-semibold text-background">{p.category}</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight transition-colors group-hover:text-background">{p.title}</p>
               <p className="mt-2 text-ink/55">{p.dek}</p>
             </Link>

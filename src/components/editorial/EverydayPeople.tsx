@@ -65,7 +65,7 @@ export default function EverydayPeople() {
   const words = (
     <div className="relative z-10 mx-auto max-w-[40rem] text-center">
       <Reveal>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background">Made for everyday Nigerians</p>
+        <p className="text-[13px] font-semibold text-background">Made for everyday Nigerians</p>
       </Reveal>
       <Headline
         text={'For the market stall,\nthe *morning bus* and\nthe ==midnight== invoice.'}

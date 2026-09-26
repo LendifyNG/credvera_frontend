@@ -1,19 +1,25 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Figure from '../components/editorial/Figure';
 import Headline from '../components/editorial/Headline';
 import Reveal from '../components/ui/Reveal';
-import { postDate, posts } from '../lib/blog';
+import { useAudience } from '../lib/audience';
+import { personalPosts, postDate } from '../lib/blog';
+import type { Photo } from '../lib/photos';
 
 /** The blog: one featured post, then the rest as a list. */
 export default function BlogPage() {
-  const [featured, ...rest] = posts;
+  const { audience } = useAudience();
+  // Business has its own notes.
+  if (audience === 'business') return <Navigate to="/business/blog" replace />;
+  const withCovers = personalPosts.filter((p): p is typeof p & { cover: Photo } => !!p.cover);
+  const [featured, ...rest] = withCovers;
   if (!featured) return null;
   return (
     <>
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-32 lg:px-8 lg:pt-40">
         <Reveal>
-          <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-xs font-semibold uppercase tracking-[0.22em] text-ink/50">
+          <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50">
             <span className="text-background">The Credvera blog</span>
             <span className="h-px w-8 bg-ink/20" />
             <span>Guides and notes on money, at home and abroad</span>
@@ -31,7 +37,7 @@ export default function BlogPage() {
         <Link to={`/blog/${featured.slug}`} className="group grid items-end gap-10 lg:grid-cols-[1.4fr_1fr]">
           <Figure {...featured.cover} credit={featured.cover.credit} priority />
           <div className="pb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background">
+            <p className="text-[13px] font-semibold text-background">
               {featured.category} · {featured.minutes} min read
             </p>
             <h2 className="mt-4 text-[clamp(1.9rem,3.6vw,3rem)] font-semibold leading-[1.02] tracking-[-0.03em] transition-colors duration-500 group-hover:text-background">
@@ -64,7 +70,7 @@ export default function BlogPage() {
                     />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/45">
+                    <p className="text-[13px] font-semibold text-ink/45">
                       {p.category} · {postDate(p.date)}
                     </p>
                     <h3 className="mt-2 text-2xl font-semibold tracking-tight transition-colors duration-500 group-hover:text-background sm:text-3xl">

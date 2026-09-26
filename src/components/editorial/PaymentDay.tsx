@@ -122,7 +122,7 @@ export default function PaymentDay() {
       {/* The clock */}
       <div className="relative flex items-end justify-between">
         <div>
-          <p className={`text-xs font-semibold uppercase tracking-[0.22em] ${s.dark ? 'text-primary' : 'text-background'}`}>Lagos · Tuesday</p>
+          <p className={`text-[13px] font-semibold ${s.dark ? 'text-primary' : 'text-background'}`}>Lagos · Tuesday</p>
           <p className="mt-2 font-serif text-[clamp(4rem,9vw,6.5rem)] italic leading-none tabular-nums tracking-[-0.02em]">{hhmm(m)}</p>
         </div>
         <div className="pb-2 text-right">

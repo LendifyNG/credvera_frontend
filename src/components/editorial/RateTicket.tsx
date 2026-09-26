@@ -17,7 +17,7 @@ export default function RateTicket() {
     <Reveal>
       <div className="relative mx-auto max-w-xl rounded-[1.75rem] bg-white p-2 shadow-[0_30px_60px_-30px_rgba(1,21,4,0.35)] ring-1 ring-ink/5">
         <div className="rounded-[1.4rem] border border-dashed border-ink/15 px-6 pb-6 pt-5 sm:px-8">
-          <div className="flex items-baseline justify-between text-xs font-semibold uppercase tracking-[0.2em] text-ink/45">
+          <div className="flex items-baseline justify-between text-[13px] font-semibold text-ink/45">
             <span>Today’s rates</span>
             <span>For 1 unit, in naira</span>
           </div>

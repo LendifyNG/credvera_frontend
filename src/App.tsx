@@ -7,7 +7,25 @@ import SiteNavbar from './components/layout/SiteNavbar';
 import { IntroContext, shouldPlayIntro } from './lib/intro';
 import { AudienceProvider } from './lib/audience';
 import AboutPage from './pages/AboutPage';
+import BizAboutPage from './pages/business/BizAboutPage';
+import BizBlogPage from './pages/business/BizBlogPage';
+import BizCardsPage from './pages/business/CardsPage';
+import BizContactPage from './pages/business/BizContactPage';
+import BizFaqPage from './pages/business/BizFaqPage';
+import BizLegalPage from './pages/business/BizLegalPage';
+import BizFxPage from './pages/business/FxPage';
+import BizPaymentsPage from './pages/business/PaymentsPage';
+import BizPostPage from './pages/business/BizPostPage';
+import BizPricingPage from './pages/business/BizPricingPage';
+import BizSecurityPage from './pages/business/BizSecurityPage';
+import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
+import AppShell from './dashboard/AppShell';
+import Approvals from './dashboard/Approvals';
+import OpenAccount from './dashboard/OpenAccount';
+import Payments from './dashboard/Payments';
+import SignIn from './dashboard/SignIn';
+import Today from './dashboard/Today';
 import PersonalHomePage from './pages/PersonalHomePage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
@@ -25,6 +43,23 @@ import SecurityPage from './pages/SecurityPage';
 const titles: Record<string, string> = {
   '/': 'Credvera — Get paid from abroad, pay bills and save',
   '/business': 'Credvera for business — Payments, invoices, FX and supplier payments',
+  '/business/payments': 'Payments and invoices | Credvera Business',
+  '/business/fx': 'FX and currencies | Credvera Business',
+  '/business/suppliers': 'Pay suppliers abroad | Credvera Business',
+  '/business/cards': 'Business cards | Credvera Business',
+  '/business/pricing': 'Pricing | Credvera Business',
+  '/business/security': 'Security | Credvera Business',
+  '/business/about': 'About | Credvera Business',
+  '/business/faq': 'FAQ | Credvera Business',
+  '/business/contact': 'Contact | Credvera Business',
+  '/business/blog': 'Field notes | Credvera Business',
+  '/business/privacy': 'Privacy notice | Credvera Business',
+  '/business/terms': 'Terms of use | Credvera Business',
+  '/business/app': 'Today | Credvera Business',
+  '/business/app/payments': 'Payments | Credvera Business',
+  '/business/app/approvals': 'Approvals | Credvera Business',
+  '/business/app/sign-in': 'Sign in | Credvera Business',
+  '/business/app/open': 'Open a business account | Credvera Business',
   '/personal/abroad': 'Get paid from abroad | Credvera',
   '/personal/everyday': 'Everyday money | Credvera',
   '/personal/save': 'Save and split | Credvera',
@@ -42,6 +77,8 @@ const titles: Record<string, string> = {
 export default function App() {
   const lenisRef = useRef<Lenis | null>(null);
   const { pathname } = useLocation();
+  // The business dashboard has its own frame, without the website's menu and footer.
+  const inApp = pathname.startsWith('/business/app');
   const [introActive, setIntroActive] = useState(() => shouldPlayIntro(pathname));
   const [introDone, setIntroDone] = useState(!introActive);
 
@@ -78,7 +115,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/blog/') ? 'Blog | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -97,11 +134,33 @@ export default function App() {
     <AudienceProvider>
     <IntroContext.Provider value={{ done: introDone }}>
       {introActive && <IntroOverlay onReveal={handleIntroReveal} onFinish={handleIntroFinish} />}
-      <SiteNavbar />
+      {!inApp && <SiteNavbar />}
       <main>
         <Routes>
+          {/* The business dashboard */}
+          <Route path="/business/app/sign-in" element={<SignIn />} />
+          <Route path="/business/app/open" element={<OpenAccount />} />
+          <Route path="/business/app" element={<AppShell />}>
+            <Route index element={<Today />} />
+            <Route path="payments" element={<Payments />} />
+            <Route path="approvals" element={<Approvals />} />
+          </Route>
+
           <Route path="/" element={<PersonalHomePage />} />
           <Route path="/business" element={<BusinessHomePage />} />
+          <Route path="/business/payments" element={<BizPaymentsPage />} />
+          <Route path="/business/fx" element={<BizFxPage />} />
+          <Route path="/business/suppliers" element={<BizSuppliersPage />} />
+          <Route path="/business/cards" element={<BizCardsPage />} />
+          <Route path="/business/pricing" element={<BizPricingPage />} />
+          <Route path="/business/security" element={<BizSecurityPage />} />
+          <Route path="/business/about" element={<BizAboutPage />} />
+          <Route path="/business/faq" element={<BizFaqPage />} />
+          <Route path="/business/contact" element={<BizContactPage />} />
+          <Route path="/business/blog" element={<BizBlogPage />} />
+          <Route path="/business/blog/:slug" element={<BizPostPage />} />
+          <Route path="/business/privacy" element={<BizLegalPage kind="privacy" />} />
+          <Route path="/business/terms" element={<BizLegalPage kind="terms" />} />
           <Route path="/personal/abroad" element={<AbroadPage />} />
           <Route path="/personal/everyday" element={<EverydayPage />} />
           <Route path="/personal/save" element={<SavePage />} />
@@ -109,9 +168,9 @@ export default function App() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           {/* Earlier product pages, now sections of the two home pages. */}
-          <Route path="/business-payments" element={<Navigate to="/business#payments" replace />} />
-          <Route path="/cross-border" element={<Navigate to="/business#fx" replace />} />
-          <Route path="/supplier-payments" element={<Navigate to="/business#suppliers" replace />} />
+          <Route path="/business-payments" element={<Navigate to="/business/payments" replace />} />
+          <Route path="/cross-border" element={<Navigate to="/business/fx" replace />} />
+          <Route path="/supplier-payments" element={<Navigate to="/business/suppliers" replace />} />
           <Route path="/study-abroad" element={<Navigate to="/" replace />} />
           <Route path="/pay-home" element={<Navigate to="/personal/abroad" replace />} />
           <Route path="/pricing" element={<PricingPage />} />
@@ -124,7 +183,7 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      <SiteFooter />
+      {!inApp && <SiteFooter />}
     </IntroContext.Provider>
     </AudienceProvider>
   );

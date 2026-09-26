@@ -124,7 +124,7 @@ export default function LightsBack() {
         <div className="relative grid items-end gap-8 p-6 pt-24 sm:p-10 sm:pt-28 lg:grid-cols-[1fr_auto] lg:p-14">
           {/* The words */}
           <div className="max-w-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-[13px] font-semibold text-primary">
               <span className="mr-3 tabular-nums">01</span>Bills
             </p>
             <Headline

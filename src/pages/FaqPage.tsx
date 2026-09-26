@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Plus, Search, X } from 'lucide-react';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Fragment, useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import Headline from '../components/editorial/Headline';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
@@ -73,16 +73,6 @@ const personalGroups: Group[] = [
   },
 ];
 
-const businessGroup: Group = {
-  id: 'business',
-  title: 'Business',
-  items: [
-    { q: 'Can I have a personal and a business account?', a: 'Yes. One person can have both, each with its own details, and switch between them in the app. Switching asks for your PIN.' },
-    { q: 'How do I pay a supplier abroad?', a: 'Save the supplier’s bank details once and pay them from the app. It’s a flat fee: ₦2,500 for the UK and euro countries, ₦3,500 for the United States and ₦5,000 for China.' },
-    { q: 'Can I send invoices and payment links?', a: 'Yes. Create an invoice or a payment link in the app and share it. You see when it’s paid.' },
-    { q: 'How much is a transfer to a Nigerian bank?', a: '₦25 a transfer from a business account.' },
-  ],
-};
 
 // Example questions that cycle in the empty search box.
 const hints = ['How do I get paid from Upwork?', 'When do I get my electricity token?', 'Can I stop sharing my Passport?', 'Will Credvera ever ask for my PIN?'];
@@ -110,7 +100,9 @@ function Highlight({ text, query }: { text: string; query: string }) {
 /** FAQ: search across every answer, or browse by topic. */
 export default function FaqPage() {
   const { audience } = useAudience();
-  const groups = useMemo(() => (audience === 'business' ? [businessGroup, ...personalGroups] : [...personalGroups, businessGroup]), [audience]);
+  // Business has its own FAQ.
+  const toBusiness = audience === 'business';
+  const groups = personalGroups;
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<string | null>(groups[0]!.items[0]!.q);
   const [hint, setHint] = useState(0);
@@ -140,11 +132,13 @@ export default function FaqPage() {
     .filter((g) => g.items.length);
   const count = shown.reduce((n, g) => n + g.items.length, 0);
 
+  if (toBusiness) return <Navigate to="/business/faq" replace />;
+
   return (
     <>
       <header className="mx-auto max-w-7xl px-6 pb-12 pt-32 lg:px-8 lg:pt-40">
         <Reveal>
-          <p className="border-b border-ink/10 pb-5 text-xs font-semibold uppercase tracking-[0.22em] text-background">FAQ</p>
+          <p className="border-b border-ink/10 pb-5 text-[13px] font-semibold text-background">FAQ</p>
         </Reveal>
         <Headline as="h1" text={'Ask us\n*anything*.'} className="mt-12 text-[clamp(2.8rem,7vw,6.2rem)] font-semibold leading-[0.95] tracking-[-0.035em]" />
 

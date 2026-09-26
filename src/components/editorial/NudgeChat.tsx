@@ -65,7 +65,7 @@ export default function NudgeChat() {
     <section className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-[1fr_minmax(0,430px)] lg:gap-24 lg:px-8 lg:py-36">
       <div>
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background">
+          <p className="text-[13px] font-semibold text-background">
             <span className="mr-3 tabular-nums">02</span>Split bills
           </p>
         </Reveal>

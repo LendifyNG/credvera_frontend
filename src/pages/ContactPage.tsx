@@ -1,8 +1,9 @@
 import { ArrowUpRight } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import PageHeader from '../components/editorial/PageHeader';
 import Reveal from '../components/ui/Reveal';
+import { useAudience } from '../lib/audience';
 import { company } from '../lib/site';
 
 const channels = [
@@ -43,6 +44,7 @@ const blank =
 /** Contact: when we're around, how to reach us, and a message written as a sentence. */
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const { audience } = useAudience();
   const status = openNow();
 
   // No backend yet: compose the message in the visitor's own email app.
@@ -54,6 +56,9 @@ export default function ContactPage() {
     window.location.href = `mailto:${company.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
+
+  // Business has its own contact page.
+  if (audience === 'business') return <Navigate to="/business/contact" replace />;
 
   return (
     <>
@@ -70,9 +75,12 @@ export default function ContactPage() {
           {channels.map(({ label, value, href }, i) => {
             const row = (
               <>
-                <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-[0.22em] text-ink/40 sm:w-28">{label}</span>
-                <span className="min-w-0 flex-1 truncate text-[clamp(1.6rem,5vw,4.2rem)] font-semibold tracking-[-0.035em] transition-transform duration-500 group-hover:translate-x-3">
-                  {value}
+                {/* Phones: the label sits above the value, and long values wrap rather than cut off. */}
+                <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-6">
+                  <span className="shrink-0 text-[13px] font-semibold text-ink/40 sm:w-28">{label}</span>
+                  <span className="min-w-0 break-words text-[clamp(1.5rem,5vw,4.2rem)] font-semibold leading-tight tracking-[-0.035em] transition-transform duration-500 group-hover:translate-x-3">
+                    {value}
+                  </span>
                 </span>
                 {href ? (
                   <span className="grid size-12 shrink-0 place-items-center rounded-full bg-mist text-background transition-all duration-500 group-hover:rotate-45 group-hover:bg-primary">
@@ -102,7 +110,7 @@ export default function ContactPage() {
       {/* A message, written as a sentence */}
       <section className="mx-auto max-w-5xl px-6 py-24 lg:px-8 lg:py-32">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background">Or write to us</p>
+          <p className="text-[13px] font-semibold text-background">Or write to us</p>
         </Reveal>
         <form onSubmit={handleSubmit} className="mt-8">
           <p className="text-[clamp(1.5rem,3.4vw,2.6rem)] font-medium leading-[1.7] tracking-[-0.02em] text-ink/80">

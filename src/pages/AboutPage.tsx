@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import AppBand from '../components/editorial/AppBand';
 import Headline from '../components/editorial/Headline';
 import Manifesto from '../components/editorial/Manifesto';
@@ -34,6 +34,8 @@ const doors = [
 /** About: why Credvera exists, the numbers behind it, and the two ways in. */
 export default function AboutPage() {
   const { audience } = useAudience();
+  // Business has its own About page.
+  if (audience === 'business') return <Navigate to="/business/about" replace />;
   return (
     <>
       <PageHeader
@@ -80,7 +82,7 @@ export default function AboutPage() {
                 <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.88),transparent_55%)]" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 p-7 sm:p-9">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">{d.label}</p>
+                    <p className="text-[13px] font-semibold text-primary">{d.label}</p>
                     <p className="mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] font-semibold leading-none tracking-[-0.03em]">{d.title}</p>
                     <p className="mt-3 max-w-sm text-white/70">{d.body}</p>
                   </div>
@@ -94,7 +96,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <AppBand audience={audience} />
+      <AppBand />
     </>
   );
 }

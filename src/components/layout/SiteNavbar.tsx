@@ -44,7 +44,7 @@ export default function SiteNavbar() {
   const solid = scrolled || mobileOpen;
   // Cream pages (personal and the blog) get dark text; the menu overlay stays dark.
   const light =
-    (pathname === '/' || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || ['/pricing', '/security', '/about', '/contact', '/faq'].includes(pathname)) &&
+    (pathname === '/' || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', '/business/fx', '/business/suppliers', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
     !mobileOpen;
   const linkIdle = light ? 'text-ink/70 hover:text-ink' : 'text-white/80 hover:text-white';
 
@@ -119,7 +119,18 @@ export default function SiteNavbar() {
           )}
         </nav>
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-3 lg:flex">
+          {/* Business customers sign in to their web dashboard. */}
+          {audience === 'business' && (
+            <Link
+              to="/business/app/sign-in"
+              className={`inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-300 ${
+                light ? 'border border-ink/15 text-ink hover:bg-ink/5' : 'border border-white/30 text-white hover:bg-white/10'
+              }`}
+            >
+              Sign in
+            </Link>
+          )}
           <ButtonLink to={cta.to}>{cta.label}</ButtonLink>
         </div>
 
@@ -167,7 +178,12 @@ export default function SiteNavbar() {
                 </motion.li>
               ))}
             </motion.ul>
-            <div className="mt-auto pt-10">
+            <div className="mt-auto space-y-3 pt-10">
+              {audience === 'business' && (
+                <Link to="/business/app/sign-in" className="block rounded-full py-3 text-center text-[15px] font-semibold text-white ring-1 ring-white/25">
+                  Sign in
+                </Link>
+              )}
               <ButtonLink to={cta.to} className="w-full">
                 {cta.label}
               </ButtonLink>

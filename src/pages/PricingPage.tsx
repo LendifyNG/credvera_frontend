@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import AppBand from '../components/editorial/AppBand';
 import Headline from '../components/editorial/Headline';
 import PageHeader from '../components/editorial/PageHeader';
@@ -11,25 +11,22 @@ import { pricingFor } from '../lib/site';
 /** Pricing: try a payment and see the receipt, then the whole price list. */
 export default function PricingPage() {
   const { audience } = useAudience();
-  const pricing = pricingFor[audience];
-  const business = audience === 'business';
+  // Business has its own pricing page.
+  if (audience === 'business') return <Navigate to="/business/pricing" replace />;
+  const pricing = pricingFor.personal;
 
   return (
     <>
       <PageHeader
-        label={business ? 'Pricing · Business' : 'Pricing'}
+        label="Pricing"
         title={'Every *naira*,\naccounted for.'}
-        lede={
-          business
-            ? 'Flat fees for paying suppliers, our rate beside the market rate, and nothing added on top. Try a payment below.'
-            : 'Most of what you do is free. Where there’s a fee, it’s small, and you see it before you confirm. Try it below.'
-        }
+        lede="Most of what you do is free. Where there’s a fee, it’s small, and you see it before you confirm. Try it below."
       />
 
       {/* Try a payment */}
       <section className="border-y border-ink/10 bg-white">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-          <PriceCheck key={audience} audience={audience} />
+          <PriceCheck audience="personal" />
         </div>
       </section>
 
@@ -68,7 +65,7 @@ export default function PricingPage() {
         </Reveal>
       </section>
 
-      <AppBand audience={audience} line={business ? 'Know the cost\n*before* you pay.' : 'Free to open.\n*Fair* to use.'} />
+      <AppBand line={'Free to open.\n*Fair* to use.'} />
     </>
   );
 }

@@ -27,7 +27,7 @@ export default function StatStack({ cards }: { cards: StatCardMedia[] }) {
             <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.9),rgba(1,21,4,0.35)_50%,rgba(1,21,4,0.15))]" />
 
             <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10 lg:p-14">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary tabular-nums">
+              <p className="text-[13px] font-semibold text-primary tabular-nums">
                 {String(i + 1).padStart(2, '0')} / {String(cards.length).padStart(2, '0')}
               </p>
               <p className="mt-4 flex flex-wrap items-baseline gap-x-4">

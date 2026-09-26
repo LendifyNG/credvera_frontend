@@ -24,15 +24,18 @@ export const company = {
   } as Record<string, string | null>,
 };
 
-/** The main call to action for each audience. Both open in the app. */
+/** The main call to action for each audience: personal gets the app; business opens its account on the web. */
 export const ctaFor = (a: Audience) =>
   a === 'business'
-    ? { label: 'Open a business account', to: links.openAccount }
+    ? { label: 'Open a business account', to: '/business/app/open' }
     : { label: 'Get the app', to: links.openAccount };
 
 export const links = {
   // TODO: replace with the direct Play Store listing URL once available.
   openAccount: 'https://play.google.com/store/search?q=credvera&c=apps',
+  // TODO(credvera): the real store listings once the app is published.
+  appStore: 'https://apps.apple.com/ng/search?term=credvera',
+  playStore: 'https://play.google.com/store/search?q=credvera&c=apps',
   contactSales: '/contact',
 };
 
@@ -155,6 +158,22 @@ const company_: NavGroup = {
   ],
 };
 
+// Business has its own About, Blog, FAQ and Contact pages.
+const companyBusiness_: NavGroup = {
+  ...company_,
+  items: company_.items.map((i) =>
+    i.to === '/about'
+      ? { ...i, to: '/business/about', description: 'Why we built Credvera Business' }
+      : i.to === '/faq'
+        ? { ...i, to: '/business/faq', description: 'Answers for businesses' }
+        : i.to === '/contact'
+          ? { ...i, to: '/business/contact', description: 'Talk to the business team' }
+          : i.to === '/blog'
+            ? { ...i, to: '/business/blog', description: 'Field notes for businesses' }
+            : i,
+  ),
+};
+
 /** The menu for each audience. Features link to sections of that audience's home page. */
 export const navByAudience: Record<Audience, NavEntry[]> = {
   personal: [
@@ -175,15 +194,15 @@ export const navByAudience: Record<Audience, NavEntry[]> = {
     {
       label: 'Features',
       items: [
-        { label: 'Payments and invoices', to: '/business#payments', description: 'Collect, pay and send invoices with a link' },
-        { label: 'FX and currencies', to: '/business#fx', description: 'Hold, receive and convert at a clear rate' },
-        { label: 'Pay suppliers abroad', to: '/business#suppliers', description: 'Pay when it ships, with Supplier Passport' },
-        { label: 'Business cards', to: '/business#cards', description: 'Dollar and naira cards for online spend' },
+        { label: 'Payments and invoices', to: '/business/payments', description: 'Collect, pay and send invoices with a link' },
+        { label: 'FX and currencies', to: '/business/fx', description: 'Hold, receive and convert at a clear rate' },
+        { label: 'Pay suppliers abroad', to: '/business/suppliers', description: 'Pay when it ships, with Supplier Passport' },
+        { label: 'Business cards', to: '/business/cards', description: 'Dollar and naira cards for online spend' },
       ],
     },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Security', to: '/security' },
-    company_,
+    { label: 'Pricing', to: '/business/pricing' },
+    { label: 'Security', to: '/business/security' },
+    companyBusiness_,
   ],
 };
 
@@ -194,14 +213,6 @@ export function isGroup(entry: NavEntry): entry is NavGroup {
 /** Every link in an audience's menu, with groups flattened. */
 export const navLinksFor = (a: Audience): NavLinkItem[] =>
   navByAudience[a].flatMap((entry) => (isGroup(entry) ? entry.items : [entry]));
-
-/** Credvera's four core pillars, shown in brand colours by the opening intro (both accounts). */
-export const pillars = [
-  { word: 'Get paid', bg: '#7fde80', fg: '#011504' },
-  { word: 'Pay', bg: '#063c1a', fg: '#7fde80' },
-  { word: 'Abroad', bg: '#ffffff', fg: '#011504' },
-  { word: 'Secure', bg: '#011504', fg: '#7fde80' },
-] as const;
 
 /**
  * Fees for each account, as the app charges them today.
@@ -237,7 +248,7 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
   business: [
     {
       product: 'Payments and invoices',
-      to: '/business#payments',
+      to: '/business/payments',
       rows: [
         ['Opening a business account', 'Free'],
         ['Transfers to Nigerian banks', '₦25 per transfer'],
@@ -246,7 +257,7 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
     },
     {
       product: 'FX and currencies',
-      to: '/business#fx',
+      to: '/business/fx',
       rows: [
         ['Currency accounts', 'Free to open'],
         ['Converting', 'Our rate, shown beside the market rate'],
@@ -254,7 +265,7 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
     },
     {
       product: 'Paying suppliers abroad',
-      to: '/business#suppliers',
+      to: '/business/suppliers',
       rows: [
         ['UK and euro countries', '₦2,500 per payment'],
         ['United States', '₦3,500 per payment'],

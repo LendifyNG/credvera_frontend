@@ -2,12 +2,20 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { homeOf, useAudience } from '../../lib/audience';
 import { company, ctaFor, isGroup, navByAudience, type NavLinkItem } from '../../lib/site';
+import StoreButtons from '../business/StoreButtons';
 import ButtonLink from '../ui/ButtonLink';
 
-const legal = [
-  { label: 'Privacy policy', to: '/privacy' },
-  { label: 'Terms of use', to: '/terms' },
-];
+// Each audience has its own legal pages.
+const legalFor = {
+  personal: [
+    { label: 'Privacy policy', to: '/privacy' },
+    { label: 'Terms of use', to: '/terms' },
+  ],
+  business: [
+    { label: 'Privacy notice', to: '/business/privacy' },
+    { label: 'Terms of use', to: '/business/terms' },
+  ],
+};
 
 // One line on what Credvera is, for each audience.
 const tagline = {
@@ -23,7 +31,7 @@ export default function SiteFooter() {
     ...nav.filter(isGroup).map((group) => ({ title: group.label, items: group.items })),
     {
       title: 'More',
-      items: [...nav.filter((entry): entry is NavLinkItem => !isGroup(entry)), ...legal],
+      items: [...nav.filter((entry): entry is NavLinkItem => !isGroup(entry)), ...legalFor[audience]],
     },
   ];
 
@@ -41,13 +49,14 @@ export default function SiteFooter() {
             <p className="mt-6 text-base leading-relaxed text-white/60">{tagline[audience]}</p>
             <div className="mt-8">
               <ButtonLink to={cta.to}>{cta.label}</ButtonLink>
+              {audience === 'business' && <StoreButtons tone="light" className="mt-4" />}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
             {groups.map((group) => (
               <div key={group.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">{group.title}</h3>
+                <h3 className="text-[13px] font-semibold text-white/40">{group.title}</h3>
                 <ul className="mt-5 space-y-3">
                   {group.items.map((item) => (
                     <li key={item.to}>

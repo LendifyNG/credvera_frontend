@@ -58,7 +58,7 @@ export default function AutoSaveYear() {
       <div ref={ref} className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-[1fr_1.15fr] lg:px-8 lg:py-32">
         <div>
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-[13px] font-semibold text-primary">
               <span className="mr-3 tabular-nums">01</span>Automatic
             </p>
           </Reveal>
@@ -111,7 +111,7 @@ export default function AutoSaveYear() {
               const end = Math.round(((row + 1) * WEEKS) / 12);
               return (
                 <div key={m} className="contents">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-white/35">{m}</span>
+                  <span className="text-[13px] font-semibold text-white/35">{m}</span>
                   <div className="flex gap-1.5">
                     {weeks.slice(start, end).map((w, j) => (
                       <motion.span

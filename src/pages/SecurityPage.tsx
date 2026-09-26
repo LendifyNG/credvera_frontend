@@ -1,9 +1,10 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Headline from '../components/editorial/Headline';
 import PageHeader from '../components/editorial/PageHeader';
 import ScamTest from '../components/editorial/ScamTest';
 import Reveal from '../components/ui/Reveal';
+import { useAudience } from '../lib/audience';
 
 const habits = [
   ['Keep your PIN to yourself', 'Never share your PIN, password or one-time codes with anyone, including someone who says they work for Credvera.'],
@@ -14,6 +15,9 @@ const habits = [
 
 /** Security: the scams people try, played against the app, then good habits. */
 export default function SecurityPage() {
+  const { audience } = useAudience();
+  // Business has its own security page.
+  if (audience === 'business') return <Navigate to="/business/security" replace />;
   return (
     <>
       <PageHeader

@@ -2,17 +2,9 @@
 // From Unsplash and Pexels (both free licences, commercial use allowed, no
 // credit required). Credits are kept here only, never shown on the page.
 // Short looping clips live in /public/video (Pexels), each with a .jpg still.
-import abroadBalcony from '../assets/photos/personal/abroad-balcony-lagos.webp';
-import abroadLaptop from '../assets/photos/personal/abroad-laptop-home.webp';
 import blogBridge from '../assets/photos/personal/blog-lagos-bridge.webp';
 import blogSkyline from '../assets/photos/personal/blog-lagos-skyline.webp';
-import blogTraffic from '../assets/photos/personal/blog-lagos-traffic.webp';
 import blogKaftan from '../assets/photos/personal/blog-man-kaftan-phone.webp';
-import ctaLaughing from '../assets/photos/personal/cta-woman-laughing.webp';
-import everydayStreet from '../assets/photos/personal/everyday-street-phone.webp';
-import heroAnkara from '../assets/photos/personal/hero-woman-ankara.webp';
-import passportWoman from '../assets/photos/personal/passport-woman-building.webp';
-import splitDinner from '../assets/photos/personal/split-friends-dinner.webp';
 import womanGele from '../assets/photos/personal/woman-gele-phone.webp';
 import marketTomatoes from '../assets/photos/personal/market-tomatoes.webp';
 import friendsSelfie from '../assets/photos/personal/friends-selfie-dinner.webp';
@@ -29,14 +21,6 @@ import marketOnions from '../assets/photos/personal/market-onions.webp';
 export type Photo = { src: string; width: number; height: number; alt: string; credit: string };
 
 export const photos = {
-  heroAnkara: { src: heroAnkara, width: 1067, height: 1600, alt: 'A young woman in a blue ankara dress smiling at her phone', credit: 'Segun Osunyomi' },
-  abroadLaptop: { src: abroadLaptop, width: 1600, height: 1064, alt: 'A woman with long braids working on her laptop at home', credit: 'Daniel Thomas' },
-  abroadBalcony: { src: abroadBalcony, width: 1067, height: 1600, alt: 'A man on a balcony above city rooftops, looking at his phone', credit: 'Blessing Olarewaju' },
-  everydayStreet: { src: everydayStreet, width: 1067, height: 1600, alt: 'A young woman checking her phone on a city street', credit: 'Muhammad-Taha Ibrahim' },
-  splitDinner: { src: splitDinner, width: 1573, height: 1600, alt: 'Friends laughing together around a restaurant table', credit: 'Jim Nyamao' },
-  passportWoman: { src: passportWoman, width: 1600, height: 1067, alt: 'A confident young woman with braids standing outside a building', credit: 'Blessing Olarewaju' },
-  ctaLaughing: { src: ctaLaughing, width: 1600, height: 1067, alt: 'A woman laughing with friends outdoors', credit: 'Kona Studios' },
-  blogTraffic: { src: blogTraffic, width: 1400, height: 934, alt: 'Lagos traffic seen from above, with yellow buses', credit: 'Opeyemi Adisa' },
   blogBridge: { src: blogBridge, width: 1600, height: 1068, alt: 'A Lagos bridge lit up over the water at night', credit: 'Opeyemi Adisa' },
   blogSkyline: { src: blogSkyline, width: 1600, height: 1067, alt: 'The Lagos skyline on a cloudy day', credit: 'Stephen Olatunde' },
   blogKaftan: { src: blogKaftan, width: 857, height: 1200, alt: 'A man in a pink kaftan laughing on the phone', credit: 'Olumide Adekunle' },

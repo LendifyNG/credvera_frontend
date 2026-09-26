@@ -9,7 +9,7 @@ export default function NextChapter({ current }: { current: string }) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
       <Link to={next.to} className="group block border-t border-ink/15 pt-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink/45">Next chapter · {next.no}</p>
+        <p className="text-[13px] font-semibold text-ink/45">Next chapter · {next.no}</p>
         <div className="mt-4 flex items-end justify-between gap-8">
           <div>
             <p className="text-[clamp(2.2rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em] transition-colors duration-500 group-hover:text-background">

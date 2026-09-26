@@ -153,7 +153,7 @@ export default function PriceCheck({ audience }: { audience: Audience }) {
   return (
     <div className="grid items-start gap-14 lg:grid-cols-[1fr_minmax(0,400px)] lg:gap-24">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink/40">What do you want to do?</p>
+        <p className="text-[13px] font-semibold text-ink/40">What do you want to do?</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {list.map((x, i) => (
             <button

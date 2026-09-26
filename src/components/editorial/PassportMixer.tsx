@@ -49,7 +49,7 @@ function Redact({ hidden, children, note }: { hidden: boolean; children: React.R
 function Choice<T extends string | number>({ label, options, value, onChange, format }: { label: string; options: T[]; value: number; onChange: (i: number) => void; format: (o: T) => string }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/40">{label}</p>
+      <p className="text-[13px] font-semibold text-ink/40">{label}</p>
       <div className="mt-2.5 flex flex-wrap gap-2">
         {options.map((o, i) => (
           <button
@@ -105,7 +105,7 @@ export default function PassportMixer() {
       <div ref={ref} className="grid items-center gap-16 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-24">
         <div>
           <Reveal>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-background">
+            <p className="text-[13px] font-semibold text-background">
               <span className="mr-3 tabular-nums">01</span>Create
             </p>
           </Reveal>
@@ -141,7 +141,7 @@ export default function PassportMixer() {
 
         {/* What they'll get, live */}
         <div className="relative">
-          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-ink/40">What they’ll see</p>
+          <p className="mb-3 text-center text-[13px] font-semibold text-ink/40">What they’ll see</p>
           <div className="rounded-[1.75rem] bg-white p-7 shadow-[0_40px_80px_-40px_rgba(1,21,4,0.4)] ring-1 ring-ink/5 sm:p-8">
             <div className="flex items-center justify-between">
               <img src={logo} alt="Credvera" className="h-5 w-auto" />

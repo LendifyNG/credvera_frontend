@@ -25,7 +25,7 @@ export default function Masthead({ chapter, of, section, title, lede, photo, cap
   return (
     <header className="mx-auto max-w-7xl px-6 pb-16 pt-32 lg:px-8 lg:pb-24 lg:pt-40">
       <Reveal>
-        <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-xs font-semibold uppercase tracking-[0.22em] text-ink/50">
+        <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50">
           <span className="text-background">Chapter {chapter}</span>
           <span className="h-px w-8 bg-ink/20" />
           <span>{section}</span>

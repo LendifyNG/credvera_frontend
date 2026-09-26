@@ -75,7 +75,7 @@ export default function BillerRail() {
   return (
     <section className="relative overflow-hidden bg-secondary py-14 text-white lg:py-20" aria-label="Billers you can pay in the app">
       <div className="mx-auto mb-10 flex max-w-7xl items-baseline justify-between gap-6 px-6 lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Pay in the app</p>
+        <p className="text-[13px] font-semibold text-primary">Pay in the app</p>
         <p className="text-sm text-white/45">
           <span className="font-semibold tabular-nums text-white">{billers.length}</span> billers, one app
         </p>
@@ -88,7 +88,7 @@ export default function BillerRail() {
             <li key={name} className="group flex shrink-0 items-center">
               <span className="relative px-6 text-[clamp(2.6rem,7vw,6.2rem)] font-semibold leading-none tracking-[-0.04em] text-white/90 transition-colors duration-300 group-hover:text-primary lg:px-10">
                 {name}
-                <span className="absolute -bottom-6 left-6 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.2em] text-white/35 transition-colors duration-300 group-hover:text-primary/80 lg:left-10">
+                <span className="absolute -bottom-6 left-6 whitespace-nowrap text-[13px] font-semibold text-white/35 transition-colors duration-300 group-hover:text-primary/80 lg:left-10">
                   {note}
                 </span>
               </span>
