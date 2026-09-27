@@ -15,6 +15,8 @@ const steps = [
   { board: 'ARRIVED · YOUR USD ACCOUNT', title: 'It lands in your name', body: 'The dollars sit in your Credvera USD account. Keep them in dollars for as long as you like.' },
   { board: 'CONVERTED · NAIRA READY', title: 'You convert, when you choose', body: 'Our rate beside the market rate, held while you confirm. Then spend, send or save.' },
 ];
+// The longest half of any board, for the two-row version on phones.
+const HALF = Math.max(...steps.flatMap((st) => st.board.split(' · ').map((h) => h.length)));
 
 // Where in the scroll each step begins (0 to 1).
 const STARTS = [0, 0.14, 0.6, 0.78];
@@ -59,11 +61,18 @@ export default function MoneyRoute() {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-[13px] font-semibold text-primary">The route of a dollar</p>
-              <div className="mt-4 text-[14px] sm:text-[20px] lg:text-[24px]">
+              {/* Phones and small tablets: the board in two rows, split at the "·",
+                  each row as long as the longest half so the board never jumps.
+                  Sized so 16 tiles always fit the width. */}
+              <div className="mt-4 flex flex-col gap-1.5 text-[min(18px,calc((100vw-102px)/21))] md:hidden">
+                <SplitFlap text={current.board.split(' · ')[0] ?? ''} length={HALF} />
+                <SplitFlap text={current.board.split(' · ')[1] ?? ''} length={HALF} />
+              </div>
+              <div className="mt-4 hidden text-[17px] md:block lg:text-[24px]">
                 <SplitFlap text={current.board} length={26} />
               </div>
             </div>
-            <p className="hidden font-mono text-xs leading-relaxed text-white/40 md:block">
+            <p className="hidden text-xs leading-relaxed tabular-nums text-white/40 md:block">
               SFO 37.77°N 122.42°W
               <br />
               LOS 6.52°N 3.38°E
