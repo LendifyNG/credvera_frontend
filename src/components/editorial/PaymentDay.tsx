@@ -160,10 +160,13 @@ export default function PaymentDay() {
                 </span>
               </div>
               {d.token ? (
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-secondary px-3 py-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">Token</span>
-                  <span className="text-[8.5px] sm:text-[10.5px]">
-                    <SplitFlap text={d.token} length={24} />
+                <div className="mt-3 rounded-xl bg-secondary px-3 py-2.5">
+                  <span className="block text-[12px] font-medium text-primary/70">Token</span>
+                  {/* One flap group per block of four, so it wraps instead of running off the card */}
+                  <span className="mt-1.5 flex flex-wrap gap-x-2 gap-y-1.5 text-[11px] sm:text-[12px]" aria-label={d.token}>
+                    {d.token.split(' ').map((g, i) => (
+                      <SplitFlap key={i} text={g} length={4} />
+                    ))}
                   </span>
                 </div>
               ) : null}

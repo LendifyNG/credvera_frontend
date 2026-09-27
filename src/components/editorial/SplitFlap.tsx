@@ -47,7 +47,7 @@ export default function SplitFlap({ text, length = 30, className = '' }: { text:
         <span
           key={i}
           aria-hidden
-          className="relative grid h-[1.9em] w-[1.25em] place-items-center overflow-hidden rounded-[3px] bg-[#0b1f10] font-mono text-primary shadow-[inset_0_-1px_0_rgba(255,255,255,0.04)]"
+          className="relative grid h-[1.9em] w-[1.25em] place-items-center overflow-hidden rounded-[3px] bg-[#0b1f10] font-semibold tabular-nums text-primary shadow-[inset_0_-1px_0_rgba(255,255,255,0.04)]"
         >
           {ch === ' ' ? ' ' : ch}
           {/* The hinge across the middle of each flap */}

@@ -122,7 +122,7 @@ export default function FeatureIndex() {
                     type="button"
                     onClick={() => setOpen(isOpen ? null : p.to)}
                     aria-expanded={isOpen}
-                    className="group grid w-full grid-cols-[2.75rem_1fr_auto] items-center gap-4 py-7 text-left sm:grid-cols-[3.5rem_1fr_auto] sm:py-8"
+                    className="group grid w-full grid-cols-[2.25rem_1fr_auto] items-center gap-3 py-7 text-left sm:gap-4 sm:grid-cols-[3.5rem_1fr_auto] sm:py-8"
                   >
                     <span
                       className={`grid size-9 place-items-center rounded-full text-xs font-semibold tabular-nums transition-colors duration-500 sm:size-10 ${
@@ -132,7 +132,7 @@ export default function FeatureIndex() {
                       {p.no}
                     </span>
                     <span>
-                      <span className="relative inline-block text-[clamp(1.6rem,3.6vw,2.9rem)] font-semibold leading-none tracking-[-0.03em]">
+                      <span className="relative inline-block whitespace-nowrap text-[clamp(1.2rem,5.9vw,2.9rem)] font-semibold leading-none tracking-[-0.03em]">
                         {p.title}
                         {/* A thin line sweeps under the title on hover */}
                         <span
@@ -162,7 +162,7 @@ export default function FeatureIndex() {
                         transition={{ duration: 0.55, ease }}
                         className="overflow-hidden"
                       >
-                        <div className="grid gap-8 pb-10 pl-[3.75rem] sm:pl-[4.5rem] md:grid-cols-[1.2fr_1fr]">
+                        <div className="grid gap-8 pb-10 pl-12 sm:pl-[4.5rem] md:grid-cols-[1.2fr_1fr]">
                           <div>
                             <p className="max-w-md text-lg leading-relaxed text-ink/70">{m.body}</p>
                             <ul className="mt-6 space-y-2.5">
