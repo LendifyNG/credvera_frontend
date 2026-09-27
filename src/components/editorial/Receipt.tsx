@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 
 // An example receipt from the app: prepaid electricity with its token.
 const lines = [

@@ -1,4 +1,5 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { useRef } from 'react';
 import BizClose from '../../components/business/BizClose';
 import { CardControls, CardFace, CostSorter, PhysicalOutline } from '../../components/business/CardPieces';

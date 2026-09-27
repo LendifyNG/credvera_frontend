@@ -1,4 +1,5 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { useEffect, useRef, useState } from 'react';
 import payCard from '../../assets/photos/business/pay-card.webp';
 import payInvoice from '../../assets/photos/business/pay-invoice.webp';

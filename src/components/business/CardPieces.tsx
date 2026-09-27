@@ -1,4 +1,5 @@
-import { AnimatePresence, LayoutGroup, motion, useInView, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion, useInView } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { Minus, Plus, Snowflake } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import logoDark from '../../assets/logo-dark.png';

@@ -1,4 +1,5 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight, Check } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { company } from '../../lib/site';

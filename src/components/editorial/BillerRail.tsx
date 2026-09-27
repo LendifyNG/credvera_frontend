@@ -1,13 +1,5 @@
-import {
-  motion,
-  useAnimationFrame,
-  useMotionValue,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-  useVelocity,
-} from 'framer-motion';
+import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { useRef, type ReactNode } from 'react';
 
 // Billers the app supports today, with what you pay each one.

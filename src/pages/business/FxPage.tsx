@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import BizClose from '../../components/business/BizClose';
 import FxDesk from '../../components/business/FxDesk';
 import { CurrencyWindows, HoldTracks, QuoteSum } from '../../components/business/FxPieces';

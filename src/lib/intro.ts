@@ -8,10 +8,8 @@ export function useIntroDone() {
 }
 
 /**
- * The intro plays on every full load (including reloads) of the homepage, and
- * never for visitors who prefer reduced motion.
+ * The intro plays on every full load (including reloads) of the homepage.
  */
 export function shouldPlayIntro(pathname: string): boolean {
-  if (pathname !== '/' && pathname !== '/business') return false;
-  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return pathname === '/' || pathname === '/business';
 }

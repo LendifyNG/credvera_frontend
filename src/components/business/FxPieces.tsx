@@ -1,4 +1,5 @@
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { Check, RefreshCw } from 'lucide-react';
 import { useRef, useState } from 'react';
 import frankfurt from '../../assets/photos/business/city-frankfurt.webp';

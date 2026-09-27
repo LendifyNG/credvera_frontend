@@ -85,9 +85,8 @@ export default function App() {
   const handleIntroReveal = useCallback(() => setIntroDone(true), []);
   const handleIntroFinish = useCallback(() => setIntroActive(false), []);
 
-  // Smooth scrolling, skipped for visitors who prefer reduced motion.
+  // Smooth scrolling (on touch screens the phone's own scrolling is kept).
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const lenis = new Lenis({ autoRaf: true, lerp: 0.1 });
     lenisRef.current = lenis;
     return () => {

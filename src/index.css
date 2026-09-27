@@ -122,12 +122,5 @@ html.lenis body {
   overflow: hidden;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+/* Motion plays for everyone: phones report "reduce motion" whenever power
+   saving is on, which switched the whole site to still. See lib/motion.ts. */

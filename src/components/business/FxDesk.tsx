@@ -1,4 +1,5 @@
-import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
+import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
