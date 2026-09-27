@@ -1,4 +1,5 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { CreditCard, Lightbulb, Landmark, Smartphone, Tv, ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import SplitFlap from './SplitFlap';

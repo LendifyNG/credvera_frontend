@@ -1,4 +1,5 @@
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';

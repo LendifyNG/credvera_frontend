@@ -1,4 +1,5 @@
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { useRef, type ReactNode } from 'react';
 import { photos, type Photo } from '../../lib/photos';
 import Reveal from '../ui/Reveal';

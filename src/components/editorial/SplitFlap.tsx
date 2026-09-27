@@ -12,10 +12,6 @@ export default function SplitFlap({ text, length = 30, className = '' }: { text:
   const frame = useRef<number | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setShown(target);
-      return;
-    }
     const start = performance.now();
     const from = shown;
     const tick = (now: number) => {

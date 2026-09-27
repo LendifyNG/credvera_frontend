@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { ArrowDownLeft, Repeat } from 'lucide-react';
 import Reveal from '../ui/Reveal';
 import Headline from './Headline';

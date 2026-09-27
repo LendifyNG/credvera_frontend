@@ -1,4 +1,4 @@
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from '../../lib/motion';
 import { useEffect, useRef } from 'react';
 
 type LoopVideoProps = {
