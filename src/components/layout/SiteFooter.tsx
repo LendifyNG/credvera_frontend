@@ -4,6 +4,7 @@ import { homeOf, useAudience } from '../../lib/audience';
 import { company, ctaFor, isGroup, navByAudience, type NavLinkItem } from '../../lib/site';
 import StoreButtons from '../business/StoreButtons';
 import ButtonLink from '../ui/ButtonLink';
+import PaintedWordmark from './PaintedWordmark';
 
 // Each audience has its own legal pages.
 const legalFor = {
@@ -97,12 +98,8 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      <p
-        aria-hidden
-        className="pointer-events-none select-none px-4 text-center text-[22vw] font-bold leading-[0.8] tracking-tighter text-white/[0.04]"
-      >
-        credvera
-      </p>
+      {/* The big wordmark, painted in by a small painter when it scrolls into view */}
+      <PaintedWordmark />
     </footer>
   );
 }
