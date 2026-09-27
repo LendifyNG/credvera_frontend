@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, ScanLine, Smartphone } from 'lucide-react
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import ClothBand from '../components/business/ClothBand';
 import { signIn } from './store';
 import { QrPattern } from './ui';
 
@@ -80,23 +81,20 @@ export default function SignIn() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [approved]);
 
-  // TODO(credvera): send and check the code, and the PIN, with the API.
+  // TODO(credvera): send and check the code with the API, then check the PIN
+  // and call finish() when both pass. Until that's connected, a full PIN
+  // simply waits here, like the scan.
   useEffect(() => {
     if (mode === 'code' && code.length === 6) {
       const t = window.setTimeout(() => setMode('pin'), 400);
       return () => clearTimeout(t);
     }
-    if (mode === 'pin' && pin.length === 4) {
-      const t = window.setTimeout(finish, 400);
-      return () => clearTimeout(t);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, pin, mode]);
+  }, [code, mode]);
 
   const ring = 2 * Math.PI * 9;
 
   return (
-    <div className="grid min-h-screen bg-ledger text-graphite lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid min-h-screen bg-ledger text-graphite lg:grid-cols-[1fr_auto_1.1fr]">
       {/* Left: what's happening */}
       <aside className="flex flex-col justify-between bg-graphite p-8 text-white lg:p-14">
         <Link to="/business" className="w-fit">
@@ -127,6 +125,10 @@ export default function SignIn() {
         </div>
         <p className="text-[13px] text-white/45">No password to remember, and nothing for anyone to steal.</p>
       </aside>
+
+      {/* A strip of woven cloth where the two halves meet */}
+      <ClothBand className="h-9 w-full lg:hidden" vertical={false} />
+      <ClothBand className="hidden h-full w-9 lg:block" />
 
       {/* Right: the code, or the phone-number route */}
       <main className="flex items-center justify-center p-6 py-16 lg:p-14">

@@ -22,13 +22,19 @@ export default function LoopVideo({ name, label, className = '', style, eager = 
   useEffect(() => {
     const v = ref.current;
     if (!v || reduce) return;
+    // Phones only autoplay silent video, and some check the muted attribute
+    // itself, which React doesn't write; set both before anything plays.
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute('muted', '');
+    if (eager) v.play().catch(() => {});
     const io = new IntersectionObserver(([e]) => {
       if (e?.isIntersecting) v.play().catch(() => {});
       else v.pause();
     });
     io.observe(v);
     return () => io.disconnect();
-  }, [reduce]);
+  }, [reduce, eager]);
 
   return (
     <video

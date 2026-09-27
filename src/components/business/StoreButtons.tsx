@@ -1,24 +1,49 @@
 import { links } from '../../lib/site';
 
-/**
- * The app on both stores, as plain buttons (not the stores' own badge
- * artwork, which comes with strict usage rules).
- */
+// The stores' own marks (shapes from Simple Icons, CC0): Apple's in white,
+// Google Play's in its four colours.
+// TODO(credvera): before launch, consider Apple's and Google's official badge
+// artwork from their marketing pages, which their guidelines prefer.
+const apple =
+  'M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701';
+// Google Play's four-colour triangle, split into its parts.
+const play = [
+  { d: 'M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924z', fill: '#00D7FE' },
+  { d: 'M13.544 10.989l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973z', fill: '#00F076' },
+  { d: 'M13.544 13.056l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z', fill: '#FF3A44' },
+  { d: 'M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z', fill: '#FFD400' },
+];
+
+/** The app on both stores: each store's mark beside the familiar two lines. */
 export default function StoreButtons({ tone = 'dark', className = '' }: { tone?: 'dark' | 'light'; className?: string }) {
   const cls =
     tone === 'dark'
-      ? 'bg-graphite text-white ring-1 ring-white/10 hover:bg-black'
-      : 'bg-white/10 text-white ring-1 ring-white/25 backdrop-blur hover:bg-white/15';
+      ? 'bg-black text-white hover:bg-graphite'
+      : 'bg-black/70 text-white ring-1 ring-white/25 backdrop-blur hover:bg-black';
   const stores = [
-    { href: links.appStore, small: 'Download on the', big: 'App Store' },
-    { href: links.playStore, small: 'Get it on', big: 'Google Play' },
+    { href: links.appStore, small: 'Download on the', big: 'App Store', paths: [{ d: apple, fill: 'currentColor' }] },
+    { href: links.playStore, small: 'Get it on', big: 'Google Play', paths: play },
   ];
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {stores.map((s) => (
-        <a key={s.big} href={s.href} target="_blank" rel="noopener noreferrer" className={`inline-flex h-11 flex-col justify-center rounded-md px-4 leading-none transition-colors ${cls}`}>
-          <span className="text-[10.5px] opacity-70">{s.small}</span>
-          <span className="mt-0.5 text-[15px] font-semibold tracking-tight">{s.big}</span>
+        <a
+          key={s.big}
+          href={s.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${s.small} ${s.big}`}
+          className={`inline-flex h-12 items-center gap-2.5 rounded-lg px-4 transition-colors ${cls}`}
+        >
+          <svg viewBox="0 0 24 24" className="size-6 shrink-0" aria-hidden>
+            {s.paths.map((p) => (
+              <path key={p.d} d={p.d} fill={p.fill} />
+            ))}
+          </svg>
+          <span className="flex flex-col leading-none">
+            <span className="text-[10px]">{s.small}</span>
+            <span className="mt-0.5 text-[16px] font-semibold tracking-[-0.01em]">{s.big}</span>
+          </span>
         </a>
       ))}
     </div>
