@@ -1,28 +1,171 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpDown, CheckCheck, LayoutList, LogOut, Menu, Search, X } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  BarChart3,
+  CheckCheck,
+  FileText,
+  Link2,
+  PackageCheck,
+  UserRound,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  CircleHelp,
+  CreditCard,
+  House,
+  Landmark,
+  List,
+  LogOut,
+  Menu,
+  PanelLeft,
+  Search,
+  Send,
+  Settings,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
-import { signOut, useDash } from './store';
+import NotificationBell from './Notifications';
+import { Convert } from './money';
+import { isOverdue, signOut, useDash } from './store';
 
-const nav = [
-  { to: '/business/app', label: 'Today', icon: LayoutList, end: true },
-  { to: '/business/app/payments', label: 'Payments', icon: ArrowUpDown },
-  { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck },
-];
+// Fine speckled grain, like uncoated paper: noise cut to small flecks in a
+// warm grey, tiled. Only the flecks are drawn, so the colour beneath stays.
+const PAPER = `url("data:image/svg+xml,${encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.53  0 0 0 0 0.47  0 0 0 2.2 -0.97'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>",
+)}")`;
 
-/** The signed-in dashboard: a quiet sidebar, the command bar on top, the page in the middle. */
+type Sub = { label: string; hint?: string; to?: string; action?: 'convert'; badge?: number };
+type Item = { label: string; icon: LucideIcon; to: string; end?: boolean; menu?: Sub[]; badge?: number };
+
+
+/** The name of the page, for the top bar. */
+function pageName(pathname: string) {
+  if (pathname === '/business/app') return 'Home';
+  if (pathname.startsWith('/business/app/payments')) return 'Transactions';
+  if (pathname.startsWith('/business/app/approvals')) return 'Approvals';
+  if (pathname.startsWith('/business/app/accounts')) return 'Accounts';
+  if (pathname.startsWith('/business/app/pay')) return 'Payments';
+  if (pathname.startsWith('/business/app/fx')) return 'FX';
+  if (pathname.startsWith('/business/app/cards')) return 'Cards';
+  if (pathname.startsWith('/business/app/invoices')) return 'Invoices';
+  if (pathname.startsWith('/business/app/links')) return 'Payment links';
+  if (pathname.startsWith('/business/app/customers')) return 'Customers';
+  if (pathname.startsWith('/business/app/suppliers')) return 'Suppliers';
+  if (pathname.startsWith('/business/app/team')) return 'Team';
+  if (pathname.startsWith('/business/app/reports')) return 'Reports';
+  if (pathname.startsWith('/business/app/settings')) return 'Settings';
+  if (pathname.startsWith('/business/app/help')) return 'Help';
+  const what = pathname.split('/soon/')[1];
+  return what ? what[0]!.toUpperCase() + what.slice(1).replace(/-/g, ' ') : 'Dashboard';
+}
+
+/**
+ * One sidebar row. Rows with more to them show it in a small menu beside the
+ * sidebar on hover, rather than opening another page of options; on phones
+ * the same options open under the row.
+ */
+function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => void; inDrawer: boolean }) {
+  const { pathname, search } = useLocation();
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number }>({ top: 0, left: 0 });
+  // Lit only when you're on one of its own options (Transactions has the list itself).
+  const activeSub = item.menu?.some((m) => m.to && `${pathname}${search}` === m.to);
+  const row = (active: boolean) =>
+    `flex items-center justify-between gap-3 rounded-lg px-3 py-[7px] text-[14.5px] transition-colors ${
+      active ? 'bg-white/[0.1] text-white' : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
+    }`;
+  const label = (
+    <span className="flex items-center gap-3">
+      <item.icon className="size-[18px]" strokeWidth={1.75} />
+      {item.label}
+    </span>
+  );
+  const badge = (n?: number) => (n ? <span className="rounded-md bg-[#f5c451] px-1.5 text-[11px] font-semibold text-graphite">{n}</span> : null);
+
+  const subLink = (m: Sub) =>
+    m.action === 'convert' ? (
+      <button key={m.label} type="button" onClick={onConvert} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-[#f5f4ef]">
+        <span className="block text-[14px] font-medium text-graphite">{m.label}</span>
+        {m.hint && <span className="block text-[12.5px] text-graphite/50">{m.hint}</span>}
+      </button>
+    ) : (
+      <NavLink key={m.label} to={m.to!} className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-[#f5f4ef]">
+        <span>
+          <span className="block text-[14px] font-medium text-graphite">{m.label}</span>
+          {m.hint && <span className="block text-[12.5px] text-graphite/50">{m.hint}</span>}
+        </span>
+        {badge(m.badge)}
+      </NavLink>
+    );
+
+  if (!item.menu) {
+    return (
+      <NavLink to={item.to} end={item.end} className={({ isActive }) => row(isActive)}>
+        {label}
+        {badge(item.badge)}
+      </NavLink>
+    );
+  }
+
+  if (inDrawer) {
+    return (
+      <div>
+        <button type="button" onClick={() => setOpen((o) => !o)} className={`${row(!!activeSub)} w-full`} aria-expanded={open}>
+          {label}
+          <ChevronDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+        {open && <div className="mt-1 space-y-0.5 rounded-lg bg-white p-1.5">{item.menu.map(subLink)}</div>}
+      </div>
+    );
+  }
+
+  // The menu floats beside the row (fixed, so a scrolling sidebar can't clip it).
+  const place = (e: React.SyntheticEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    // Low on the screen, it opens upwards from the row's bottom edge.
+    setPos(r.top > window.innerHeight - 300 ? { bottom: window.innerHeight - r.bottom, left: r.right } : { top: r.top, left: r.right });
+  };
+
+  return (
+    <div className="group relative" onMouseEnter={place} onFocus={place}>
+      <NavLink to={item.to} className={() => row(!!activeSub)}>
+        {label}
+        <span className="flex items-center gap-2">
+          {badge(item.badge)}
+          <ChevronRight className="size-4 text-white/35" />
+        </span>
+      </NavLink>
+      {/* The hover menu, bridged by padding so the pointer can cross to it */}
+      <div style={pos} className="invisible fixed z-50 pl-3 opacity-0 transition-opacity duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+        <div className="w-64 rounded-xl bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(20,28,23,0.35)] ring-1 ring-graphite/10">
+          <p className="px-3 pb-1 pt-2 text-[12.5px] font-medium text-graphite/45">{item.label}</p>
+          {item.menu.map(subLink)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The signed-in dashboard: a calm sidebar, a top bar with search, the page in the middle. */
 export default function AppShell() {
-  const { session, payments } = useDash();
+  const { session, payments, balances, invoices } = useDash();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [bar, setBar] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [switcher, setSwitcher] = useState(false);
+  const [converting, setConverting] = useState(false);
   const waiting = payments.filter((p) => p.status === 'waiting').length;
+  const overdueInvoices = invoices.filter(isOverdue).length;
 
-  // ⌘K, Ctrl+K or / opens the command bar from anywhere.
+  // ⌘K, Ctrl+K or / opens search from anywhere.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = /input|textarea|select/i.test((e.target as HTMLElement).tagName);
@@ -35,110 +178,244 @@ export default function AppShell() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  useEffect(() => setDrawer(false), [pathname]);
+  useEffect(() => {
+    setDrawer(false);
+    setMenu(false);
+    setSwitcher(false);
+  }, [pathname]);
 
   if (!session) return <Navigate to="/business/app/sign-in" replace />;
 
-  const side = (
-    <div className="flex h-full flex-col bg-graphite p-5 text-white">
-      <div className="flex items-center justify-between">
-        <img src={logo} alt="Credvera" className="h-6 w-auto" />
-        <button type="button" onClick={() => setDrawer(false)} aria-label="Close menu" className="text-white/50 lg:hidden">
-          <X className="size-5" />
+  const out = () => {
+    signOut();
+    navigate('/business/app/sign-in', { replace: true });
+  };
+
+  const initials = session.business
+    .replace(/\b(Ltd|Limited|Plc)\b\.?/gi, '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+
+  const groups: { label?: string; items: Item[] }[] = [
+    {
+      items: [
+        { to: '/business/app', label: 'Home', icon: House, end: true },
+        { to: '/business/app/payments', label: 'Transactions', icon: List },
+      ],
+    },
+    {
+      label: 'Money',
+      items: [
+        { to: '/business/app/accounts', label: 'Accounts', icon: Landmark },
+        {
+          to: '/business/app/pay',
+          label: 'Payments',
+          icon: Send,
+          menu: [
+            { label: 'Pay someone', hint: 'In naira, to any Nigerian bank', to: '/business/app/pay' },
+            { label: 'Bulk payments', hint: 'Many people from one file, like salaries', to: '/business/app/pay/bulk' },
+            { label: 'Scheduled payments', hint: 'Payments that repeat', to: '/business/app/pay/scheduled' },
+            { label: 'Bills', hint: 'Electricity, airtime, data, TV', to: '/business/app/pay/bills' },
+          ],
+        },
+        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, badge: waiting },
+        {
+          to: '/business/app/fx',
+          label: 'FX',
+          icon: ArrowLeftRight,
+          menu: [
+            { label: 'Today’s rates', hint: 'Against the naira, with 30 days of history', to: '/business/app/fx' },
+            { label: 'Convert', hint: 'Between your own currencies', to: '/business/app/fx/convert' },
+            { label: 'Rate alerts', hint: 'Tell me when a rate reaches my number', to: '/business/app/fx/alerts' },
+          ],
+        },
+        { to: '/business/app/cards', label: 'Cards', icon: CreditCard },
+      ],
+    },
+    {
+      label: 'Get paid',
+      items: [
+        { to: '/business/app/invoices', label: 'Invoices', icon: FileText, badge: overdueInvoices },
+        { to: '/business/app/links', label: 'Payment links', icon: Link2 },
+        { to: '/business/app/customers', label: 'Customers', icon: UserRound },
+      ],
+    },
+    {
+      label: 'Trade',
+      items: [
+        {
+          to: '/business/app/suppliers',
+          label: 'Suppliers',
+          icon: PackageCheck,
+          menu: [
+            { label: 'Your suppliers', to: '/business/app/suppliers' },
+            { label: 'Protected orders', hint: 'Money held until the goods arrive', to: '/business/app/suppliers/orders' },
+            { label: 'Supplier invoice checks', hint: 'Spot a changed bank account before you pay', to: '/business/app/suppliers/checks' },
+          ],
+        },
+      ],
+    },
+    {
+      label: 'Business',
+      items: [
+        {
+          to: '/business/app/team',
+          label: 'Team',
+          icon: Users,
+          menu: [
+            { label: 'People', hint: 'Invite and remove', to: '/business/app/team' },
+            { label: 'Roles and approval limits', to: '/business/app/team/roles' },
+          ],
+        },
+        {
+          to: '/business/app/reports',
+          label: 'Reports',
+          icon: BarChart3,
+          menu: [
+            { label: 'Statements', to: '/business/app/reports' },
+            { label: 'Cash flow', to: '/business/app/reports/cash-flow' },
+            { label: 'Reconciliation', hint: 'Match payments to your books', to: '/business/app/reports/reconciliation' },
+            { label: 'Order profit calculator', to: '/business/app/reports/profit' },
+          ],
+        },
+        {
+          to: '/business/app/settings',
+          label: 'Settings',
+          icon: Settings,
+          menu: [
+            { label: 'Business details', to: '/business/app/settings' },
+            { label: 'Security', hint: 'Where you’re signed in', to: '/business/app/settings/security' },
+            { label: 'Notifications', to: '/business/app/settings/notifications' },
+            { label: 'Documents', hint: 'Your company’s checks', to: '/business/app/settings/documents' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const side = (inDrawer: boolean) => (
+    <div className="flex h-full flex-col bg-graphite px-3 py-4 text-white">
+      {/* Business switcher */}
+      <div className="relative">
+        <button type="button" onClick={() => setSwitcher((s) => !s)} aria-expanded={switcher} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-white/[0.06]">
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-[13px] font-bold text-graphite">{initials}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[14px] font-semibold">{session.business}</span>
+            <span className="block text-[12px] text-white/50">Business account</span>
+          </span>
+          <ChevronsUpDown className="size-4 text-white/45" />
         </button>
+        <AnimatePresence>
+          {switcher && (
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-full z-50 mt-1 rounded-xl bg-white p-1.5 text-graphite shadow-xl ring-1 ring-graphite/10">
+              <p className="px-3 pb-1 pt-2 text-[12.5px] text-graphite/45">
+                Signed in as {session.person} · {session.role}
+              </p>
+              <button type="button" onClick={out} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] hover:bg-[#f5f4ef]">
+                <LogOut className="size-4" /> Sign out
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {inDrawer && (
+          <button type="button" onClick={() => setDrawer(false)} aria-label="Close menu" className="absolute -right-1 -top-1 p-2 text-white/50">
+            <X className="size-5" />
+          </button>
+        )}
       </div>
-      <div className="mt-8 rounded-lg bg-white/[0.06] px-3 py-3 ring-1 ring-white/10">
-        <p className="text-[14px] font-semibold">{session.business}</p>
-        <p className="text-[12px] text-white/50">Business account</p>
-      </div>
-      <nav className="mt-8 space-y-1" aria-label="Dashboard">
-        {nav.map((n) => (
-          <NavLink
-            key={n.to}
-            to={n.to}
-            end={n.end}
-            className={({ isActive }) =>
-              `flex items-center justify-between rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors ${isActive ? 'bg-white text-graphite' : 'text-white/65 hover:bg-white/[0.06] hover:text-white'}`
-            }
-          >
-            <span className="flex items-center gap-3">
-              <n.icon className="size-4" />
-              {n.label}
-            </span>
-            {n.label === 'Approvals' && waiting > 0 && <span className="rounded-full bg-[#f5c451] px-2 py-0.5 text-[11px] font-semibold text-graphite">{waiting}</span>}
-          </NavLink>
+
+      <nav className="-mx-1 mt-5 flex-1 space-y-4 overflow-y-auto px-1" aria-label="Dashboard">
+        {groups.map((g, i) => (
+          <div key={i}>
+            {g.label && <p className="mb-1.5 px-3 text-[12.5px] font-medium text-white/40">{g.label}</p>}
+            <div className="space-y-0.5">
+              {g.items.map((it) => (
+                <NavRow key={it.label} item={it} inDrawer={inDrawer} onConvert={() => setConverting(true)} />
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
-      <div className="mt-auto rounded-lg p-3 text-[12.5px] leading-relaxed text-white/45">
-        Press <kbd className="rounded bg-white/10 px-1 font-ledger text-white/70">⌘K</kbd> anywhere and type what you need.
+
+      <div className="space-y-0.5 border-t border-white/10 pt-3">
+        <NavRow item={{ to: '/business/app/help', label: 'Help', icon: CircleHelp }} inDrawer={inDrawer} onConvert={() => {}} />
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-ledger text-graphite lg:pl-64">
+    <div className={`min-h-screen bg-[#f5f4ef] text-graphite ${collapsed ? '' : 'lg:pl-64'}`}>
+      {/* Paper grain over the page background, drawn in code; the sidebar and panels sit above it */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-100" style={{ backgroundImage: PAPER, backgroundSize: '220px 220px' }} />
+
       {/* Sidebar: fixed on large screens, a drawer on phones */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">{side}</aside>
+      {!collapsed && <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 lg:block">{side(false)}</aside>}
       <AnimatePresence>
         {drawer && (
           <motion.div className="fixed inset-0 z-50 bg-graphite/40 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}>
-            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.3 }} className="h-full w-72" onClick={(e) => e.stopPropagation()}>
-              {side}
+            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.3 }} className="h-full w-72 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              {side(true)}
             </motion.aside>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Top bar */}
-      <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-graphite/10 bg-ledger/90 px-4 py-3 backdrop-blur sm:px-8">
-        <button type="button" onClick={() => setDrawer(true)} aria-label="Open menu" className="grid size-10 place-items-center rounded-md ring-1 ring-graphite/15 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-graphite/10 bg-[#f5f4ef]/90 px-4 backdrop-blur sm:px-6">
+        <button type="button" onClick={() => setDrawer(true)} aria-label="Open menu" className="grid size-9 place-items-center rounded-lg text-graphite/70 hover:bg-graphite/5 lg:hidden">
           <Menu className="size-5" />
         </button>
+        <button type="button" onClick={() => setCollapsed((c) => !c)} aria-label={collapsed ? 'Show the sidebar' : 'Hide the sidebar'} className="hidden size-9 place-items-center rounded-lg text-graphite/60 hover:bg-graphite/5 lg:grid">
+          <PanelLeft className="size-5" strokeWidth={1.75} />
+        </button>
+        {collapsed && <img src={logoDark} alt="Credvera" className="hidden h-6 w-auto lg:block" />}
+        <p className="shrink-0 whitespace-nowrap text-[15px] font-semibold">{pageName(pathname)}</p>
+
         <button
           type="button"
           onClick={() => setBar(true)}
-          className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-lg bg-white px-4 text-left text-[15px] text-graphite/45 ring-1 ring-graphite/10 transition-shadow hover:ring-graphite/25 sm:max-w-xl"
+          className="mx-auto hidden h-10 w-full max-w-md items-center gap-3 rounded-full bg-white px-4 text-left text-[14px] text-graphite/45 ring-1 ring-graphite/10 transition-shadow hover:ring-graphite/25 md:flex"
         >
           <Search className="size-4" />
-          <span className="min-w-0 flex-1 truncate">
-            <span className="sm:hidden">Type what you need</span>
-            <span className="hidden sm:inline">Type what you need, like “pay Kemi 650k”</span>
-          </span>
-          <kbd className="hidden rounded bg-graphite/5 px-1.5 py-0.5 font-ledger text-[11px] sm:block">⌘K</kbd>
+          <span className="flex-1 truncate">Search payments, people and more</span>
+          <kbd className="rounded-md bg-graphite/5 px-1.5 py-0.5 text-[11px]">⌘K</kbd>
         </button>
-        <div className="relative ml-auto">
-          <button type="button" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white">
-            <span className="grid size-9 place-items-center rounded-full bg-graphite text-[14px] font-semibold text-white">{session.person[0]}</span>
-            <span className="hidden text-left sm:block">
-              <span className="block text-[14px] font-semibold leading-tight">{session.person}</span>
-              <span className="block text-[12px] text-graphite/50">{session.role}</span>
-            </span>
+
+        <div className="ml-auto flex items-center gap-1 md:ml-0">
+          <button type="button" onClick={() => setBar(true)} aria-label="Search" className="grid size-9 place-items-center rounded-lg text-graphite/70 hover:bg-graphite/5 md:hidden">
+            <Search className="size-5" />
           </button>
-          <AnimatePresence>
-            {menu && (
-              <motion.div role="menu" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute right-0 top-full mt-2 w-48 rounded-lg bg-white p-1 shadow-xl ring-1 ring-graphite/10">
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    signOut();
-                    navigate('/business/app/sign-in', { replace: true });
-                  }}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[14px] hover:bg-ledger"
-                >
-                  <LogOut className="size-4" /> Sign out
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <NotificationBell />
+          <div className="relative">
+            <button type="button" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-graphite/5">
+              <span className="grid size-8 place-items-center rounded-full bg-[#e6c9a8] text-[13px] font-semibold text-graphite">{session.person[0]}</span>
+              <span className="hidden text-[14px] font-semibold sm:block">{session.person}</span>
+              <ChevronDown className="hidden size-4 text-graphite/50 sm:block" />
+            </button>
+            <AnimatePresence>
+              {menu && (
+                <motion.div role="menu" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute right-0 top-full mt-2 w-52 rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-graphite/10">
+                  <p className="px-3 pb-1 pt-2 text-[12.5px] text-graphite/45">{session.role}</p>
+                  <button type="button" role="menuitem" onClick={out} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] hover:bg-[#f5f4ef]">
+                    <LogOut className="size-4" /> Sign out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </header>
 
-      <main className="px-4 py-8 sm:px-8 lg:py-10">
-        <Outlet />
+      <main className="relative z-[1] px-4 py-8 sm:px-8 lg:py-10">
+        <Outlet context={{ convert: () => setConverting(true) }} />
       </main>
 
       <CommandBar open={bar} onClose={() => setBar(false)} />
+      <Convert open={converting} onClose={() => setConverting(false)} balances={balances} />
     </div>
   );
 }

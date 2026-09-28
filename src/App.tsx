@@ -20,11 +20,24 @@ import BizPricingPage from './pages/business/BizPricingPage';
 import BizSecurityPage from './pages/business/BizSecurityPage';
 import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
+import Accounts from './dashboard/Accounts';
 import AppShell from './dashboard/AppShell';
+import Cards from './dashboard/Cards';
 import Approvals from './dashboard/Approvals';
+import Customers from './dashboard/Customers';
+import Fx from './dashboard/Fx';
+import Help from './dashboard/Help';
+import Invoices from './dashboard/Invoices';
+import Links from './dashboard/Links';
 import OpenAccount from './dashboard/OpenAccount';
+import PayHub from './dashboard/PayHub';
 import Payments from './dashboard/Payments';
+import Reports from './dashboard/Reports';
+import Settings from './dashboard/Settings';
 import SignIn from './dashboard/SignIn';
+import Soon from './dashboard/Soon';
+import Suppliers from './dashboard/Suppliers';
+import Team from './dashboard/Team';
 import Today from './dashboard/Today';
 import PersonalHomePage from './pages/PersonalHomePage';
 import BlogPage from './pages/BlogPage';
@@ -55,8 +68,34 @@ const titles: Record<string, string> = {
   '/business/blog': 'Field notes | Credvera Business',
   '/business/privacy': 'Privacy notice | Credvera Business',
   '/business/terms': 'Terms of use | Credvera Business',
-  '/business/app': 'Today | Credvera Business',
-  '/business/app/payments': 'Payments | Credvera Business',
+  '/business/app': 'Home | Credvera Business',
+  '/business/app/payments': 'Transactions | Credvera Business',
+  '/business/app/accounts': 'Accounts | Credvera Business',
+  '/business/app/pay': 'Payments | Credvera Business',
+  '/business/app/pay/bulk': 'Bulk payments | Credvera Business',
+  '/business/app/pay/scheduled': 'Scheduled payments | Credvera Business',
+  '/business/app/pay/bills': 'Bills | Credvera Business',
+  '/business/app/fx': 'FX | Credvera Business',
+  '/business/app/cards': 'Cards | Credvera Business',
+  '/business/app/invoices': 'Invoices | Credvera Business',
+  '/business/app/links': 'Payment links | Credvera Business',
+  '/business/app/customers': 'Customers | Credvera Business',
+  '/business/app/suppliers': 'Suppliers | Credvera Business',
+  '/business/app/team': 'Team | Credvera Business',
+  '/business/app/reports': 'Reports | Credvera Business',
+  '/business/app/settings': 'Settings | Credvera Business',
+  '/business/app/help': 'Help | Credvera Business',
+  '/business/app/settings/security': 'Security | Credvera Business',
+  '/business/app/settings/notifications': 'Notifications | Credvera Business',
+  '/business/app/settings/documents': 'Documents | Credvera Business',
+  '/business/app/reports/cash-flow': 'Cash flow | Credvera Business',
+  '/business/app/reports/reconciliation': 'Reconciliation | Credvera Business',
+  '/business/app/reports/profit': 'Order profit | Credvera Business',
+  '/business/app/team/roles': 'Roles and approvals | Credvera Business',
+  '/business/app/suppliers/orders': 'Protected orders | Credvera Business',
+  '/business/app/suppliers/checks': 'Invoice checks | Credvera Business',
+  '/business/app/fx/convert': 'Convert | Credvera Business',
+  '/business/app/fx/alerts': 'Rate alerts | Credvera Business',
   '/business/app/approvals': 'Approvals | Credvera Business',
   '/business/app/sign-in': 'Sign in | Credvera Business',
   '/business/app/open': 'Open a business account | Credvera Business',
@@ -114,7 +153,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -143,6 +182,25 @@ export default function App() {
             <Route index element={<Today />} />
             <Route path="payments" element={<Payments />} />
             <Route path="approvals" element={<Approvals />} />
+            <Route path="accounts" element={<Accounts />} />
+            <Route path="pay" element={<PayHub />} />
+            <Route path="pay/:section" element={<PayHub />} />
+            <Route path="fx" element={<Fx />} />
+            <Route path="fx/:section" element={<Fx />} />
+            <Route path="cards" element={<Cards />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="links" element={<Links />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="suppliers/:section" element={<Suppliers />} />
+            <Route path="team" element={<Team />} />
+            <Route path="team/:section" element={<Team />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="reports/:section" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="settings/:section" element={<Settings />} />
+            <Route path="help" element={<Help />} />
+            <Route path="soon/:what" element={<Soon />} />
           </Route>
 
           <Route path="/" element={<PersonalHomePage />} />

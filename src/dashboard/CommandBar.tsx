@@ -26,22 +26,22 @@ function understand(q: string): Action[] {
     const amount = pay[2] ? parseAmount(pay[2]) : null;
     const match = recipients.find((r) => r.name.toLowerCase().startsWith(who.toLowerCase()));
     const name = match?.name ?? who.replace(/\b\w/g, (c) => c.toUpperCase());
-    const params = new URLSearchParams({ new: '1', to: name, ...(amount ? { amount: String(amount) } : {}) });
-    out.push({ label: `Pay ${name}${amount ? ` ₦${amount.toLocaleString('en-NG')}` : ''}`, hint: 'Opens a payment, ready to confirm', go: `/business/app/payments?${params}` });
+    const params = new URLSearchParams({ to: name, ...(amount ? { amount: String(amount) } : {}) });
+    out.push({ label: `Pay ${name}${amount ? ` ₦${amount.toLocaleString('en-NG')}` : ''}`, hint: 'Opens a payment, ready to confirm', go: `/business/app/pay?${params}` });
   }
   if (/^(appro|wait|pend)/i.test(text)) out.push({ label: 'See what’s waiting for approval', hint: 'Approvals', go: '/business/app/approvals' });
   const find = text.match(/^(?:find|search|show)\s+(.+)$/i);
   if (find) out.push({ label: `Find “${find[1]}” in payments`, hint: 'Payments', go: `/business/app/payments?q=${encodeURIComponent(find[1]!)}` });
   if (/^(money in|received|in$)/i.test(text)) out.push({ label: 'Money that came in', hint: 'Payments', go: '/business/app/payments?f=in' });
-  if (/^(today|brief|home)/i.test(text)) out.push({ label: 'Today’s brief', hint: 'Today', go: '/business/app' });
+  if (/^(today|brief|home)/i.test(text)) out.push({ label: 'Go to Home', hint: 'Home', go: '/business/app' });
   return out;
 }
 
 const examples: Action[] = [
-  { label: 'Pay Kemi Adeyemi 650k', hint: 'Try typing “pay …”', go: '/business/app/payments?new=1&to=Kemi%20Adeyemi&amount=650000' },
+  { label: 'Pay Adebayo Logistics 120k', hint: 'Try typing “pay …”', go: '/business/app/pay?to=Adebayo%20Logistics&amount=120000' },
   { label: 'See what’s waiting for approval', hint: 'Approvals', go: '/business/app/approvals' },
   { label: 'Find Lekki in payments', hint: 'Payments', go: '/business/app/payments?q=Lekki' },
-  { label: 'Today’s brief', hint: 'Today', go: '/business/app' },
+  { label: 'Go to Home', hint: 'Home', go: '/business/app' },
 ];
 
 /** The dashboard's command bar: type what you need, press Enter. Opens with ⌘K, Ctrl+K or /. */
