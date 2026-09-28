@@ -52,7 +52,9 @@ export default function Headline({ text, as: Tag = 'h2', className = '', delay =
             {tokens(line).map((t, j) => (
               <Fragment key={j}>
                 {t.serif ? (
-                  <em className="font-serif font-normal italic tracking-[-0.01em]">{t.text}</em>
+                  // The script's lead-in strokes reach back over the space before
+                  // it, so it gets a little room there (and a touch after).
+                  <em className="font-serif ml-[0.15em] mr-[0.02em] font-normal italic">{t.text}</em>
                 ) : t.mark ? (
                   <span className="mark">{t.text}</span>
                 ) : (

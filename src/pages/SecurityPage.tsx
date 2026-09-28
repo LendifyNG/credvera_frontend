@@ -52,7 +52,7 @@ export default function SecurityPage() {
           {habits.map(([t, b], i) => (
             <Reveal key={t} delay={(i % 2) * 0.08}>
               <li className="flex gap-6">
-                <span className="font-serif text-4xl italic leading-none text-background">{i + 1}</span>
+                <span className="text-3xl font-semibold leading-none tabular-nums text-background">{i + 1}</span>
                 <span>
                   <span className="block text-xl font-semibold tracking-tight">{t}</span>
                   <span className="mt-2 block leading-relaxed text-ink/65">{b}</span>

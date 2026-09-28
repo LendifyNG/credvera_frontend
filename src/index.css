@@ -18,7 +18,9 @@
 
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   /* Editorial accent: italic words inside headlines. */
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* The accent script (used through the font-serif class): Petit Formal
+     Script, a slim, flowing formal script that sits beside the sans headlines. */
+  --font-serif: "Petit Formal Script", "Segoe Script", cursive;
   /* Business figures: the house typeface with evenly spaced digits (set on
      .font-ledger below), so amounts line up without a typewriter look. */
   --font-ledger: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
@@ -124,3 +126,14 @@ html.lenis body {
 
 /* Motion plays for everyone: phones report "reduce motion" whenever power
    saving is on, which switched the whole site to still. See lib/motion.ts. */
+
+/* The accent script: never slanted or bolded artificially (it's already a
+   script), sized to sit level with the sans around it, and never squeezed,
+   so its joined letters stay joined. */
+.font-serif {
+  font-synthesis: none;
+  font-weight: 400;
+  /* Wide letterforms: a little smaller than the sans, so lines still fit. */
+  font-size-adjust: 0.42;
+  letter-spacing: normal !important;
+}
