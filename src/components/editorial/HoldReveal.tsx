@@ -91,7 +91,7 @@ export default function HoldReveal() {
             </p>
           </Reveal>
           <Headline
-            text={'A dollar card that\n*hides* itself.'}
+            text={'A dollar card\nthat *hides* itself.'}
             className="mt-5 text-[clamp(2.6rem,6vw,5.2rem)] font-semibold leading-[0.95] tracking-[-0.035em]"
           />
           <Reveal delay={0.15}>

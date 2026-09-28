@@ -147,7 +147,7 @@ export default function GoalJar() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.35 }}
-                  className="mt-1 font-serif text-[clamp(2.2rem,4.5vw,3.4rem)] italic leading-none text-background"
+                  className="mt-1 text-[clamp(1.9rem,4vw,3rem)] font-semibold leading-none tracking-[-0.03em] text-background"
                 >
                   {date}
                 </motion.p>

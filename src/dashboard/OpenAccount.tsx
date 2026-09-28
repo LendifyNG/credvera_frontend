@@ -11,9 +11,9 @@ const ease = [0.16, 1, 0.3, 1] as const;
 // TODO(credvera): look the company up with CAC, check each BVN with the KYB
 // provider and upload the documents. For now the lookup returns the example
 // business and any 11-digit BVN is accepted.
-const COMPANY = { name: 'Adeola Foods Ltd', type: 'Private company limited by shares', address: '14 Admiralty Way, Lekki Phase 1, Lagos', since: 'Incorporated 2019' };
+const COMPANY = { name: 'Okafor Studios Limited', type: 'Private company limited by shares', address: '14 Adeola Odeku Street, Victoria Island, Lagos', since: 'Incorporated 2021' };
 const PEOPLE = [
-  { name: 'Funmi Adeola', role: 'Director · 60%' },
+  { name: 'Adaeze Okafor', role: 'Director · 60%' },
   { name: 'Tunde Bakare', role: 'Director · 40%' },
 ];
 const DOCS = ['Certificate of incorporation', 'CAC status report'];
@@ -211,7 +211,7 @@ export default function OpenAccount() {
               <button
                 type="button"
                 onClick={() => {
-                  signIn({ business: COMPANY.name, person: 'Funmi', role: 'Owner' });
+                  signIn({ business: COMPANY.name, person: 'Adaeze', role: 'Owner' });
                   navigate('/business/app', { replace: true });
                 }}
                 className="group mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-graphite px-6 text-[15px] font-semibold text-white hover:bg-black"

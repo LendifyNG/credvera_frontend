@@ -202,7 +202,7 @@ export default function PersonalHomePage() {
               <ol className="mt-10 space-y-4 text-lg">
                 {['Download Credvera and sign up with your phone and email.', 'Verify with your BVN or NIN.', 'Send, pay bills and save straight away.'].map((s, i) => (
                   <li key={s} className="flex gap-5 border-b border-ink/10 pb-4">
-                    <span className="font-serif text-2xl italic text-background">{i + 1}</span>
+                    <span className="text-xl font-semibold tabular-nums text-background">{i + 1}</span>
                     <span className="text-ink/75">{s}</span>
                   </li>
                 ))}

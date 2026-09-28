@@ -18,7 +18,9 @@
 
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   /* Editorial accent: italic words inside headlines. */
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  /* The accent script (used through the font-serif class): Petit Formal
+     Script, a slim, flowing formal script that sits beside the sans headlines. */
+  --font-serif: "Petit Formal Script", "Segoe Script", cursive;
   /* Business figures: the house typeface with evenly spaced digits (set on
      .font-ledger below), so amounts line up without a typewriter look. */
   --font-ledger: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
@@ -124,3 +126,29 @@ html.lenis body {
 
 /* Motion plays for everyone: phones report "reduce motion" whenever power
    saving is on, which switched the whole site to still. See lib/motion.ts. */
+
+/* The accent script: never slanted or bolded artificially (it's already a
+   script), sized to sit level with the sans around it, and never squeezed,
+   so its joined letters stay joined. */
+.font-serif {
+  font-synthesis: none;
+  font-weight: 400;
+  /* Wide letterforms: a little smaller than the sans, so lines still fit. */
+  font-size-adjust: 0.42;
+  letter-spacing: normal !important;
+}
+
+/* Dropdowns: our own chevron, set in from the edge with room beside it,
+   instead of the browser's arrow pressed against the border. Unlayered, so
+   it wins over the padding utilities on each select. */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23141c17' stroke-opacity='0.55' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+select:disabled {
+  opacity: 0.6;
+}
