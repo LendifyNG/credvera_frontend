@@ -9,11 +9,14 @@ import { createInterface } from 'node:readline/promises';
 const sha = (v) => createHash('sha256').update(v).digest('hex');
 const digits = (n) => Array.from({ length: n }, () => randomInt(10)).join('');
 
-const rl = createInterface({ input: process.stdin, output: process.stdout });
-const phoneIn = (await rl.question('Phone for the account, 10 digits (empty for 8030000000, as in the app): ')).replace(/\D/g, '');
-const codeIn = (await rl.question('Six-digit code (empty to create one): ')).replace(/\D/g, '');
-const pinIn = (await rl.question('Four-digit PIN (empty to create one): ')).replace(/\D/g, '');
-rl.close();
+// Answers come from the keyboard, or all at once when piped in.
+const piped = process.stdin.isTTY ? null : readFileSync(0, 'utf8').split('\n');
+const rl = piped ? null : createInterface({ input: process.stdin, output: process.stdout });
+const ask = async (q, i) => (piped ? (piped[i] ?? '') : await rl.question(q));
+const phoneIn = (await ask('Phone for the account, 10 digits (empty for 8030000000, as in the app): ', 0)).replace(/\D/g, '');
+const codeIn = (await ask('Six-digit code (empty to create one): ', 1)).replace(/\D/g, '');
+const pinIn = (await ask('Four-digit PIN (empty to create one): ', 2)).replace(/\D/g, '');
+rl?.close();
 
 const phone = (phoneIn || '8030000000').replace(/^234/, '').replace(/^0/, '');
 const code = codeIn.length === 6 ? codeIn : digits(6);

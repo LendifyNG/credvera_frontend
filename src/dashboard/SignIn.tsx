@@ -182,8 +182,13 @@ export default function SignIn() {
           return;
         }
         // No account set up: a local copy (npm run dev) lets any PIN in, so the
-        // dashboard can be reviewed; the live site keeps waiting for the API.
+        // dashboard can be reviewed. A hosted copy without the settings says so
+        // rather than waiting in silence.
         if (import.meta.env.DEV) finish();
+        else if (live) {
+          setError('We can’t sign you in on this page yet. Please try again later.');
+          setPin('');
+        }
       }, 400);
       return () => {
         live = false;
