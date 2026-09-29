@@ -16,6 +16,22 @@ const RESEND_S = 30;
 // TODO(credvera): the real session comes from the API once the phone approves.
 const PERSON = { business: 'Okafor Studios Limited', person: 'Adaeze', role: 'Owner' as const };
 
+// Until the API checks codes and PINs, one account can sign in on any copy
+// of the site. Its details come from environment settings, never from this
+// public repo: .env.local locally, the host's settings when deployed (names
+// in .env.example). The code and PIN are stored only as salted SHA-256.
+const ACCOUNT = {
+  phone: ((import.meta.env.VITE_BIZ_PHONE as string | undefined) ?? '').replace(/\D/g, ''),
+  code: import.meta.env.VITE_BIZ_CODE_SHA256 as string | undefined,
+  pin: import.meta.env.VITE_BIZ_PIN_SHA256 as string | undefined,
+};
+const hasAccount = !!(ACCOUNT.phone && ACCOUNT.code && ACCOUNT.pin);
+
+async function sha(v: string) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 type Mode = 'scan' | 'others' | 'phone' | 'code' | 'pin';
 
 // Google's "G" in its four colours and Apple's mark, as each company draws them.
@@ -94,6 +110,7 @@ export default function SignIn() {
   const [resendIn, setResendIn] = useState(RESEND_S);
   const [pin, setPin] = useState('');
   const [via, setVia] = useState<'code' | 'google' | 'apple'>('code');
+  const [error, setError] = useState('');
 
   const finish = () => {
     signIn(PERSON);
@@ -134,15 +151,44 @@ export default function SignIn() {
   // the same way once their sign-in is connected. Until then, a full PIN
   // simply waits here, like the scan.
   useEffect(() => {
+    let live = true;
     if (mode === 'code' && code.length === 6) {
-      const t = window.setTimeout(() => setMode('pin'), 400);
-      return () => clearTimeout(t);
+      const t = window.setTimeout(async () => {
+        if (hasAccount && (await sha(`credvera-biz-code:${code}`)) !== ACCOUNT.code) {
+          if (live) {
+            setError('That code isn’t right.');
+            setCode('');
+          }
+          return;
+        }
+        if (live) {
+          setError('');
+          setMode('pin');
+        }
+      }, 400);
+      return () => {
+        live = false;
+        clearTimeout(t);
+      };
     }
-    // On a local copy only (npm run dev), a full PIN signs in, so the
-    // dashboard can be reviewed. The live site keeps waiting for the API.
-    if (import.meta.env.DEV && mode === 'pin' && pin.length === 4) {
-      const t = window.setTimeout(finish, 400);
-      return () => clearTimeout(t);
+    if (mode === 'pin' && pin.length === 4) {
+      const t = window.setTimeout(async () => {
+        if (hasAccount) {
+          if ((await sha(`credvera-biz-pin:${pin}`)) === ACCOUNT.pin) finish();
+          else if (live) {
+            setError('That PIN isn’t right.');
+            setPin('');
+          }
+          return;
+        }
+        // No account set up: a local copy (npm run dev) lets any PIN in, so the
+        // dashboard can be reviewed; the live site keeps waiting for the API.
+        if (import.meta.env.DEV) finish();
+      }, 400);
+      return () => {
+        live = false;
+        clearTimeout(t);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, pin, mode]);
@@ -310,7 +356,13 @@ export default function SignIn() {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      if (phone.replace(/\D/g, '').length < 10) return;
+                      const digits = phone.replace(/\D/g, '').replace(/^234/, '').replace(/^0/, '');
+                      if (digits.length < 10) return;
+                      if (hasAccount && digits !== ACCOUNT.phone) {
+                        setError('We can’t find a business account with that number.');
+                        return;
+                      }
+                      setError('');
                       setVia('code');
                       setCode('');
                       setResendIn(RESEND_S);
@@ -323,6 +375,7 @@ export default function SignIn() {
                       <span className="h-6 w-px bg-graphite/15" />
                       <input autoFocus type="tel" autoComplete="tel-national" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="803 000 0000" className="w-full bg-transparent text-[17px] outline-none" aria-label="Phone number" />
                     </div>
+                    {error && <p className="mt-3 text-[14px] text-[#b42318]">{error}</p>}
                     <button type="submit" className="group mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-graphite text-[15px] font-semibold text-white hover:bg-black">
                       Send me a code <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                     </button>
@@ -333,6 +386,7 @@ export default function SignIn() {
                   <div>
                     <StepHead title="Enter your code" sub={`We texted a 6-digit code to +234 ${phone}.`} />
                     <Boxes length={6} value={code} onChange={setCode} />
+                    {error && <p className="mt-3 text-[14px] text-[#b42318]">{error}</p>}
                     <p className="mt-5 text-[14px] text-graphite/55">
                       {resendIn > 0 ? (
                         <span className="tabular-nums">Send a new code in 0:{String(resendIn).padStart(2, '0')}</span>
@@ -352,6 +406,7 @@ export default function SignIn() {
                       sub={via === 'code' ? 'The same four digits you use in the app.' : `Signed in with ${via === 'google' ? 'Google' : 'Apple'}. Now your app PIN.`}
                     />
                     <Boxes length={4} value={pin} onChange={setPin} secret />
+                    {error && <p className="mt-3 text-[14px] text-[#b42318]">{error}</p>}
                   </div>
                 )}
               </motion.div>
