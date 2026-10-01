@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { ApiError } from './errors';
+import { activeBusiness } from './activeBusiness';
 import { session, type Tokens } from './session';
 
 /**
@@ -53,6 +54,11 @@ instance.interceptors.request.use(async (config) => {
   if (!session.getAccessToken()) await refreshSession();
 
   config.headers.Authorization = `Bearer ${session.getAccessToken()}`;
+
+  // Acting for a business: the API scopes money to it, and checks it's ours.
+  const businessId = activeBusiness.get();
+  if (businessId) config.headers['X-Business-Id'] = businessId;
+
   return config;
 });
 

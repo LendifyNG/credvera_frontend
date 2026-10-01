@@ -1,5 +1,15 @@
 import { useMemo } from 'react';
-import { useProfile, useTransactions, useVirtualAccount, useWallets, type TransactionDto, type WalletDto } from '../api';
+import {
+  useActiveBusinessId,
+  useBusinesses,
+  useProfile,
+  useTransactions,
+  useVirtualAccount,
+  useWallets,
+  type BusinessDto,
+  type TransactionDto,
+  type WalletDto,
+} from '../api';
 import type { Currency, Payment, Recipient, Session, Status } from './store';
 
 // The seam between the API and the screens. Screens ask for balances,
@@ -14,19 +24,31 @@ const isCurrency = (code: string): code is Currency => (CURRENCY_CODES as string
 // ── Session ──────────────────────────────────────────────────────────────────
 
 /**
- * Who is signed in. The API has no business entity yet, so the account
- * holder's name stands in for the business name.
- * TODO(credvera): the business name and the person's role once the API has them.
+ * Who is signed in, and for which business. The person applied for the
+ * business, so they are its owner.
+ * TODO(credvera): roles for team members once the API has them.
  */
 export function useSession(): Session | undefined {
   const { data } = useProfile();
+  const business = useActiveBusiness();
 
   return useMemo(() => {
     if (!data) return undefined;
     const first = nameCase(data.firstName);
-    return { business: `${first} ${nameCase(data.lastName)}`, person: first, role: 'Owner' as const };
-  }, [data]);
+    return { business: business?.name ?? `${first} ${nameCase(data.lastName)}`, person: first, role: 'Owner' as const };
+  }, [data, business]);
 }
+
+/** The business the dashboard is acting for, once chosen. */
+export function useActiveBusiness(): BusinessDto | undefined {
+  const { data } = useBusinesses();
+  const id = useActiveBusinessId();
+  return data?.find((b) => b.id === id);
+}
+
+/** Businesses with an account to act on: sent for review, or open. */
+export const usableBusinesses = (businesses: BusinessDto[] | undefined) =>
+  (businesses ?? []).filter((b) => b.status !== 'draft' && b.status !== 'rejected');
 
 /** BVN records hold names in capitals: "ADA OKONKWO" -> "Ada Okonkwo". */
 const nameCase = (name: string) => name.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (letter) => letter.toUpperCase());

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeftRight,
   BarChart3,
+  Check,
   CheckCheck,
   FileText,
   Link2,
@@ -26,11 +27,11 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { errorMessage, useProfile, useSignedIn, useSignOut } from '../api';
+import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { activeBusiness, errorMessage, useBusinesses, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
-import { useSession } from './data';
+import { usableBusinesses, useActiveBusiness, useSession } from './data';
 import NotificationBell from './Notifications';
 import { Convert } from './money';
 import { isOverdue, useDash } from './store';
@@ -159,6 +160,9 @@ export default function AppShell() {
   const session = useSession();
   const profile = useProfile();
   const signOut = useSignOut();
+  const businesses = useBusinesses();
+  const active = useActiveBusiness();
+  const usable = usableBusinesses(businesses.data);
   const { invoices } = useDash();
   const { pathname } = useLocation();
   const [bar, setBar] = useState(false);
@@ -188,17 +192,36 @@ export default function AppShell() {
     setSwitcher(false);
   }, [pathname]);
 
+  // Act for a business this person actually runs: the one used last, else the first.
+  useEffect(() => {
+    if (businesses.data && !usable.some((b) => b.id === activeBusiness.get())) activeBusiness.set(usable[0]?.id ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businesses.data]);
+
   if (!signedIn) return <Navigate to="/business/app/sign-in" replace />;
 
-  // Signed in, but the profile isn't here yet (or couldn't be fetched).
-  if (!session) {
+  // No business sent for review yet: the application is the only place to go.
+  if (businesses.data && usable.length === 0) return <Navigate to="/business/app/open" replace />;
+
+  // Signed in, but the profile or the business isn't here yet (or couldn't be
+  // fetched). Nothing renders until the business is chosen, so no request can
+  // go out without it and fetch the person's personal money instead.
+  if (!session || !active) {
+    const error = profile.error ?? businesses.error;
     return (
       <div className="grid min-h-screen place-items-center bg-[#f5f4ef] px-6 text-center text-graphite">
-        {profile.error ? (
+        {error ? (
           <div>
             <p className="text-[16px] font-semibold">We couldn’t load your dashboard</p>
-            <p className="mt-1 text-[14px] text-graphite/55">{errorMessage(profile.error)}</p>
-            <button type="button" onClick={() => profile.refetch()} className="mt-5 h-10 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black">
+            <p className="mt-1 text-[14px] text-graphite/55">{errorMessage(error)}</p>
+            <button
+              type="button"
+              onClick={() => {
+                profile.refetch();
+                businesses.refetch();
+              }}
+              className="mt-5 h-10 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black"
+            >
               Try again
             </button>
           </div>
@@ -326,14 +349,32 @@ export default function AppShell() {
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-[13px] font-bold text-graphite">{initials}</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-semibold">{session.business}</span>
-            <span className="block text-[12px] text-white/50">Business account</span>
+            <span className="block text-[12px] text-white/50">{active.status === 'approved' ? 'Business account' : 'Under review'}</span>
           </span>
           <ChevronsUpDown className="size-4 text-white/45" />
         </button>
         <AnimatePresence>
           {switcher && (
             <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-full z-50 mt-1 rounded-xl bg-white p-1.5 text-graphite shadow-xl ring-1 ring-graphite/10">
-              <p className="px-3 pb-1 pt-2 text-[12.5px] text-graphite/45">
+              <p className="px-3 pb-1 pt-2 text-[12.5px] text-graphite/45">Your businesses</p>
+              {usable.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => {
+                    activeBusiness.set(b.id);
+                    setSwitcher(false);
+                  }}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[14px] hover:bg-[#f5f4ef]"
+                >
+                  <span className="truncate">{b.name}</span>
+                  {b.id === active.id && <Check className="size-4 shrink-0" />}
+                </button>
+              ))}
+              <NavLink to="/business/app/open?another=1" className="block rounded-lg px-3 py-2 text-[14px] text-graphite/60 hover:bg-[#f5f4ef]">
+                Open another business account
+              </NavLink>
+              <p className="mt-1 border-t border-graphite/10 px-3 pb-1 pt-2 text-[12.5px] text-graphite/45">
                 Signed in as {session.person} · {session.role}
               </p>
               <button type="button" onClick={out} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] hover:bg-[#f5f4ef]">
@@ -432,11 +473,45 @@ export default function AppShell() {
       </header>
 
       <main className="relative z-[1] px-4 py-8 sm:px-8 lg:py-10">
+        <ReviewBanner business={active} />
         <Outlet context={{ convert: () => setConverting(true) }} />
       </main>
 
       <CommandBar open={bar} onClose={() => setBar(false)} />
       <Convert open={converting} onClose={() => setConverting(false)} />
+    </div>
+  );
+}
+
+/**
+ * While a business is being reviewed: what works already, and what doesn't
+ * yet. Gone once it's approved.
+ */
+function ReviewBanner({ business }: { business: BusinessDto }) {
+  if (business.status === 'approved') return null;
+
+  const asked = business.status === 'more_info';
+
+  return (
+    <div className={`mx-auto mb-6 flex max-w-6xl flex-wrap items-center gap-3 rounded-xl border px-4 py-3 text-[14px] ${asked ? 'border-[#f0d3c5] bg-[#fcf1ec]' : 'border-[#ecdcae] bg-[#fbf5e6]'}`}>
+      <span className={`size-1.5 rounded-full ${asked ? 'bg-[#c4542a]' : 'bg-[#e0a526]'}`} />
+      <p className="flex-1">
+        {asked ? (
+          <>
+            <span className="font-semibold">We need something from you</span> <span className="text-graphite/60">to finish reviewing {business.name}.</span>
+          </>
+        ) : (
+          <>
+            <span className="font-semibold">We’re reviewing {business.name}.</span>{' '}
+            <span className="text-graphite/60">Customers can pay you now; sending money opens once it’s approved.</span>
+          </>
+        )}
+      </p>
+      {asked && (
+        <Link to="/business/app/open" className="font-semibold text-graphite underline-offset-4 hover:underline">
+          See what we need
+        </Link>
+      )}
     </div>
   );
 }

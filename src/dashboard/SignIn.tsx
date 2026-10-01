@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Loader2, ScanLine } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { errorMessage, useSignedIn, useSignIn, type SignInInput } from '../api';
 import logo from '../assets/logo.png';
 import ankara from '../assets/signin-ankara.webp';
@@ -59,6 +59,9 @@ function PinBoxes({ value, onChange, disabled }: { value: string; onChange: (v: 
  */
 export default function SignIn() {
   const signedIn = useSignedIn();
+  // Back to where they came from, but only within the dashboard: never an open redirect.
+  const requested = new URLSearchParams(useLocation().search).get('next');
+  const next = requested?.startsWith('/business/app') ? requested : '/business/app';
   const signIn = useSignIn();
   const [method, setMethod] = useState<Method>('password');
   const [emailOrPhone, setEmailOrPhone] = useState('');
@@ -79,10 +82,10 @@ export default function SignIn() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin]);
 
-  if (signedIn) return <Navigate to="/business/app" replace />;
+  if (signedIn) return <Navigate to={next} replace />;
 
-  const switchTo = (next: Method) => {
-    setMethod(next);
+  const switchTo = (to: Method) => {
+    setMethod(to);
     setPin('');
     signIn.reset();
   };

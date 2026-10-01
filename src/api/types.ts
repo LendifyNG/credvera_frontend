@@ -196,3 +196,56 @@ export type BillResultDto = {
   currency: string;
   providerReference: string | null;
 };
+
+// ── Businesses ───────────────────────────────────────────────────────────────
+
+export type BusinessStatus = 'draft' | 'pending' | 'second_review' | 'more_info' | 'approved' | 'rejected';
+export type BusinessDocumentType = 'certificate_of_incorporation' | 'status_report' | 'memart' | 'proof_of_address';
+
+export type BusinessPersonDto = {
+  id: string;
+  name: string;
+  isDirector: boolean;
+  sharePercent: number | null;
+  /** Directors, and owners of 25% or more, must have their BVN checked. */
+  requiresVerification: boolean;
+  status: 'pending' | 'verified' | 'failed';
+  /** Masked: `•••••••4455`. */
+  bvn: string | null;
+  nameMatch: boolean | null;
+  failureReason: string | null;
+};
+
+export type BusinessDto = {
+  id: string;
+  rcNumber: string;
+  name: string;
+  companyType: string | null;
+  registeredOn: string | null;
+  registeredAddress: string | null;
+  cacStatus: string | null;
+  industry: string | null;
+  description: string | null;
+  staffSize: string | null;
+  tradingAddress: string | null;
+  website: string | null;
+  purpose: string | null;
+  annualTurnover: string | null;
+  sourceOfFunds: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  status: BusinessStatus;
+  submittedAt: IsoDate | null;
+  /** Why it was rejected, or what the reviewer asked for. */
+  decisionNote: string | null;
+  people: BusinessPersonDto[];
+  documents: { id: string; type: BusinessDocumentType; label: string; fileName: string; uploadedAt: IsoDate }[];
+  editable: boolean;
+  /** What still stands between the application and review, in words. */
+  missing: string[];
+  createdAt: IsoDate;
+};
+
+export type UpdateBusinessInput = Partial<
+  Pick<BusinessDto, 'industry' | 'description' | 'staffSize' | 'tradingAddress' | 'website' | 'purpose' | 'annualTurnover' | 'sourceOfFunds' | 'contactEmail' | 'contactPhone'>
+>;
