@@ -3,7 +3,7 @@ import { ArrowRight, CornerDownLeft, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { recentRecipients, usePayments } from './data';
-import type { Recipient } from './store';
+import type { Recipient } from './model';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -39,7 +39,8 @@ function understand(q: string, recipients: Recipient[]): Action[] {
 
 const examples: Action[] = [
   { label: 'Pay someone', hint: 'Try typing “pay Ada 50k”', go: '/business/app/pay' },
-  { label: 'Find Lekki in payments', hint: 'Payments', go: '/business/app/payments?q=Lekki' },
+  { label: 'New invoice', hint: 'Get paid through a link', go: '/business/app/invoices?new=1' },
+  { label: 'Money that came in', hint: 'Payments', go: '/business/app/payments?f=in' },
   { label: 'Go to Home', hint: 'Home', go: '/business/app' },
 ];
 
@@ -100,7 +101,7 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
                   } else if (e.key === 'Enter') run(actions[sel]);
                   else if (e.key === 'Escape') onClose();
                 }}
-                placeholder="Pay Kemi 650k, find Lekki…"
+                placeholder="Pay someone 50k, or find a payment…"
                 aria-label="What do you need?"
                 className="h-16 w-full bg-transparent text-lg outline-none placeholder:text-graphite/35"
               />

@@ -1,19 +1,18 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Check, Copy, Download, Plus, Search, X } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Check, Copy, Download, Plus, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { CURRENCIES } from './money';
 import {
   kindOf,
   money,
-  RATES,
   reference,
   settled,
   shortDate,
   STATUS,
   type Currency,
   type Payment,
-} from './store';
+} from './model';
 import { Loading } from './ui';
 import { usePayments, useSession } from './data';
 
@@ -32,41 +31,28 @@ const PERIODS = [
   ['90', 'Last 90 days'],
   ['all', 'All time'],
 ] as const;
-const TYPES = ['Transfer', 'Transfer in', 'Invoice', 'Payment link', 'Bill', 'Card payment', 'Payment abroad', 'Salary', 'Conversion'];
+const TYPES = ['Transfer', 'Transfer in', 'Invoice payment', 'Bill'];
 
 function Icon({ p, size = 'size-7' }: { p: Payment; size?: string }) {
   return (
     <span className={`grid ${size} shrink-0 place-items-center rounded-full border border-graphite/15`}>
-      {p.internal ? <ArrowLeftRight className="size-3.5" /> : p.kind === 'in' ? <ArrowDownLeft className="size-3.5" /> : <ArrowUpRight className="size-3.5" />}
+      {p.kind === 'in' ? <ArrowDownLeft className="size-3.5" /> : <ArrowUpRight className="size-3.5" />}
     </span>
   );
 }
 
-const signed = (p: Payment) => `${p.internal ? '' : p.kind === 'in' ? '+' : '−'}${money(p.amount, p.currency)}`;
+const signed = (p: Payment) => `${p.kind === 'in' ? '+' : '−'}${money(p.amount, p.currency)}`;
 
 /** A payment's story so far, step by step. */
 function steps(p: Payment): { label: string; state: 'done' | 'now' | 'next'; note?: string }[] {
-  if (p.internal) return [{ label: 'Converted at today’s rate', state: 'done' }];
   if (p.kind === 'in') return [{ label: `Received from ${p.who}`, state: 'done' }];
   if (p.status === 'failed') return [{ label: 'Tried', state: 'done' }, { label: 'Declined', state: 'now', note: p.note }];
   if (p.status === 'pending')
     return [
       { label: 'Sent', state: 'done' },
       { label: 'Processing', state: 'now', note: 'Usually a few minutes' },
-      { label: /^card/i.test(p.what) ? 'Settled' : 'Arrived', state: 'next' },
+      { label: 'Arrived', state: 'next' },
     ];
-  if (p.status === 'in transit')
-    return [
-      { label: 'Sent', state: 'done' },
-      { label: 'With the receiving bank', state: 'now', note: 'Usually one or two working days' },
-      { label: 'Delivered', state: 'next' },
-    ];
-  if (p.requestedBy) {
-    const asked = { label: `Asked for by ${p.requestedBy}`, state: 'done' as const, note: p.reason };
-    if (p.status === 'waiting') return [asked, { label: 'Waiting for a second approval', state: 'now' }, { label: 'Paid', state: 'next' }];
-    if (p.status === 'sent back') return [asked, { label: 'Sent back', state: 'now', note: p.note }];
-    return [asked, { label: 'Approved', state: 'done' }, { label: 'Paid', state: 'done' }];
-  }
   return [
     { label: 'Created', state: 'done' },
     { label: 'Paid', state: 'done' },
@@ -114,10 +100,8 @@ function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
               <p className="text-[13px] text-graphite/50">{kindOf(p)}</p>
             </div>
           </div>
-          <p className={`mt-6 font-ledger text-[34px] font-semibold leading-none tracking-[-0.03em] ${p.kind === 'in' && !p.internal ? 'text-[#1f6b33]' : ''}`}>{signed(p)}</p>
-          {p.currency !== 'NGN' && <p className="mt-2 text-[13px] text-graphite/50">About {money(p.amount * RATES[p.currency])} at today’s rate</p>}
-          <span className={`mt-4 inline-block rounded-md px-2 py-0.5 text-[12.5px] font-medium ${p.internal ? STATUS.paid.tone : STATUS[p.status].tone}`}>
-            {p.internal ? 'Converted' : STATUS[p.status].label}
+          <p className={`mt-6 font-ledger text-[34px] font-semibold leading-none tracking-[-0.03em] ${p.kind === 'in' ? 'text-[#1f6b33]' : ''}`}>{signed(p)}</p>          <span className={`mt-4 inline-block rounded-md px-2 py-0.5 text-[12.5px] font-medium ${STATUS[p.status].tone}`}>
+            {STATUS[p.status].label}
           </span>
         </div>
 
@@ -170,7 +154,7 @@ function exportCsv(rows: Payment[]) {
   const lines = [
     ['Date', 'Reference', 'To or from', 'Details', 'Type', 'Account', 'Amount', 'Status'].join(','),
     ...rows.map((p) =>
-      [new Date(p.date).toISOString().slice(0, 10), reference(p), q(p.who), q(p.what), kindOf(p), p.currency, (p.kind === 'in' ? '' : '-') + p.amount.toFixed(2), p.internal ? 'Converted' : STATUS[p.status].label].join(','),
+      [new Date(p.date).toISOString().slice(0, 10), reference(p), q(p.who), q(p.what), kindOf(p), p.currency, (p.kind === 'in' ? '' : '-') + p.amount.toFixed(2), STATUS[p.status].label].join(','),
     ),
   ];
   const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
@@ -207,8 +191,8 @@ export default function Payments() {
     const since = period === 'all' ? 0 : Date.now() - Number(period) * DAY;
     return payments.filter((p) => {
       if (new Date(p.date).getTime() < since) return false;
-      if (tab === 'in' && (p.kind !== 'in' || p.internal)) return false;
-      if (tab === 'out' && (p.kind !== 'out' || p.internal)) return false;
+      if (tab === 'in' && p.kind !== 'in') return false;
+      if (tab === 'out' && p.kind !== 'out') return false;
       if (tab === 'pending' && settled(p)) return false;
       if (account !== 'all' && p.currency !== account) return false;
       if (type !== 'all' && kindOf(p) !== type) return false;
@@ -216,14 +200,15 @@ export default function Payments() {
     });
   }, [payments, tab, account, type, period, q]);
 
-  // The totals for exactly what's shown, in naira, conversions left out.
+  // The totals for exactly what's shown, in naira. Other currencies are left
+  // out rather than converted at a guessed rate.
   const totals = useMemo(() => {
     let inflow = 0;
     let outflow = 0;
     for (const p of shown) {
-      if (p.internal || !settled(p)) continue;
-      if (p.kind === 'in') inflow += p.amount * RATES[p.currency];
-      else outflow += p.amount * RATES[p.currency];
+      if (!settled(p) || p.currency !== 'NGN') continue;
+      if (p.kind === 'in') inflow += p.amount;
+      else outflow += p.amount;
     }
     return { inflow, outflow };
   }, [shown]);
@@ -269,7 +254,7 @@ export default function Payments() {
           </div>
         ))}
       </section>
-      <p className="mt-2 text-[12.5px] text-graphite/45">For what’s shown below, in naira at today’s rate. Conversions between your currencies aren’t counted.</p>
+      <p className="mt-2 text-[12.5px] text-graphite/45">For what’s shown below, in naira. Payments in other currencies aren’t added in.</p>
 
       <section className="mt-6 rounded-2xl border border-graphite/10 bg-white">
         {/* Filters */}
@@ -339,11 +324,11 @@ export default function Payments() {
                       </span>
                     </span>
                   </td>
-                  <td className={`whitespace-nowrap py-3.5 pr-4 text-right font-ledger font-medium ${p.kind === 'in' && !p.internal ? 'text-[#1f6b33]' : ''}`}>{signed(p)}</td>
+                  <td className={`whitespace-nowrap py-3.5 pr-4 text-right font-ledger font-medium ${p.kind === 'in' ? 'text-[#1f6b33]' : ''}`}>{signed(p)}</td>
                   <td className="whitespace-nowrap py-3.5 pr-4 text-graphite/65">{kindOf(p)}</td>
                   <td className="hidden whitespace-nowrap py-3.5 pr-4 text-graphite/65 xl:table-cell">{CURRENCIES.find((c) => c.code === p.currency)!.name}</td>
                   <td className="whitespace-nowrap py-3.5 pr-5">
-                    <span className={`rounded-md px-2 py-0.5 text-[12px] font-medium ${p.internal ? STATUS.paid.tone : STATUS[p.status].tone}`}>{p.internal ? 'Converted' : STATUS[p.status].short}</span>
+                    <span className={`rounded-md px-2 py-0.5 text-[12px] font-medium ${STATUS[p.status].tone}`}>{STATUS[p.status].short}</span>
                   </td>
                 </tr>
               ))}

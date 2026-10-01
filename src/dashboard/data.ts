@@ -10,7 +10,7 @@ import {
   type TransactionDto,
   type WalletDto,
 } from '../api';
-import type { Currency, Payment, Recipient, Session, Status } from './store';
+import type { Currency, Payment, Recipient, Session, Status } from './model';
 
 // The seam between the API and the screens. Screens ask for balances,
 // payments and the session in the shapes they already render; only this file
@@ -51,7 +51,7 @@ export const usableBusinesses = (businesses: BusinessDto[] | undefined) =>
   (businesses ?? []).filter((b) => b.status !== 'draft' && b.status !== 'rejected');
 
 /** BVN records hold names in capitals: "ADA OKONKWO" -> "Ada Okonkwo". */
-const nameCase = (name: string) => name.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (letter) => letter.toUpperCase());
+export const nameCase = (name: string) => name.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (letter) => letter.toUpperCase());
 
 // ── Balances ─────────────────────────────────────────────────────────────────
 

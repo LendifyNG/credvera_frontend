@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { errorMessage, useAccountName, useBanks, useSendMoney, useTransferQuote } from '../../api';
 import { recentRecipients, useBalances, usePayments } from '../data';
-import { money, shortDate, type Recipient } from '../store';
+import { money, shortDate, type Recipient } from '../model';
 import { Notice, PinPrompt } from '../ui';
 import { field, initials, label, NairaInput, nairaFrom, panel, primary, useDebounced } from './shared';
 

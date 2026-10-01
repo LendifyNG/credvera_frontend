@@ -28,13 +28,22 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { activeBusiness, errorMessage, useBusinesses, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
+import { activeBusiness, errorMessage, useBusinesses, usePaymentLinks, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
 import { usableBusinesses, useActiveBusiness, useSession } from './data';
 import NotificationBell from './Notifications';
 import { Convert } from './money';
-import { isOverdue, useDash } from './store';
+import { Notices } from './published';
+
+// Demo data and tips saved by earlier versions of the dashboard; nothing reads them now.
+for (const key of ['credvera.dashboard.v16', 'credvera.dash.tip']) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Storage unavailable: nothing was saved there either.
+  }
+}
 
 // Fine speckled grain, like uncoated paper: noise cut to small flecks in a
 // warm grey, tiled. Only the flecks are drawn, so the colour beneath stays.
@@ -43,7 +52,8 @@ const PAPER = `url("data:image/svg+xml,${encodeURIComponent(
 )}")`;
 
 type Sub = { label: string; hint?: string; to?: string; action?: 'convert'; badge?: number };
-type Item = { label: string; icon: LucideIcon; to: string; end?: boolean; menu?: Sub[]; badge?: number };
+/** `soon`: the page says it's on its way; the API for it isn't there yet. */
+type Item = { label: string; icon: LucideIcon; to: string; end?: boolean; menu?: Sub[]; badge?: number; soon?: boolean };
 
 
 /** The name of the page, for the top bar. */
@@ -89,6 +99,7 @@ function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => vo
     </span>
   );
   const badge = (n?: number) => (n ? <span className="rounded-md bg-[#f5c451] px-1.5 text-[11px] font-semibold text-graphite">{n}</span> : null);
+  const soon = item.soon ? <span className="rounded-md bg-white/10 px-1.5 text-[11px] font-medium text-white/50">Soon</span> : null;
 
   const subLink = (m: Sub) =>
     m.action === 'convert' ? (
@@ -111,6 +122,7 @@ function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => vo
       <NavLink to={item.to} end={item.end} className={({ isActive }) => row(isActive)}>
         {label}
         {badge(item.badge)}
+        {soon}
       </NavLink>
     );
   }
@@ -140,6 +152,7 @@ function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => vo
         {label}
         <span className="flex items-center gap-2">
           {badge(item.badge)}
+          {soon}
           <ChevronRight className="size-4 text-white/35" />
         </span>
       </NavLink>
@@ -163,7 +176,7 @@ export default function AppShell() {
   const businesses = useBusinesses();
   const active = useActiveBusiness();
   const usable = usableBusinesses(businesses.data);
-  const { invoices } = useDash();
+  const links = usePaymentLinks();
   const { pathname } = useLocation();
   const [bar, setBar] = useState(false);
   const [drawer, setDrawer] = useState(false);
@@ -171,7 +184,8 @@ export default function AppShell() {
   const [menu, setMenu] = useState(false);
   const [switcher, setSwitcher] = useState(false);
   const [converting, setConverting] = useState(false);
-  const overdueInvoices = invoices.filter(isOverdue).length;
+  // Invoices whose link ran out unpaid: worth chasing.
+  const expiredInvoices = (links.data ?? []).filter((l) => l.status === 'expired').length;
 
   // ⌘K, Ctrl+K or / opens search from anywhere.
   useEffect(() => {
@@ -261,29 +275,20 @@ export default function AppShell() {
           icon: Send,
           menu: [
             { label: 'Pay someone', hint: 'In naira, to any Nigerian bank', to: '/business/app/pay' },
-            { label: 'Bulk payments', hint: 'Many people from one file, like salaries', to: '/business/app/pay/bulk' },
-            { label: 'Scheduled payments', hint: 'Payments that repeat', to: '/business/app/pay/scheduled' },
-            { label: 'Bills', hint: 'Electricity, airtime, data, TV', to: '/business/app/pay/bills' },
+            { label: 'Bulk payments', hint: 'Coming soon · many people from one file', to: '/business/app/pay/bulk' },
+            { label: 'Scheduled payments', hint: 'Coming soon · payments that repeat', to: '/business/app/pay/scheduled' },
+            { label: 'Bills', hint: 'Electricity, airtime and data', to: '/business/app/pay/bills' },
           ],
         },
-        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck },
-        {
-          to: '/business/app/fx',
-          label: 'FX',
-          icon: ArrowLeftRight,
-          menu: [
-            { label: 'Today’s rates', hint: 'Against the naira, with 30 days of history', to: '/business/app/fx' },
-            { label: 'Convert', hint: 'Between your own currencies', to: '/business/app/fx/convert' },
-            { label: 'Rate alerts', hint: 'Tell me when a rate reaches my number', to: '/business/app/fx/alerts' },
-          ],
-        },
-        { to: '/business/app/cards', label: 'Cards', icon: CreditCard },
+        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, soon: true },
+        { to: '/business/app/fx', label: 'FX', icon: ArrowLeftRight, soon: true },
+        { to: '/business/app/cards', label: 'Cards', icon: CreditCard, soon: true },
       ],
     },
     {
       label: 'Get paid',
       items: [
-        { to: '/business/app/invoices', label: 'Invoices', icon: FileText, badge: overdueInvoices },
+        { to: '/business/app/invoices', label: 'Invoices', icon: FileText, badge: expiredInvoices },
         { to: '/business/app/links', label: 'Payment links', icon: Link2 },
         { to: '/business/app/customers', label: 'Customers', icon: UserRound },
       ],
@@ -291,30 +296,13 @@ export default function AppShell() {
     {
       label: 'Trade',
       items: [
-        {
-          to: '/business/app/suppliers',
-          label: 'Suppliers',
-          icon: PackageCheck,
-          menu: [
-            { label: 'Your suppliers', to: '/business/app/suppliers' },
-            { label: 'Protected orders', hint: 'Money held until the goods arrive', to: '/business/app/suppliers/orders' },
-            { label: 'Supplier invoice checks', hint: 'Spot a changed bank account before you pay', to: '/business/app/suppliers/checks' },
-          ],
-        },
+        { to: '/business/app/suppliers', label: 'Suppliers', icon: PackageCheck, soon: true },
       ],
     },
     {
       label: 'Business',
       items: [
-        {
-          to: '/business/app/team',
-          label: 'Team',
-          icon: Users,
-          menu: [
-            { label: 'People', hint: 'Invite and remove', to: '/business/app/team' },
-            { label: 'Roles and approval limits', to: '/business/app/team/roles' },
-          ],
-        },
+        { to: '/business/app/team', label: 'Team', icon: Users, soon: true },
         {
           to: '/business/app/reports',
           label: 'Reports',
@@ -390,7 +378,7 @@ export default function AppShell() {
         )}
       </div>
 
-      <nav className="-mx-1 mt-5 flex-1 space-y-4 overflow-y-auto px-1" aria-label="Dashboard">
+      <nav className="-mx-1 mt-5 flex-1 space-y-4 overflow-y-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Dashboard">
         {groups.map((g, i) => (
           <div key={i}>
             {g.label && <p className="mb-1.5 px-3 text-[12.5px] font-medium text-white/40">{g.label}</p>}
@@ -419,7 +407,7 @@ export default function AppShell() {
       <AnimatePresence>
         {drawer && (
           <motion.div className="fixed inset-0 z-50 bg-graphite/40 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}>
-            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.3 }} className="h-full w-72 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.3 }} className="h-full w-72 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" onClick={(e) => e.stopPropagation()}>
               {side(true)}
             </motion.aside>
           </motion.div>
@@ -474,6 +462,7 @@ export default function AppShell() {
 
       <main className="relative z-[1] px-4 py-8 sm:px-8 lg:py-10">
         <ReviewBanner business={active} />
+        <Notices />
         <Outlet context={{ convert: () => setConverting(true) }} />
       </main>
 

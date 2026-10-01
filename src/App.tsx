@@ -20,12 +20,11 @@ import BizPricingPage from './pages/business/BizPricingPage';
 import BizSecurityPage from './pages/business/BizSecurityPage';
 import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
+import PayPage from './pages/PayPage';
 import Accounts from './dashboard/Accounts';
 import AppShell from './dashboard/AppShell';
-import Cards from './dashboard/Cards';
 import Approvals from './dashboard/Approvals';
 import Customers from './dashboard/Customers';
-import Fx from './dashboard/Fx';
 import Help from './dashboard/Help';
 import Invoices from './dashboard/Invoices';
 import Links from './dashboard/Links';
@@ -35,9 +34,7 @@ import Payments from './dashboard/Payments';
 import Reports from './dashboard/Reports';
 import Settings from './dashboard/Settings';
 import SignIn from './dashboard/SignIn';
-import Soon from './dashboard/Soon';
-import Suppliers from './dashboard/Suppliers';
-import Team from './dashboard/Team';
+import Soon, { SoonPage } from './dashboard/Soon';
 import Today from './dashboard/Today';
 import PersonalHomePage from './pages/PersonalHomePage';
 import BlogPage from './pages/BlogPage';
@@ -117,22 +114,27 @@ export default function App() {
   const lenisRef = useRef<Lenis | null>(null);
   const { pathname } = useLocation();
   // The business dashboard has its own frame, without the website's menu and footer.
-  const inApp = pathname.startsWith('/business/app');
+  // The dashboard and the public pay page stand alone, without the site's chrome.
+  const inApp = pathname.startsWith('/business/app') || pathname.startsWith('/pay/');
   const [introActive, setIntroActive] = useState(() => shouldPlayIntro(pathname));
   const [introDone, setIntroDone] = useState(!introActive);
 
   const handleIntroReveal = useCallback(() => setIntroDone(true), []);
   const handleIntroFinish = useCallback(() => setIntroActive(false), []);
 
-  // Smooth scrolling (on touch screens the phone's own scrolling is kept).
+  // Smooth scrolling on the website (on touch screens the phone's own
+  // scrolling is kept). Not in the dashboard: Lenis takes over the mouse
+  // wheel for the whole window, so the sidebar and drawers, which scroll on
+  // their own, would stop scrolling.
   useEffect(() => {
+    if (inApp) return;
     const lenis = new Lenis({ autoRaf: true, lerp: 0.1 });
     lenisRef.current = lenis;
     return () => {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, []);
+  }, [inApp]);
 
   // Lock scrolling while the intro plays.
   useEffect(() => {
@@ -153,7 +155,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -175,6 +177,9 @@ export default function App() {
       {!inApp && <SiteNavbar />}
       <main>
         <Routes>
+          {/* Where a payment link lands */}
+          <Route path="/pay/:slug" element={<PayPage />} />
+
           {/* The business dashboard */}
           <Route path="/business/app/sign-in" element={<SignIn />} />
           <Route path="/business/app/open" element={<OpenAccount />} />
@@ -185,16 +190,16 @@ export default function App() {
             <Route path="accounts" element={<Accounts />} />
             <Route path="pay" element={<PayHub />} />
             <Route path="pay/:section" element={<PayHub />} />
-            <Route path="fx" element={<Fx />} />
-            <Route path="fx/:section" element={<Fx />} />
-            <Route path="cards" element={<Cards />} />
+            <Route path="fx" element={<SoonPage what="fx" />} />
+            <Route path="fx/:section" element={<SoonPage what="fx" />} />
+            <Route path="cards" element={<SoonPage what="cards" />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="links" element={<Links />} />
             <Route path="customers" element={<Customers />} />
-            <Route path="suppliers" element={<Suppliers />} />
-            <Route path="suppliers/:section" element={<Suppliers />} />
-            <Route path="team" element={<Team />} />
-            <Route path="team/:section" element={<Team />} />
+            <Route path="suppliers" element={<SoonPage what="suppliers" />} />
+            <Route path="suppliers/:section" element={<SoonPage what="suppliers" />} />
+            <Route path="team" element={<SoonPage what="team" />} />
+            <Route path="team/:section" element={<SoonPage what="team" />} />
             <Route path="reports" element={<Reports />} />
             <Route path="reports/:section" element={<Reports />} />
             <Route path="settings" element={<Settings />} />

@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, ArrowDownLeft, Bell, Eye, FileSearch, FileWarning, LifeBuoy, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowDownLeft, Bell, CircleCheck, FileSearch, FileWarning, MessageSquareWarning, XCircle, type LucideIcon } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { invoiceTotals, isOverdue, markSeen, money, RATES, shortDate, useDash } from './store';
-import { usePayments } from './data';
+import { usePaymentLinks } from '../api';
+import { useActiveBusiness, usePayments } from './data';
+import { amount } from './requests';
+import { money, shortDate } from './model';
 
 const DAY = 86400000;
 
 type Note = {
   id: string;
   group: 'needs' | 'update';
-  setting?: string; // the Settings → Notifications row that controls it
   icon: LucideIcon;
   tone: string;
   title: string;
@@ -19,13 +20,9 @@ type Note = {
   to: string;
 };
 
-/** "2h ago", "Yesterday", "3 days ago", or a date; "in 3 days" for what's coming. */
+/** "2h ago", "Yesterday", "3 days ago", or a date. */
 function ago(iso: string) {
   const d = Date.now() - new Date(iso).getTime();
-  if (d < 0) {
-    const days = Math.ceil(-d / DAY);
-    return days <= 1 ? 'Tomorrow' : `In ${days} days`;
-  }
   if (d < 3600000) return 'Just now';
   if (d < DAY) return `${Math.floor(d / 3600000)}h ago`;
   if (d < 2 * DAY) return 'Yesterday';
@@ -33,44 +30,76 @@ function ago(iso: string) {
   return shortDate(iso);
 }
 
+// What's been read is a convenience for whoever is looking, kept in this
+// browser; losing it only makes notes look new again.
+const SEEN_KEY = 'credvera.notes.seen';
+const listeners = new Set<() => void>();
+let seen: string[] = readSeen();
+
+function readSeen(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY) ?? '[]') as string[];
+  } catch {
+    return [];
+  }
+}
+
+function markSeen(ids: string[]) {
+  // Kept short: only the latest few hundred matter.
+  seen = [...new Set([...ids, ...seen])].slice(0, 300);
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+  } catch {
+    // Read for this visit only.
+  }
+  listeners.forEach((l) => l());
+}
+
+const useSeen = () =>
+  useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => seen,
+  );
+
 /** Everything worth telling the business about, built from what's happening now. */
-export function useNotes() {
-  const { invoices, checks, alerts, cases, documents, notify, seen } = useDash();
+function useNotes() {
+  const business = useActiveBusiness();
+  const links = usePaymentLinks();
   const { payments } = usePayments();
+  const read = useSeen();
+
   const notes = useMemo(() => {
     const out: Note[] = [];
-    for (const i of invoices.filter(isOverdue)) {
-      const late = Math.round((Date.now() - new Date(i.due).getTime()) / DAY);
-      out.push({ id: `od-${i.id}`, group: 'needs', setting: 'overdue', icon: FileWarning, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `${i.number} from ${i.customer} is ${late} ${late === 1 ? 'day' : 'days'} late`, body: money(invoiceTotals(i).total, i.currency), when: i.due, to: '/business/app/invoices?f=overdue' });
-    }
-    for (const k of checks.filter((x) => x.result === 'changed'))
-      out.push({ id: `ck-${k.id}`, group: 'needs', icon: AlertTriangle, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `${k.supplier} changed their bank details`, body: `On invoice ${k.invoice}. Check with them before you pay.`, when: k.checked, to: '/business/app/suppliers/checks' });
-    for (const p of payments.filter((x) => x.kind === 'in' && !x.internal && x.status === 'received' && Date.now() - new Date(x.date).getTime() < 4 * DAY))
-      out.push({ id: `in-${p.id}`, group: 'update', setting: 'in', icon: ArrowDownLeft, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${money(p.amount, p.currency)} from ${p.who}`, body: p.what.split(' · ')[0], when: p.date, to: `/business/app/payments?q=${encodeURIComponent(p.who)}` });
-    for (const i of invoices.filter((x) => x.status === 'viewed' && !isOverdue(x)))
-      out.push({ id: `vw-${i.id}`, group: 'update', icon: Eye, tone: 'bg-[#ece6f7] text-[#5a3d8f]', title: `${i.customer} opened ${i.number}`, body: `Due ${shortDate(i.due)}`, when: i.issued, to: '/business/app/invoices' });
-    for (const a of alerts) {
-      const hit = a.when === 'below' ? RATES[a.currency] < a.rate : RATES[a.currency] > a.rate;
-      if (hit)
-        out.push({ id: `ra-${a.id}`, group: 'update', setting: 'rates', icon: a.when === 'below' ? TrendingDown : TrendingUp, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `1 ${a.currency} is ${a.when} ${money(a.rate)}`, body: `It’s ${money(RATES[a.currency])} now.`, when: new Date().toISOString(), to: '/business/app/fx' });
-    }
-    for (const c of cases.filter((x) => x.status === 'answered'))
-      out.push({ id: `cs-${c.id}`, group: 'update', icon: LifeBuoy, tone: 'bg-[#efeee7] text-graphite/70', title: `We replied: ${c.subject}`, when: c.created, to: '/business/app/help' });
-    if (documents === 'checking')
-      out.push({ id: 'docs', group: 'update', icon: FileSearch, tone: 'bg-[#fbf0d6] text-[#8a5a00]', title: 'We’re checking your documents', body: 'Usually one or two working days.', when: new Date(Date.now() - 2 * DAY).toISOString(), to: '/business/app/settings/documents' });
-    // Hidden if switched off for the app in Settings.
-    return out
-      .filter((n) => !n.setting || notify[n.setting]?.app !== false)
-      .sort((a, b) => (a.group === b.group ? b.when.localeCompare(a.when) : a.group === 'needs' ? -1 : 1));
-  }, [payments, invoices, checks, alerts, cases, documents, notify]);
-  const unread = notes.filter((n) => !seen.includes(n.id));
-  return { notes, unread, seen };
+    const recent = (iso: string, days: number) => Date.now() - new Date(iso).getTime() < days * DAY;
+
+    if (business?.status === 'more_info')
+      out.push({ id: `biz-info-${business.id}`, group: 'needs', icon: MessageSquareWarning, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: 'We need something to finish your review', body: business.decisionNote ?? undefined, when: new Date().toISOString(), to: '/business/app/open' });
+    for (const l of (links.data ?? []).filter((x) => x.status === 'expired'))
+      out.push({ id: `ex-${l.reference}`, group: 'needs', icon: FileWarning, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `${l.invoiceName} for ${l.recipient.name} expired unpaid`, body: amount(Number(l.amount), l.currency), when: l.expiresAt ?? l.createdAt, to: '/business/app/invoices' });
+    for (const p of payments.filter((x) => x.status === 'failed' && recent(x.date, 7)))
+      out.push({ id: `fail-${p.id}`, group: 'needs', icon: XCircle, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `Your payment to ${p.who} didn’t go through`, body: p.note, when: p.date, to: `/business/app/payments?q=${encodeURIComponent(p.who)}` });
+
+    for (const l of (links.data ?? []).filter((x) => x.status === 'paid' && x.paidAt && recent(x.paidAt, 7)))
+      out.push({ id: `paid-${l.reference}`, group: 'update', icon: CircleCheck, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${l.recipient.name} paid ${l.invoiceName}`, body: amount(Number(l.paidAmount ?? l.amount), l.currency), when: l.paidAt!, to: '/business/app/invoices' });
+    for (const p of payments.filter((x) => x.kind === 'in' && x.status === 'received' && x.what !== 'Payment link' && recent(x.date, 4)))
+      out.push({ id: `in-${p.id}`, group: 'update', icon: ArrowDownLeft, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${money(p.amount, p.currency)} from ${p.who}`, body: p.what, when: p.date, to: `/business/app/payments?q=${encodeURIComponent(p.who)}` });
+    if (business && (business.status === 'pending' || business.status === 'second_review'))
+      out.push({ id: `biz-review-${business.id}`, group: 'update', icon: FileSearch, tone: 'bg-[#fbf0d6] text-[#8a5a00]', title: `We’re reviewing ${business.name}`, body: 'Usually one or two working days.', when: business.submittedAt ?? new Date().toISOString(), to: '/business/app/open' });
+
+    return out.sort((a, b) => (a.group === b.group ? b.when.localeCompare(a.when) : a.group === 'needs' ? -1 : 1));
+  }, [business, links.data, payments]);
+
+  const unread = notes.filter((n) => !read.includes(n.id));
+  return { notes, unread, read };
 }
 
 /** The bell in the top bar, and the list it opens. */
 export default function NotificationBell() {
   const navigate = useNavigate();
-  const { notes, unread, seen } = useNotes();
+  const { notes, unread, read } = useNotes();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -101,7 +130,7 @@ export default function NotificationBell() {
         <p className="px-4 pb-1 pt-3 text-[12.5px] font-medium text-graphite/45">{title}</p>
         <ul>
           {list.map((n) => {
-            const isNew = !seen.includes(n.id);
+            const isNew = !read.includes(n.id);
             return (
               <li key={n.id}>
                 <button type="button" onClick={() => go(n.id, n.to)} className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f5f4ef]">
@@ -162,16 +191,6 @@ export default function NotificationBell() {
               {section('update', 'Updates')}
               {notes.length === 0 && <p className="px-4 py-10 text-center text-[14px] text-graphite/50">You’re all caught up.</p>}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                navigate('/business/app/settings/notifications');
-              }}
-              className="block w-full border-t border-graphite/10 px-4 py-3 text-left text-[13.5px] font-semibold text-graphite/60 hover:bg-[#f5f4ef] hover:text-graphite"
-            >
-              Choose what you’re told about
-            </button>
           </motion.div>
         )}
       </AnimatePresence>

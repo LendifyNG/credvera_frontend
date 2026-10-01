@@ -30,6 +30,14 @@ const about: Record<string, string> = {
 /** A part of the dashboard that isn't built yet: what it will do, and the way back. */
 export default function Soon() {
   const { what = '' } = useParams();
+  return <SoonPage what={what} />;
+}
+
+/**
+ * The same, for a page with its own place in the sidebar whose API isn't
+ * there yet. It says so rather than showing made-up records.
+ */
+export function SoonPage({ what }: { what: string }) {
   const name = what ? what[0]!.toUpperCase() + what.slice(1).replace(/-/g, ' ') : '';
   return (
     <div className="mx-auto max-w-xl py-20 text-center">

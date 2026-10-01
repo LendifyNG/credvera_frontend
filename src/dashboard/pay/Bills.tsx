@@ -13,7 +13,7 @@ import {
   type MeterType,
   type Network,
 } from '../../api';
-import { money } from '../store';
+import { money } from '../model';
 import { ComingSoon, Notice, PinPrompt } from '../ui';
 import { field, label, NairaInput, nairaFrom, panel, primary } from './shared';
 

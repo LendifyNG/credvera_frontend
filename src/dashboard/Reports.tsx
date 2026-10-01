@@ -1,10 +1,11 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, Check, Download, Printer } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Check, Download, Printer } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import { CURRENCIES } from './money';
-import { invoiceTotals, kindOf, matchPayment, money, RATES, settled, shortDate, useDash, type Currency, type Payment } from './store';
+import { usePaymentLinks } from '../api';
+import { kindOf, money, reference, settled, shortDate, type Currency, type Payment } from './model';
 import { useBalances, usePayInAccount, usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -14,11 +15,8 @@ const field = 'h-11 w-full rounded-lg border border-graphite/15 bg-white px-3.5 
 const label = 'mb-1.5 block text-[13px] font-medium text-graphite/60';
 const secondary = 'inline-flex h-10 items-center gap-2 rounded-lg border border-graphite/15 px-4 text-[14px] font-semibold hover:border-graphite/30';
 
-/** A signed amount for the account's own currency: in adds, out takes away. Conversions count here: they move money in and out of accounts. */
-const signedIn = (p: Payment, c: Currency) => {
-  if (p.internal && p.toCurrency === c) return p.toAmount ?? 0; // the side a conversion arrived in
-  return p.currency !== c ? 0 : p.kind === 'in' ? p.amount : -p.amount;
-};
+/** A signed amount for the account's own currency: in adds, out takes away. */
+const signedIn = (p: Payment, c: Currency) => (p.currency !== c ? 0 : p.kind === 'in' ? p.amount : -p.amount);
 
 function download(name: string, rows: (string | number)[][]) {
   const q = (v: string | number) => (typeof v === 'number' ? v.toFixed(2) : `"${v.replace(/"/g, '""')}"`);
@@ -57,7 +55,7 @@ function Statements() {
   // Settled movements in this account, oldest first, with a running balance
   // worked back from today's.
   const rows = useMemo(() => {
-    const moves = payments.filter((p) => (p.currency === currency || (p.internal && p.toCurrency === currency)) && settled(p));
+    const moves = payments.filter((p) => p.currency === currency && settled(p));
     const after = moves.filter((p) => new Date(p.date).getTime() >= from);
     const opening = balances[currency] - after.reduce((a, p) => a + signedIn(p, currency), 0);
     let run = opening;
@@ -193,7 +191,7 @@ function CashFlow() {
   const { payments } = usePayments();
   const [hover, setHover] = useState<number | null>(null);
   const WEEKS = 8;
-  // Weeks ending today, in naira terms, conversions left out.
+  // Weeks ending today, in naira. Other currencies are left out, not converted.
   const weeks = useMemo(() => {
     const end = new Date().setHours(23, 59, 59, 999);
     return Array.from({ length: WEEKS }, (_, i) => {
@@ -203,9 +201,9 @@ function CashFlow() {
       let outflow = 0;
       for (const p of payments) {
         const t = new Date(p.date).getTime();
-        if (p.internal || !settled(p) || t <= from || t > to) continue;
-        if (p.kind === 'in') inflow += p.amount * RATES[p.currency];
-        else outflow += p.amount * RATES[p.currency];
+        if (!settled(p) || p.currency !== 'NGN' || t <= from || t > to) continue;
+        if (p.kind === 'in') inflow += p.amount;
+        else outflow += p.amount;
       }
       return { from, inflow, outflow };
     });
@@ -214,8 +212,8 @@ function CashFlow() {
     const m = new Map<string, number>();
     const since = Date.now() - WEEKS * 7 * DAY;
     for (const p of payments) {
-      if (p.internal || !settled(p) || p.kind !== kind || new Date(p.date).getTime() < since) continue;
-      m.set(kindOf(p), (m.get(kindOf(p)) ?? 0) + p.amount * RATES[p.currency]);
+      if (!settled(p) || p.currency !== 'NGN' || p.kind !== kind || new Date(p.date).getTime() < since) continue;
+      m.set(kindOf(p), (m.get(kindOf(p)) ?? 0) + p.amount);
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   };
@@ -230,7 +228,7 @@ function CashFlow() {
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <h2 className="text-[18px] font-semibold tracking-[-0.02em]">Cash flow, last 8 weeks</h2>
-            <p className="text-[13.5px] text-graphite/55">Money in and out in naira terms. Cash movement, not profit; conversions between your accounts aren’t counted.</p>
+            <p className="text-[13.5px] text-graphite/55">Naira in and out. Cash movement, not profit; other currencies aren’t added in.</p>
           </div>
           <p className="text-[13px] text-graphite/55">
             {h ? (
@@ -296,25 +294,23 @@ function CashFlow() {
 /* ---------- Reconciliation ---------- */
 
 function Reconciliation() {
-  const { invoices, links } = useDash();
+  const links = usePaymentLinks();
   const { payments } = usePayments();
-  const [done, setDone] = useState<string | null>(null);
-  const incoming = payments.filter((p) => p.kind === 'in' && !p.internal && p.status === 'received');
-  const matchOf = (p: Payment) => {
-    const inv = invoices.find((i) => i.paymentId === p.id || p.what.includes(i.number));
-    if (inv) return { kind: 'invoice' as const, label: inv.number };
-    const link = links.find((l) => /payment link/i.test(p.what) && l.paidBy.includes(p.who) && l.currency === p.currency);
-    if (link) return { kind: 'link' as const, label: link.title };
-    return null;
-  };
-  const open = invoices.filter((i) => i.status === 'sent' || i.status === 'viewed');
+  const incoming = payments.filter((p) => p.kind === 'in' && p.status === 'received');
+  // An invoice paid through its link is credited under the invoice's own
+  // reference, so the match is exact rather than guessed from names or amounts.
+  const byReference = useMemo(() => new Map((links.data ?? []).map((l) => [l.reference, l])), [links.data]);
+  const matchOf = (p: Payment) => (p.ref ? byReference.get(p.ref) : undefined);
   const matched = incoming.filter(matchOf).length;
   const pct = incoming.length ? Math.round((matched / incoming.length) * 100) : 100;
 
   const csv = () =>
     download('credvera-reconciliation.csv', [
-      ['Date', 'From', 'Amount', 'Currency', 'Matched to'],
-      ...incoming.map((p) => [new Date(p.date).toISOString().slice(0, 10), p.who, p.amount, p.currency, matchOf(p)?.label ?? 'Not matched']),
+      ['Date', 'From', 'Amount', 'Currency', 'Reference', 'Invoice'],
+      ...incoming.map((p) => {
+        const inv = matchOf(p);
+        return [new Date(p.date).toISOString().slice(0, 10), p.who, p.amount, p.currency, reference(p), inv ? `${inv.invoiceName} (${inv.recipient.name})` : 'Not an invoice payment'];
+      }),
     ]);
 
   return (
@@ -329,22 +325,14 @@ function Reconciliation() {
         </div>
         <div className="flex-1">
           <h2 className="text-[18px] font-semibold tracking-[-0.02em]">
-            {matched} of {incoming.length} payments matched
+            {matched} of {incoming.length} payments came through an invoice
           </h2>
-          <p className="text-[14px] text-graphite/55">Each payment you received, matched to the invoice or payment link it paid. Your accountant can take the file as it is.</p>
+          <p className="text-[14px] text-graphite/55">Each payment you received, with the invoice it paid. Transfers straight to your account show their reference instead. Your accountant can take the file as it is.</p>
         </div>
         <button type="button" onClick={csv} className={secondary}>
           <Download className="size-4" /> Export for your accountant
         </button>
       </section>
-
-      <AnimatePresence>
-        {done && (
-          <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 rounded-xl border border-[#cfe8c9] bg-[#eef8ea] px-4 py-3 text-[14px] font-medium text-[#1f6b33]">
-            <Check className="size-4" /> {done}
-          </motion.p>
-        )}
-      </AnimatePresence>
 
       <section className={`${panel} overflow-x-auto`}>
         <table className="w-full min-w-[680px] text-left text-[14px]">
@@ -359,49 +347,30 @@ function Reconciliation() {
           <tbody>
             {incoming.map((p) => {
               const m = matchOf(p);
-              // An open invoice for exactly this amount is the likely match.
-              const guess = !m ? open.find((i) => i.currency === p.currency && Math.abs(invoiceTotals(i).total - p.amount) < 1) : undefined;
               return (
-                <tr key={p.id} className={`border-b border-graphite/[0.06] last:border-0 ${!m ? 'bg-[#fffaf0]' : ''}`}>
+                <tr key={p.id} className="border-b border-graphite/[0.06] last:border-0">
                   <td className="whitespace-nowrap py-3.5 pl-5 pr-4 text-graphite/60">{shortDate(p.date)}</td>
                   <td className="py-3.5 pr-4 font-medium">{p.who}</td>
                   <td className="whitespace-nowrap py-3.5 pr-4 text-right font-ledger font-medium text-[#1f6b33]">+{money(p.amount, p.currency)}</td>
                   <td className="py-3.5 pr-5">
                     {m ? (
                       <span className="inline-flex items-center gap-1.5 text-[13.5px]">
-                        <Check className="size-4 text-[#1f6b33]" /> {m.kind === 'invoice' ? m.label : `Link: ${m.label}`}
+                        <Check className="size-4 text-[#1f6b33]" /> {m.invoiceName} · {m.recipient.name}
                       </span>
                     ) : (
-                      <span className="flex flex-wrap items-center gap-2 text-[13.5px]">
-                        <AlertCircle className="size-4 text-[#b07400]" />
-                        <select
-                          defaultValue={guess?.id ?? ''}
-                          onChange={(e) => {
-                            if (!e.target.value) return;
-                            const inv = invoices.find((i) => i.id === e.target.value)!;
-                            matchPayment(p, inv.id);
-                            setDone(`${p.who}’s payment matched to ${inv.number}, and the invoice marked paid.`);
-                            window.setTimeout(() => setDone(null), 4000);
-                          }}
-                          className="h-8 rounded-md border border-graphite/20 bg-white px-2 text-[13px] outline-none"
-                          aria-label={`Match ${p.who}'s payment to an invoice`}
-                        >
-                          <option value="">Match to an invoice…</option>
-                          {open
-                            .filter((i) => i.currency === p.currency)
-                            .map((i) => (
-                              <option key={i.id} value={i.id}>
-                                {i.number} · {i.customer} · {money(invoiceTotals(i).total, i.currency)}
-                              </option>
-                            ))}
-                        </select>
-                        {guess && <span className="text-[12.5px] text-graphite/55">Same amount as {guess.number}</span>}
-                      </span>
+                      <span className="text-[13px] text-graphite/50">Transfer · ref {reference(p)}</span>
                     )}
                   </td>
                 </tr>
               );
             })}
+            {incoming.length === 0 && (
+              <tr>
+                <td colSpan={4} className="py-10 text-center text-graphite/50">
+                  No money received yet.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </section>
@@ -413,13 +382,14 @@ function Reconciliation() {
 
 function Profit() {
   const [currency, setCurrency] = useState<Exclude<Currency, 'NGN'>>('USD');
-  const [cost, setCost] = useState('4200');
-  const [qty, setQty] = useState('200');
-  const [shipping, setShipping] = useState('650000');
-  const [duty, setDuty] = useState('20');
-  const [other, setOther] = useState('150000');
-  const [price, setPrice] = useState('55000');
-  const [rate, setRate] = useState(String(RATES.USD));
+  // Starts empty: the numbers are the business's own, and so is the rate.
+  const [cost, setCost] = useState('');
+  const [qty, setQty] = useState('');
+  const [shipping, setShipping] = useState('');
+  const [duty, setDuty] = useState('');
+  const [other, setOther] = useState('');
+  const [price, setPrice] = useState('');
+  const [rate, setRate] = useState('');
 
   const n = (v: string) => Number(v.replace(/[^\d.]/g, '')) || 0;
   const goods = n(cost) * n(rate);
@@ -454,9 +424,7 @@ function Profit() {
             <select
               value={currency}
               onChange={(e) => {
-                const c = e.target.value as Exclude<Currency, 'NGN'>;
-                setCurrency(c);
-                setRate(String(RATES[c]));
+                setCurrency(e.target.value as Exclude<Currency, 'NGN'>);
               }}
               className={field}
             >
@@ -505,7 +473,7 @@ function Profit() {
           {breakEven > 0 ? (
             <>
               This order stops making money if 1 {currency} costs more than <span className="font-ledger font-semibold">{money(breakEven)}</span>.
-              {breakEven > n(rate) ? ` That’s ${(((breakEven - n(rate)) / n(rate)) * 100).toFixed(1)}% above today’s rate.` : ' Today’s rate is already past it.'}
+              {n(rate) > 0 && (breakEven > n(rate) ? ` That’s ${(((breakEven - n(rate)) / n(rate)) * 100).toFixed(1)}% above the rate you entered.` : ' The rate you entered is already past it.')}
             </>
           ) : (
             'At these costs, the order loses money at any rate.'

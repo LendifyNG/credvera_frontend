@@ -3,7 +3,7 @@ import { Check, Copy, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePayInAccount } from './data';
-import type { Currency } from './store';
+import type { Currency } from './model';
 import { ComingSoon, Loading } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;

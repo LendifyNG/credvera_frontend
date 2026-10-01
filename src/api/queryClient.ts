@@ -20,6 +20,10 @@ export const queryKeys = {
   electricityProviders: ['bills', 'electricity-providers'] as const,
   businesses: ['businesses'] as const,
   business: (id: string) => ['businesses', id] as const,
+  paymentLinks: ['payment-links'] as const,
+  paymentLinkCurrencies: ['payment-links', 'currencies'] as const,
+  publicInvoice: (slug: string) => ['pay', slug] as const,
+  content: ['content'] as const,
 };
 
 export const queryClient = new QueryClient({
@@ -58,4 +62,5 @@ session.subscribe(() => {
 activeBusiness.subscribe(() => {
   queryClient.removeQueries({ queryKey: queryKeys.wallets });
   queryClient.removeQueries({ queryKey: queryKeys.transactions });
+  queryClient.removeQueries({ queryKey: queryKeys.paymentLinks, exact: true });
 });

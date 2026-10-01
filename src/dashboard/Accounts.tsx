@@ -5,13 +5,12 @@ import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { errorMessage, useOpenWallet, useProvisionVirtualAccount } from '../api';
 import { useBalances, usePayInAccount, usePayments, useSession } from './data';
 import { AddMoney, CURRENCIES } from './money';
-import { kindOf, money, RATES, settled, shortDate, type Currency, type Payment } from './store';
+import { kindOf, money, settled, shortDate, type Currency, type Payment } from './model';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
 
 // Each currency's own colour, as on its card in the app.
-const TONE: Record<Currency, string> = { NGN: '#1f6b33', USD: '#0b2350', GBP: '#c8102e', EUR: '#e0a526' };
 
 /** Who each account is for, in a line. */
 const TAKES: Record<Currency, string> = {
@@ -120,7 +119,7 @@ function month(payments: Payment[], c: Currency) {
   let inflow = 0;
   let outflow = 0;
   for (const p of payments) {
-    if (p.currency !== c || p.internal || !settled(p) || new Date(p.date).getTime() < since) continue;
+    if (p.currency !== c || !settled(p) || new Date(p.date).getTime() < since) continue;
     if (p.kind === 'in') inflow += p.amount;
     else outflow += p.amount;
   }
@@ -179,7 +178,6 @@ function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
             <img src={`https://flagcdn.com/w80/${c.flag}.png`} alt="" className="size-10 rounded-full object-cover ring-1 ring-graphite/10" />
             <div>
               <p className="font-ledger text-[26px] font-semibold leading-none tracking-[-0.02em]">{money(balances[code], code)}</p>
-              {code !== 'NGN' && <p className="mt-1 text-[13px] text-graphite/50">About {money(balances[code] * RATES[code])}</p>}
             </div>
           </div>
         </div>
@@ -201,7 +199,7 @@ function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
             {recent.map((p) => (
               <li key={p.id} className="flex items-center gap-3 py-3">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full border border-graphite/15">
-                  {p.internal ? <ArrowLeftRight className="size-3.5" /> : p.kind === 'in' ? <ArrowDownLeft className="size-3.5" /> : <ArrowUpRight className="size-3.5" />}
+                  {p.kind === 'in' ? <ArrowDownLeft className="size-3.5" /> : <ArrowUpRight className="size-3.5" />}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-medium">{p.who}</span>
@@ -209,8 +207,8 @@ function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
                     {shortDate(p.date)} · {kindOf(p)}
                   </span>
                 </span>
-                <span className={`font-ledger text-[14px] font-medium ${p.kind === 'in' && !p.internal ? 'text-[#1f6b33]' : ''}`}>
-                  {p.internal ? '' : p.kind === 'in' ? '+' : '−'}
+                <span className={`font-ledger text-[14px] font-medium ${p.kind === 'in' ? 'text-[#1f6b33]' : ''}`}>
+                  {p.kind === 'in' ? '+' : '−'}
                   {money(p.amount, p.currency)}
                 </span>
               </li>
@@ -233,8 +231,6 @@ export default function Accounts() {
   const [open, setOpen] = useState<Currency | null>(null);
   const [adding, setAdding] = useState(false);
 
-  const inNaira = CURRENCIES.map((c) => ({ ...c, ngn: balances[c.code] * RATES[c.code] }));
-  const total = inNaira.reduce((a, c) => a + c.ngn, 0);
   const months = useMemo(() => Object.fromEntries(CURRENCIES.map((c) => [c.code, month(payments, c.code)])) as Record<Currency, { inflow: number; outflow: number }>, [payments]);
 
   return (
@@ -254,28 +250,6 @@ export default function Accounts() {
           </button>
         </div>
       </div>
-
-      {/* The total, and how it splits across currencies */}
-      <section className="relative mt-6 overflow-hidden rounded-2xl border border-graphite/10 bg-white p-6">
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(20,28,23,0.06)_1px,transparent_1px)] [background-size:14px_14px]" />
-        <div className="relative">
-          <p className="text-[14px] font-medium text-graphite/60">Estimated total in NGN</p>
-          <p className="mt-1 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold tracking-[-0.03em] text-[#1f6b33]">{money(total)}</p>
-          <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-[#efeee7]" role="img" aria-label="How your money splits across currencies">
-            {inNaira.map((c) => (
-              <span key={c.code} style={{ width: `${total ? (c.ngn / total) * 100 : 0}%`, backgroundColor: TONE[c.code] }} className="h-full first:rounded-l-full last:rounded-r-full" />
-            ))}
-          </div>
-          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-graphite/60">
-            {inNaira.map((c) => (
-              <li key={c.code} className="flex items-center gap-2">
-                <span className="size-2 rounded-full" style={{ backgroundColor: TONE[c.code] }} />
-                {c.name} <span className="font-medium text-graphite">{total ? Math.round((c.ngn / total) * 100) : 0}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
       {/* One panel per account */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
@@ -304,7 +278,6 @@ export default function Accounts() {
               </div>
 
               <p className="mt-6 font-ledger text-[28px] font-semibold leading-none tracking-[-0.03em]">{money(balances[c.code], c.code)}</p>
-              <p className="mt-1.5 h-4 text-[13px] text-graphite/50">{c.code !== 'NGN' ? `About ${money(balances[c.code] * RATES[c.code])}` : ''}</p>
 
               <div className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-[#f5f4ef] p-4 text-[13px]">
                 <div>
