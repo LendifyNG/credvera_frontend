@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { AddMoney, CURRENCIES } from './money';
 import { invoiceTotals, isOverdue, kindOf, money, RATES, settled, shortDate, useDash, type Payment } from './store';
+import { useBalances, usePayments, useSession } from './data';
 
 const DAY = 86400000;
 
@@ -92,7 +93,10 @@ const tile = 'rounded-xl bg-[#f5f4ef] p-5';
 export default function Today() {
   const navigate = useNavigate();
   const { convert } = useOutletContext<{ convert: () => void }>();
-  const { session, balances, payments, documents, invoices } = useDash();
+  const { documents, invoices } = useDash();
+  const session = useSession();
+  const { balances } = useBalances();
+  const { payments } = usePayments();
   const [adding, setAdding] = useState(false);
   const [withConversions, setWithConversions] = useState(false);
   const [tab, setTab] = useState<'posted' | 'pending'>('posted');

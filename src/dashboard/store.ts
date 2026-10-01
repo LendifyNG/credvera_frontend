@@ -1,21 +1,32 @@
 import { useSyncExternalStore } from 'react';
 
-// The business dashboard's state: who is signed in, balances, payments and
-// approvals. Kept in this browser for now.
-// TODO(credvera): replace with the business API (sign-in sessions, KYB,
-// payments, approvals). Nothing here talks to a server yet.
+// The dashboard's view models, and the demo data for features the API does
+// not serve yet (invoices, links, customers, suppliers, cards, team, FX rates).
+//
+// Money is not here. Balances, transactions and the session come from the
+// backend through ./data.ts, so nothing in this file can make a real balance
+// look different from the ledger.
+// TODO(credvera): move each demo feature to the API as its endpoints land.
 
 export type Currency = 'NGN' | 'USD' | 'GBP' | 'EUR';
 export type Status = 'paid' | 'received' | 'waiting' | 'sent back' | 'in transit' | 'pending' | 'failed';
+
+/** One transaction as the screens show it. Built from the API in ./data.ts. */
 export type Payment = {
   id: string;
+  /** The backend's reference, shown on receipts and to support. */
+  ref?: string;
   date: string; // ISO
   who: string;
   what: string;
+  /** What reached the recipient, before any fee. */
   amount: number;
+  fee?: number;
   currency: Currency;
   kind: 'in' | 'out';
   status: Status;
+  /** For a bank transfer: who it went to, so they can be paid again. */
+  recipient?: Recipient;
   requestedBy?: string;
   reason?: string;
   note?: string;
@@ -26,16 +37,15 @@ export type Payment = {
   toCurrency?: Currency;
   toAmount?: number;
 };
-export type Recipient = { id: string; name: string; detail: string };
+
+/** A bank account someone has been paid at before. */
+export type Recipient = { name: string; bankCode: string; bankName: string; accountNumber: string };
+
 export type Session = { business: string; person: string; role: 'Owner' | 'Finance' | 'Staff' };
 
 type State = {
-  session: Session | null;
-  balances: Record<Currency, number>;
-  payments: Payment[];
   // The business's documents: still being checked, or done.
   documents: 'checking' | 'done';
-  schedules: Schedule[];
   alerts: RateAlert[];
   cards: Card[];
   invoices: Invoice[];
@@ -43,7 +53,6 @@ type State = {
   // Customers added by hand; the rest come from invoices and payments.
   contacts: Contact[];
   suppliers: Supplier[];
-  orders: Order[];
   checks: InvoiceCheck[];
   team: Member[];
   rules: Rules;
@@ -68,24 +77,6 @@ export type Rules = { over: number; approvers: Role[] };
 
 /** A business the company pays, here or abroad. */
 export type Supplier = { id: string; name: string; country: string; flag: string; currency: Currency; bank: string; account: string; since: string };
-
-/**
- * A protected order: the money is held until the supplier's goods are on
- * their way, then released. The deposit, if any, goes when the order starts.
- */
-export type Order = {
-  id: string;
-  number: string;
-  supplier: string;
-  what: string;
-  currency: Currency;
-  amount: number;
-  deposit: number; // percent paid up front
-  stage: 'waiting' | 'checking' | 'released' | 'problem';
-  created: string;
-  shipBy: string;
-  note?: string;
-};
 
 /** A supplier invoice checked against the account paid before. */
 export type InvoiceCheck = { id: string; supplier: string; invoice: string; amount: number; currency: Currency; account: string; checked: string; result: 'match' | 'changed' | 'new' };
@@ -119,6 +110,8 @@ export type Invoice = {
   due: string;
   status: 'draft' | 'sent' | 'viewed' | 'paid';
   paidOn?: string;
+  /** The incoming transaction that settled it, once matched. */
+  paymentId?: string;
   note?: string;
 };
 
@@ -139,9 +132,6 @@ export type Card = {
 
 /** "Tell me when $1 goes below ₦1,500." */
 export type RateAlert = { id: string; currency: Exclude<Currency, 'NGN'>; when: 'above' | 'below'; rate: number };
-
-/** A payment that repeats, like rent or salaries. */
-export type Schedule = { id: string; who: string; detail: string; amount: number; every: 'week' | 'month'; next: string; reason: string; paused?: boolean };
 
 /** Naira for one unit of each currency, the same rates as the app. TODO(credvera): live rates from the API. */
 export const RATES: Record<Currency, number> = { NGN: 1, USD: 1535, GBP: 2065, EUR: 1790 };
@@ -167,32 +157,8 @@ export function rateHistory(c: Exclude<Currency, 'NGN'>) {
   return out;
 }
 
-/**
- * The business's account in each currency: the details customers pay into,
- * with the same numbers as the app. TODO(credvera): from the partner bank
- * once each account is opened, including routing, sort code, IBAN and SWIFT
- * for the foreign accounts.
- */
-export const ACCOUNTS: Record<Currency, { number: string; bank: string; takes: string }> = {
-  NGN: { number: '8012345678', bank: 'Credvera Partner Bank', takes: 'Transfers from any Nigerian bank. They arrive in seconds.' },
-  USD: { number: '4401987362', bank: 'Credvera Partner Bank', takes: 'Payments from clients, marketplaces and banks in the US.' },
-  GBP: { number: '6620458811', bank: 'Credvera Partner Bank', takes: 'Payments from clients and banks in the UK.' },
-  EUR: { number: '3308841175', bank: 'Credvera Partner Bank', takes: 'Payments from clients and banks in Europe.' },
-};
-export const ACCOUNT_NAME = 'Okafor Studios Limited';
-
-/** Where customers send naira to the business. */
-export const nairaAccount = { bank: ACCOUNTS.NGN.bank, name: ACCOUNT_NAME, number: ACCOUNTS.NGN.number };
-
 /** Naira payments at or above this wait for a second approval. TODO(credvera): let the owner set it. */
 export const APPROVAL_OVER = 500000;
-export const TRANSFER_FEE = 25;
-
-// The business's saved recipients, as in the app.
-export const recipients: Recipient[] = [
-  { id: 'r1', name: 'Adebayo Logistics', detail: 'Access Bank · 06•• ••• 321' },
-  { id: 'r2', name: 'Lagos Print Hub', detail: 'Moniepoint · 51•• ••• 310' },
-];
 
 const ahead = (d: number) => {
   const t = new Date();
@@ -207,28 +173,9 @@ const day = (d: number) => {
 };
 
 // The example business, the same as the business app's: Okafor Studios
-// Limited, with its transactions, invoices, suppliers and cards.
-const at = (iso: string) => new Date(iso).toISOString();
+// Limited, with its invoices, suppliers and cards.
 const seed = (): State => ({
-  session: null,
-  balances: { NGN: 3420750, USD: 0, GBP: 0, EUR: 0 },
-  payments: [
-    { id: 'b25', date: at('2026-09-25T09:10:00+01:00'), who: 'Lagos Print Hub', what: 'Flyers and banners for October launch · Moniepoint', amount: 650000, currency: 'NGN', kind: 'out', status: 'waiting', requestedBy: 'Kemi Adeyemi', reason: 'Flyers and banners for October launch' },
-    { id: 'b20', date: at('2026-09-24T15:12:00+01:00'), who: 'Chinedu Eze', what: 'INV-0001 · Logo design · GTBank', amount: 185000, currency: 'NGN', kind: 'in', status: 'received' },
-    { id: 'b01', date: at('2026-09-24T11:20:00+01:00'), who: 'Shenzhen Hongda Trading Co.', what: 'Supplier · China · Invoice HD-2291', amount: 2000, currency: 'USD', kind: 'out', status: 'in transit', note: 'Converted from ₦3,070,000 at $1 = ₦1,535.00' },
-    { id: 'b10', date: at('2026-09-23T08:02:00+01:00'), who: 'Google Workspace', what: 'Card · Online spending ••7719', amount: 36, currency: 'USD', kind: 'out', status: 'paid' },
-    { id: 'b11', date: at('2026-09-22T06:40:00+01:00'), who: 'Amazon Web Services', what: 'Card · Online spending ••7719', amount: 142.8, currency: 'USD', kind: 'out', status: 'pending' },
-    { id: 'b21', date: at('2026-09-22T10:05:00+01:00'), who: 'Lagoon Events Ltd', what: 'Deposit, event branding · Zenith Bank', amount: 350000, currency: 'NGN', kind: 'in', status: 'received' },
-    { id: 'b14', date: at('2026-09-21T16:45:00+01:00'), who: 'Jumia', what: 'Card · Expenses ••5530', amount: 84500, currency: 'NGN', kind: 'out', status: 'paid' },
-    { id: 'b22', date: at('2026-09-21T09:40:00+01:00'), who: 'Adebayo Logistics', what: 'Delivery, Lekki orders · Access Bank', amount: 120000, currency: 'NGN', kind: 'out', status: 'paid' },
-    { id: 'b15', date: at('2026-09-20T19:05:00+01:00'), who: 'Bolt Business', what: 'Card · Expenses ••5530', amount: 12300, currency: 'NGN', kind: 'out', status: 'paid' },
-    { id: 'b23', date: at('2026-09-19T08:15:00+01:00'), who: 'Ikeja Electric', what: 'Bill · electricity · office meter', amount: 60000, currency: 'NGN', kind: 'out', status: 'paid' },
-    { id: 'b12', date: at('2026-09-18T14:10:00+01:00'), who: 'Meta ads', what: 'Card · Online spending ••7719', amount: 250, currency: 'USD', kind: 'out', status: 'paid' },
-    { id: 'b24', date: at('2026-09-18T16:30:00+01:00'), who: 'Lagos Print Hub', what: 'Banners · Moniepoint', amount: 45500, currency: 'NGN', kind: 'out', status: 'pending' },
-    { id: 'b13', date: at('2026-09-15T10:25:00+01:00'), who: 'Figma', what: 'Card · Online spending ••7719', amount: 45, currency: 'USD', kind: 'out', status: 'failed', note: 'Declined: not enough in your US Dollar account' },
-  ],
   documents: 'done',
-  schedules: [],
   alerts: [],
   invoices: [
     { id: 'i3', number: 'INV-0003', customer: 'Lagoon Events Ltd', email: 'accounts@lagoonevents.ng', currency: 'NGN', items: [{ desc: 'Event identity and signage', qty: 1, price: 450000 }, { desc: 'Printed banners', qty: 6, price: 35000 }], vat: false, issued: day(3), due: ahead(11), status: 'sent' },
@@ -242,7 +189,6 @@ const seed = (): State => ({
     { id: 's1', name: 'Müller Verpackung GmbH', country: 'Germany', flag: 'de', currency: 'EUR', bank: 'Commerzbank', account: 'DE89370400440532013000', since: day(150) },
     { id: 's2', name: 'Brightline Studio Ltd', country: 'United Kingdom', flag: 'gb', currency: 'GBP', bank: 'Sort code 30-96-34', account: '41822690', since: day(90) },
   ],
-  orders: [],
   checks: [],
   team: [
     { id: 'm1', name: 'Adaeze Okafor', email: 'adaeze.okafor@example.com', role: 'Owner', status: 'active', lastActive: day(0) },
@@ -268,8 +214,9 @@ const seed = (): State => ({
   ],
 });
 
-// Bumped when the example business changes, so older saved copies reset.
-const KEY = 'credvera.dashboard.v15';
+// Bumped when the example data changes, so older saved copies reset. v16
+// dropped the demo balances and payments, which now come from the API.
+const KEY = 'credvera.dashboard.v16';
 
 function load(): State {
   try {
@@ -306,69 +253,8 @@ export function useDash() {
 
 export const getDash = () => state;
 
-export function signIn(session: Session) {
-  set({ ...state, session });
-}
-
-export function signOut() {
-  set({ ...state, session: null });
-}
-
-/** A new payment out. Big naira payments wait for someone else's approval. */
-export function addPayment(input: { who: string; what: string; amount: number; reason: string }) {
-  const needsApproval = input.amount >= state.rules.over;
-  const p: Payment = {
-    id: `p${Date.now()}`,
-    date: new Date().toISOString(),
-    who: input.who,
-    what: input.what,
-    amount: input.amount,
-    currency: 'NGN',
-    kind: 'out',
-    status: needsApproval ? 'waiting' : 'paid',
-    requestedBy: needsApproval ? `${state.session?.person ?? 'You'} (${state.session?.role ?? 'Owner'})` : undefined,
-    reason: input.reason,
-  };
-  const balances = needsApproval ? state.balances : { ...state.balances, NGN: state.balances.NGN - input.amount - TRANSFER_FEE };
-  set({ ...state, balances, payments: [p, ...state.payments] });
-  return p;
-}
-
-/** Nigerian banks a naira payment can go to. */
-export const BANKS = ['Access Bank', 'First Bank', 'Fidelity Bank', 'GTBank', 'Kuda', 'Moniepoint', 'Opay', 'Stanbic IBTC', 'Sterling Bank', 'UBA', 'Wema Bank', 'Zenith Bank'];
-
-/**
- * The name on a bank account, as the bank has it.
- * TODO(credvera): the name check comes from the banks' network through the
- * API. For now it answers with a name picked from the account number.
- */
-export async function nameCheck(bank: string, account: string) {
-  await new Promise((r) => setTimeout(r, 700));
-  const names = ['ADEBAYO OGUNLESI', 'CHIOMA NWOSU', 'IBRAHIM MUSA', 'FOLAKE ADEYEMI', 'EMEKA OKONKWO', 'HALIMA SANI'];
-  const n = account.split('').reduce((a, d) => a + Number(d), 0);
-  return bank && account.length === 10 ? names[n % names.length]! : null;
-}
-
 export function addSupplier(sup: Omit<Supplier, 'id' | 'since'>) {
   set({ ...state, suppliers: [...state.suppliers, { ...sup, id: `su${Date.now()}`, since: new Date().toISOString() }] });
-}
-
-/** Starts a protected order: the deposit goes now, the rest is held. TODO(credvera): held by the partner bank through the API. */
-export function addOrder(o: Pick<Order, 'supplier' | 'what' | 'currency' | 'amount' | 'deposit' | 'shipBy'>) {
-  const n = Math.max(...state.orders.map((x) => Number(x.number.slice(3)))) + 1;
-  const order: Order = { ...o, id: `o${Date.now()}`, number: `PO-${n}`, stage: 'waiting', created: new Date().toISOString() };
-  set({ ...state, balances: { ...state.balances, [o.currency]: state.balances[o.currency] - o.amount }, orders: [order, ...state.orders] });
-  return order;
-}
-
-export function updateOrder(id: string, change: Partial<Order>) {
-  const o = state.orders.find((x) => x.id === id);
-  if (!o) return;
-  const payments =
-    change.stage === 'released' && o.stage !== 'released'
-      ? [{ id: `p${Date.now()}`, date: new Date().toISOString(), who: o.supplier, what: `Supplier · ${o.number} released`, amount: o.amount, currency: o.currency, kind: 'out' as const, status: 'paid' as const }, ...state.payments]
-      : state.payments;
-  set({ ...state, payments, orders: state.orders.map((x) => (x.id === id ? { ...x, ...change } : x)) });
 }
 
 /** Compares the bank details on a supplier's invoice with the account paid before. */
@@ -398,14 +284,10 @@ export function setRules(change: Partial<Rules>) {
 }
 
 /** Links a payment that came in to the invoice it paid, and marks the invoice paid. */
-export function matchPayment(paymentId: string, invoiceId: string) {
-  const p = state.payments.find((x) => x.id === paymentId);
-  const inv = state.invoices.find((x) => x.id === invoiceId);
-  if (!p || !inv) return;
+export function matchPayment(payment: Pick<Payment, 'id' | 'date'>, invoiceId: string) {
   set({
     ...state,
-    payments: state.payments.map((x) => (x.id === paymentId ? { ...x, what: `${inv.number} · ${x.what}` } : x)),
-    invoices: state.invoices.map((x) => (x.id === invoiceId ? { ...x, status: 'paid', paidOn: p.date } : x)),
+    invoices: state.invoices.map((x) => (x.id === invoiceId ? { ...x, status: 'paid', paidOn: payment.date, paymentId: payment.id } : x)),
   });
 }
 
@@ -455,7 +337,7 @@ export function invoiceTotals(inv: Pick<Invoice, 'items' | 'vat'>) {
 export const isOverdue = (inv: Invoice) => inv.status !== 'paid' && inv.status !== 'draft' && new Date(inv.due).getTime() < new Date().setHours(0, 0, 0, 0);
 
 export function saveInvoice(inv: Omit<Invoice, 'id' | 'number'>) {
-  const n = Math.max(...state.invoices.map((i) => Number(i.number.slice(4)))) + 1;
+  const n = Math.max(0, ...state.invoices.map((i) => Number(i.number.slice(4)))) + 1;
   const invoice: Invoice = { ...inv, id: `i${Date.now()}`, number: `INV-${String(n).padStart(4, '0')}` };
   set({ ...state, invoices: [invoice, ...state.invoices] });
   return invoice;
@@ -465,18 +347,12 @@ export function updateInvoice(id: string, change: Partial<Invoice>) {
   set({ ...state, invoices: state.invoices.map((i) => (i.id === id ? { ...i, ...change } : i)) });
 }
 
-/** Marks an invoice paid and records the money coming in. TODO(credvera): matched automatically when the payment arrives. */
+/**
+ * Records that the customer paid outside Credvera. No money is booked here:
+ * a payment into the account arrives as a real transaction of its own.
+ */
 export function markInvoicePaid(id: string) {
-  const inv = state.invoices.find((i) => i.id === id);
-  if (!inv || inv.status === 'paid') return;
-  const { total } = invoiceTotals(inv);
-  const p: Payment = { id: `p${Date.now()}`, date: new Date().toISOString(), who: inv.customer, what: `${inv.number} · bank transfer`, amount: Math.round(total * 100) / 100, currency: inv.currency, kind: 'in', status: 'received' };
-  set({
-    ...state,
-    balances: { ...state.balances, [inv.currency]: state.balances[inv.currency] + p.amount },
-    payments: [p, ...state.payments],
-    invoices: state.invoices.map((i) => (i.id === id ? { ...i, status: 'paid', paidOn: p.date } : i)),
-  });
+  set({ ...state, invoices: state.invoices.map((i) => (i.id === id && i.status !== 'paid' ? { ...i, status: 'paid', paidOn: new Date().toISOString() } : i)) });
 }
 
 export function updateCard(id: string, change: Partial<Card>) {
@@ -506,73 +382,6 @@ export function removeAlert(id: string) {
   set({ ...state, alerts: state.alerts.filter((x) => x.id !== id) });
 }
 
-export function addSchedule(s: Omit<Schedule, 'id'>) {
-  set({ ...state, schedules: [...state.schedules, { ...s, id: `s${Date.now()}` }] });
-}
-
-export function toggleSchedule(id: string) {
-  set({ ...state, schedules: state.schedules.map((x) => (x.id === id ? { ...x, paused: !x.paused } : x)) });
-}
-
-export function removeSchedule(id: string) {
-  set({ ...state, schedules: state.schedules.filter((x) => x.id !== id) });
-}
-
-/** A bill paid from the naira account. TODO(credvera): through the bills provider, which returns the token. */
-export function payBill(input: { biller: string; kind: string; customer: string; amount: number }) {
-  const token = input.kind === 'Electricity' ? Array.from({ length: 5 }, () => String(Math.floor(1000 + Math.random() * 9000))).join(' ') : undefined;
-  const p: Payment = {
-    id: `b${Date.now()}`,
-    date: new Date().toISOString(),
-    who: input.biller,
-    what: `Bill · ${input.kind.toLowerCase()} · ${input.customer}${token ? ` · token ${token}` : ''}`,
-    amount: input.amount,
-    currency: 'NGN',
-    kind: 'out',
-    status: 'paid',
-  };
-  set({ ...state, balances: { ...state.balances, NGN: state.balances.NGN - input.amount }, payments: [p, ...state.payments] });
-  return { payment: p, token };
-}
-
-export function approve(id: string) {
-  const p = state.payments.find((x) => x.id === id);
-  if (!p || p.status !== 'waiting') return;
-  set({
-    ...state,
-    balances: { ...state.balances, [p.currency]: state.balances[p.currency] - p.amount - (p.currency === 'NGN' ? TRANSFER_FEE : 0) },
-    payments: state.payments.map((x) => (x.id === id ? { ...x, status: 'paid', date: new Date().toISOString() } : x)),
-  });
-}
-
-/** Converts between the business's own currencies at today's rate. */
-export function convert(from: Currency, to: Currency, amount: number) {
-  const received = Math.round(((amount * RATES[from]) / RATES[to]) * 100) / 100;
-  const p: Payment = {
-    id: `c${Date.now()}`,
-    date: new Date().toISOString(),
-    who: `${from} to ${to}`,
-    what: `Conversion · ${money(received, to)} received`,
-    amount,
-    currency: from,
-    kind: 'out',
-    status: 'paid',
-    internal: true,
-    toCurrency: to,
-    toAmount: received,
-  };
-  set({
-    ...state,
-    balances: { ...state.balances, [from]: state.balances[from] - amount, [to]: state.balances[to] + received },
-    payments: [p, ...state.payments],
-  });
-  return received;
-}
-
-export function sendBack(id: string, note: string) {
-  set({ ...state, payments: state.payments.map((x) => (x.id === id ? { ...x, status: 'sent back', note } : x)) });
-}
-
 /** What kind of transaction it is, read from its description. */
 export function kindOf(p: Payment) {
   if (p.internal) return 'Conversion';
@@ -598,8 +407,8 @@ export const STATUS: Record<Status, { label: string; short: string; tone: string
   failed: { label: 'Declined', short: 'Declined', tone: 'bg-[#f6e7e0] text-[#9a3a17]' },
 };
 
-/** A payment's reference, as it would appear on a receipt. */
-export const reference = (p: Payment) => `CV-${p.id.replace(/\D/g, '').slice(-8).padStart(6, '0')}`;
+/** A payment's reference, as it appears on a receipt. */
+export const reference = (p: Payment) => p.ref ?? `CV-${p.id.replace(/\D/g, '').slice(-8).padStart(6, '0')}`;
 
 const symbols: Record<Currency, string> = { NGN: '₦', USD: '$', GBP: '£', EUR: '€' };
 export const money = (n: number, c: Currency = 'NGN') =>

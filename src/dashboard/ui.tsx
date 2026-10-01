@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 const ease = [0.16, 1, 0.3, 1] as const;
 
 /**
- * Asks for the 4-digit PIN before anything moves. The PIN is never kept.
- * TODO(credvera): check the PIN with the API; for now any four digits confirm.
+ * Asks for the 4-digit PIN before anything moves, and hands it to `onConfirm`
+ * for the API to check. The PIN is never kept here.
  */
-export function PinPrompt({ open, title, detail, onConfirm, onClose }: { open: boolean; title: string; detail?: string; onConfirm: () => void; onClose: () => void }) {
+export function PinPrompt({ open, title, detail, onConfirm, onClose }: { open: boolean; title: string; detail?: string; onConfirm: (pin: string) => void; onClose: () => void }) {
   const [digits, setDigits] = useState('');
   const input = useRef<HTMLInputElement>(null);
 
@@ -22,7 +22,7 @@ export function PinPrompt({ open, title, detail, onConfirm, onClose }: { open: b
   useEffect(() => {
     if (digits.length !== 4) return;
     const t = window.setTimeout(() => {
-      onConfirm();
+      onConfirm(digits);
       setDigits('');
     }, 250);
     return () => clearTimeout(t);
@@ -107,4 +107,38 @@ export function QrPattern({ seed, className = '' }: { seed: number; className?: 
       {finder(0, N - 7)}
     </svg>
   );
+}
+
+/**
+ * A feature the dashboard shows but the API can't serve yet. Used wherever
+ * the alternative would be moving pretend money beside real balances.
+ */
+export function ComingSoon({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-dashed border-graphite/20 bg-white/60 px-6 py-12 text-center ${className}`}>
+      <span className="inline-block rounded-md bg-[#efeee7] px-2 py-0.5 text-[12px] font-medium text-graphite/60">Coming soon</span>
+      <p className="mt-3 text-[18px] font-semibold tracking-[-0.02em]">{title}</p>
+      <p className="mx-auto mt-2 max-w-md text-[14px] leading-relaxed text-graphite/55">{children}</p>
+    </div>
+  );
+}
+
+/** One line of feedback after an action: what happened, or what went wrong. */
+export function Notice({ tone, children, onClose }: { tone: 'good' | 'bad'; children: React.ReactNode; onClose?: () => void }) {
+  const colours = tone === 'good' ? 'border-[#cfe8c9] bg-[#eef8ea] text-[#1f6b33]' : 'border-[#f0d3c5] bg-[#fcf1ec] text-[#9a3a17]';
+  return (
+    <div role={tone === 'bad' ? 'alert' : 'status'} className={`mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 text-[14px] font-medium ${colours}`}>
+      <span className="flex-1">{children}</span>
+      {onClose && (
+        <button type="button" onClick={onClose} aria-label="Dismiss" className="opacity-60 hover:opacity-100">
+          <X className="size-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** A quiet placeholder while data loads. */
+export function Loading({ label = 'Loading…' }: { label?: string }) {
+  return <p className="py-10 text-center text-[14px] text-graphite/50">{label}</p>;
 }

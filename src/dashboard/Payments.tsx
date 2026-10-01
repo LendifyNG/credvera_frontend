@@ -11,11 +11,11 @@ import {
   settled,
   shortDate,
   STATUS,
-  TRANSFER_FEE,
-  useDash,
   type Currency,
   type Payment,
 } from './store';
+import { Loading } from './ui';
+import { usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -83,7 +83,8 @@ function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
     ['Account', CURRENCIES.find((c) => c.code === p.currency)!.name],
     ['Type', kindOf(p)],
     ['Details', p.what],
-    ...(p.kind === 'out' && p.currency === 'NGN' && !p.internal ? ([['Fee', money(TRANSFER_FEE)]] as [string, string][]) : []),
+    ...(p.fee ? ([['Fee', money(p.fee, p.currency)]] as [string, string][]) : []),
+    ...(p.note ? ([['Note', p.note]] as [string, string][]) : []),
   ];
   return (
     <motion.div className="fixed inset-0 z-50 bg-graphite/30 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
@@ -184,7 +185,8 @@ const PAGE = 25;
 
 /** Every transaction, filtered and searchable, each one a click from its full story. */
 export default function Payments() {
-  const { payments, session } = useDash();
+  const { payments, isLoading, hasMore, loadMore, loadingMore } = usePayments();
+  const session = useSession();
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
   const [tab, setTab] = useState(params.get('f') ?? 'all');
@@ -347,17 +349,27 @@ export default function Payments() {
               ))}
             </tbody>
           </table>
-          {shown.length === 0 && (
-            <div className="py-14 text-center">
-              <p className="text-[15px] font-medium">Nothing matches</p>
-              <p className="mt-1 text-[14px] text-graphite/50">Try another period, or clear the search.</p>
-            </div>
+          {isLoading ? (
+            <Loading label="Loading your transactions…" />
+          ) : (
+            shown.length === 0 && (
+              <div className="py-14 text-center">
+                <p className="text-[15px] font-medium">{payments.length ? 'Nothing matches' : 'No transactions yet'}</p>
+                <p className="mt-1 text-[14px] text-graphite/50">{payments.length ? 'Try another period, or clear the search.' : 'Money in and out of your accounts will show here.'}</p>
+              </div>
+            )
           )}
         </div>
-        {shown.length > shownCount && (
+        {(shown.length > shownCount || hasMore) && (
           <div className="border-t border-graphite/10 p-4 text-center">
-            <button type="button" onClick={() => setShownCount((n) => n + PAGE)} className="text-[14px] font-semibold text-graphite/70 hover:text-graphite">
-              Show more ({shown.length - shownCount} left)
+            <button
+              type="button"
+              disabled={loadingMore}
+              // Show what's already loaded first; then ask the API for older pages.
+              onClick={() => (shown.length > shownCount ? setShownCount((n) => n + PAGE) : loadMore())}
+              className="text-[14px] font-semibold text-graphite/70 hover:text-graphite disabled:opacity-50"
+            >
+              {loadingMore ? 'Loading…' : shown.length > shownCount ? `Show more (${shown.length - shownCount} left)` : 'Load older transactions'}
             </button>
           </div>
         )}

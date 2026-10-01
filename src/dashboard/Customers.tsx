@@ -3,6 +3,7 @@ import { FileText, Link2, Mail, Phone, Plus, Search, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { addContact, invoiceTotals, isOverdue, money, RATES, shortDate, useDash, type Invoice, type Payment } from './store';
+import { usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
@@ -33,7 +34,8 @@ const initials = (name: string) =>
 
 /** Everyone who pays the business, put together from invoices, payments and the customers added by hand. */
 function useCustomers(): Customer[] {
-  const { invoices, payments, contacts } = useDash();
+  const { invoices, contacts } = useDash();
+  const { payments } = usePayments();
   return useMemo(() => {
     const map = new Map<string, Customer>();
     const get = (name: string) => {
@@ -66,7 +68,7 @@ function useCustomers(): Customer[] {
 
 /** Customers: who pays you, what they've paid, and what they still owe. */
 export default function Customers() {
-  const { session } = useDash();
+  const session = useSession();
   const customers = useCustomers();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<string | null>(null);

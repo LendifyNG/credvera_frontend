@@ -3,6 +3,7 @@ import { Building2, Check, Copy, CreditCard, Lock, Pause, Play, Plus, X } from '
 import { useState } from 'react';
 import { CURRENCIES } from './money';
 import { addLink, linkUrl, money, RATES, shortDate, updateLink, useDash, type Currency, type PayLink, type Payment } from './store';
+import { usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -114,7 +115,9 @@ function Drawer({ label, onClose, children, footer }: { label: string; onClose: 
 
 /** Payment links: share one, and your customer pays by card or bank transfer. */
 export default function Links() {
-  const { links, payments, session } = useDash();
+  const { links } = useDash();
+  const { payments } = usePayments();
+  const session = useSession();
   const [open, setOpen] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [made, setMade] = useState<PayLink | null>(null);

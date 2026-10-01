@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, Check, CircleCheck, Plus, ShieldCheck, X } from 'lucide-react';
+import { AlertTriangle, Check, CircleCheck, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { CURRENCIES } from './money';
-import { addOrder, addSupplier, checkInvoice, money, shortDate, updateOrder, useDash, type Currency, type InvoiceCheck, type Order } from './store';
-import { PinPrompt } from './ui';
+import { addSupplier, checkInvoice, money, shortDate, useDash, type Currency, type InvoiceCheck } from './store';
+import { usePayments, useSession } from './data';
+import { ComingSoon } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const DAY = 86400000;
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
 const field = 'h-11 w-full rounded-lg border border-graphite/15 bg-white px-3.5 text-[15px] outline-none transition-colors placeholder:text-graphite/35 focus:border-graphite/50';
 const label = 'mb-1.5 block text-[13px] font-medium text-graphite/60';
@@ -57,7 +57,8 @@ function Drawer({ label: title, onClose, children, footer }: { label: string; on
 /* ---------- Your suppliers ---------- */
 
 function Directory() {
-  const { suppliers, payments } = useDash();
+  const { suppliers } = useDash();
+  const { payments } = usePayments();
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
   const [country, setCountry] = useState(COUNTRIES[1]!);
@@ -166,227 +167,12 @@ function Directory() {
 
 /* ---------- Protected orders ---------- */
 
-const STAGES: { key: Order['stage']; label: string }[] = [
-  { key: 'waiting', label: 'Money held' },
-  { key: 'checking', label: 'Shipping documents checked' },
-  { key: 'released', label: 'Paid to the supplier' },
-];
-const stageIndex = (s: Order['stage']) => (s === 'problem' ? 1 : STAGES.findIndex((x) => x.key === s));
-
+/** Money held until the goods ship, then released. Needs escrow on the API first. */
 function Orders() {
-  const { orders, suppliers, balances } = useDash();
-  const [creating, setCreating] = useState(false);
-  const [pin, setPin] = useState<{ kind: 'new' } | { kind: 'release'; order: Order } | null>(null);
-  const [problem, setProblem] = useState<string | null>(null);
-  const [note, setNote] = useState('');
-  const [done, setDone] = useState<string | null>(null);
-
-  const [supplier, setSupplier] = useState(suppliers[0]?.name ?? '');
-  const [what, setWhat] = useState('');
-  const [text, setText] = useState('');
-  const [deposit, setDeposit] = useState(30);
-  const [days, setDays] = useState(21);
-  const sup = suppliers.find((s) => s.name === supplier);
-  const cur = sup?.currency ?? 'USD';
-  const amount = Number(text.replace(/[^\d.]/g, '')) || 0;
-  const held = orders.filter((o) => o.stage !== 'released');
-  const ready = !!sup && what.trim().length > 1 && amount > 0 && amount <= balances[cur];
-
   return (
-    <div className="space-y-6">
-      <AnimatePresence>
-        {done && (
-          <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 rounded-xl border border-[#cfe8c9] bg-[#eef8ea] px-4 py-3 text-[14px] font-medium text-[#1f6b33]">
-            <Check className="size-4" /> {done}
-          </motion.p>
-        )}
-      </AnimatePresence>
-
-      <section className={`${panel} p-6`}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="max-w-xl">
-            <h2 className="text-[18px] font-semibold tracking-[-0.02em]">Protected orders</h2>
-            <p className="mt-1 text-[14px] text-graphite/55">
-              Pay a supplier without paying blind. A deposit goes now if you agree one; the rest is held until their shipping documents are checked, then released to them.
-            </p>
-          </div>
-          <button type="button" onClick={() => setCreating(true)} className={primary}>
-            <ShieldCheck className="size-4" /> Start a protected order
-          </button>
-        </div>
-        <p className="mt-4 text-[13.5px] text-graphite/55">
-          {held.length} {held.length === 1 ? 'order' : 'orders'} in progress
-        </p>
-      </section>
-
-      {orders.length === 0 && (
-        <p className="rounded-2xl border border-dashed border-graphite/20 px-6 py-10 text-center text-[14.5px] text-graphite/55">No protected orders yet. Start one when you next buy from a supplier abroad.</p>
-      )}
-      {orders.map((o) => {
-        const i = stageIndex(o.stage);
-        const dep = (o.amount * o.deposit) / 100;
-        return (
-          <section key={o.id} className={`${panel} p-6`}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-[13px] text-graphite/50">
-                  {o.number} · started {shortDate(o.created)}
-                </p>
-                <p className="mt-0.5 text-[16px] font-semibold">{o.supplier}</p>
-                <p className="text-[14px] text-graphite/60">{o.what}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-ledger text-[20px] font-semibold">{money(o.amount, o.currency)}</p>
-                {o.deposit > 0 && o.stage !== 'released' && (
-                  <p className="text-[12.5px] text-graphite/55">
-                    {money(dep, o.currency)} deposit paid · {money(o.amount - dep, o.currency)} held
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Where the money is */}
-            <ol className="mt-6 grid grid-cols-3 gap-2">
-              {STAGES.map((s, n) => (
-                <li key={s.key}>
-                  <span className={`block h-1.5 rounded-full ${o.stage === 'problem' && n === 1 ? 'bg-[#c4542a]' : n <= i ? 'bg-[#1f6b33]' : 'bg-graphite/10'}`} />
-                  <span className={`mt-2 block text-[12.5px] ${n <= i ? 'font-medium text-graphite' : 'text-graphite/45'}`}>{o.stage === 'problem' && n === 1 ? 'Problem raised' : s.label}</span>
-                </li>
-              ))}
-            </ol>
-            {o.note && <p className="mt-4 rounded-lg bg-[#f5f4ef] px-4 py-2.5 text-[13.5px] text-graphite/65">{o.note}</p>}
-
-            {o.stage !== 'released' && (
-              <div className="mt-5 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setPin({ kind: 'release', order: o })} className={primary}>
-                  <CircleCheck className="size-4" /> Goods are fine: release {money(o.amount - (o.stage === 'waiting' ? dep : 0), o.currency)}
-                </button>
-                {o.stage !== 'problem' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProblem(o.id);
-                      setNote('');
-                    }}
-                    className={secondary}
-                  >
-                    <AlertTriangle className="size-4" /> Raise a problem
-                  </button>
-                )}
-                <span className="self-center text-[12.5px] text-graphite/50">Ships by {shortDate(o.shipBy)}</span>
-              </div>
-            )}
-            {problem === o.id && (
-              <form
-                className="mt-4 flex flex-col gap-2 sm:flex-row"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!note.trim()) return;
-                  // TODO(credvera): opens a case with the team; the held money stays put.
-                  updateOrder(o.id, { stage: 'problem', note: `Problem raised: ${note.trim()}. The money stays held while we sort it out with you.` });
-                  setProblem(null);
-                }}
-              >
-                <input autoFocus value={note} onChange={(e) => setNote(e.target.value)} placeholder="What’s wrong with the order?" className={field} />
-                <button type="submit" className={`${primary} h-11 shrink-0`}>
-                  Send
-                </button>
-              </form>
-            )}
-          </section>
-        );
-      })}
-
-      <AnimatePresence>
-        {creating && (
-          <Drawer
-            label="Start a protected order"
-            onClose={() => setCreating(false)}
-            footer={
-              <button type="button" disabled={!ready} onClick={() => setPin({ kind: 'new' })} className={`${primary} h-11 w-full justify-center`}>
-                Pay {deposit ? `the ${money((amount * deposit) / 100, cur)} deposit` : 'into protection'}
-              </button>
-            }
-          >
-            <label className="block">
-              <span className={label}>Supplier</span>
-              <select value={supplier} onChange={(e) => setSupplier(e.target.value)} className={field}>
-                {suppliers.map((s) => (
-                  <option key={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className={label}>What you’re buying</span>
-              <input value={what} onChange={(e) => setWhat(e.target.value)} placeholder="Packaging machines, 2 units" className={field} />
-            </label>
-            <label className="block">
-              <span className={label}>Order total</span>
-              <span className="flex h-11 items-center gap-2 rounded-lg border border-graphite/15 bg-white px-3.5 focus-within:border-graphite/50">
-                <span className="font-medium text-graphite/45">{cur}</span>
-                <input inputMode="decimal" value={text} onChange={(e) => setText(e.target.value)} placeholder="0" className="w-full bg-transparent font-ledger outline-none" />
-              </span>
-              <span className="mt-1.5 block text-[12.5px] text-graphite/50">
-                From your {CURRENCIES.find((c) => c.code === cur)!.name} balance: {money(balances[cur], cur)}
-              </span>
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className={label}>Deposit now</span>
-                <select value={deposit} onChange={(e) => setDeposit(Number(e.target.value))} className={field}>
-                  {[0, 20, 30, 50].map((d) => (
-                    <option key={d} value={d}>
-                      {d ? `${d}%` : 'None'}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className={label}>Ships within</span>
-                <select value={days} onChange={(e) => setDays(Number(e.target.value))} className={field}>
-                  {[14, 21, 30, 45].map((d) => (
-                    <option key={d} value={d}>
-                      {d} days
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="rounded-lg bg-[#f5f4ef] p-4 text-[13.5px] text-graphite/65">
-              {amount ? (
-                <>
-                  <span className="font-semibold text-graphite">{money((amount * deposit) / 100, cur)}</span> goes to {supplier} now.{' '}
-                  <span className="font-semibold text-graphite">{money(amount - (amount * deposit) / 100, cur)}</span> is held until their shipping documents are checked.
-                </>
-              ) : (
-                'Tell us the total, and we’ll show what goes now and what’s held.'
-              )}
-            </div>
-          </Drawer>
-        )}
-      </AnimatePresence>
-
-      <PinPrompt
-        open={!!pin}
-        title={pin?.kind === 'release' ? `Release to ${pin.order.supplier}` : 'Start the protected order'}
-        detail={pin?.kind === 'release' ? pin.order.number : `${what.trim()} · ${money(amount, cur)}`}
-        onClose={() => setPin(null)}
-        onConfirm={() => {
-          if (pin?.kind === 'release') {
-            updateOrder(pin.order.id, { stage: 'released', note: undefined });
-            setDone(`${pin.order.number} released to ${pin.order.supplier}.`);
-          } else {
-            const o = addOrder({ supplier, what: what.trim(), currency: cur, amount, deposit, shipBy: new Date(Date.now() + days * DAY).toISOString() });
-            setCreating(false);
-            setWhat('');
-            setText('');
-            setDone(`${o.number} started. The rest is held until ${supplier} ships.`);
-          }
-          setPin(null);
-          window.setTimeout(() => setDone(null), 4000);
-        }}
-      />
-    </div>
+    <ComingSoon title="Protected orders">
+      Pay a deposit now and have the rest held until your supplier’s goods are confirmed loaded, then released to them. If nothing ships by the date you set, the money comes back.
+    </ComingSoon>
   );
 }
 
@@ -497,7 +283,7 @@ const SECTIONS = [
 /** Suppliers: who you pay, orders paid safely, and invoices checked before paying. */
 export default function Suppliers() {
   const { section } = useParams();
-  const { session } = useDash();
+  const session = useSession();
   return (
     <div className="mx-auto max-w-6xl">
       <p className="text-[13px] font-medium text-graphite/50">{session?.business}</p>

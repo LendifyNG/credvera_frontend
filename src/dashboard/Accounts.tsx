@@ -2,14 +2,117 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Check, Copy, Plus, Share2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { errorMessage, useOpenWallet, useProvisionVirtualAccount } from '../api';
+import { useBalances, usePayInAccount, usePayments, useSession } from './data';
 import { AddMoney, CURRENCIES } from './money';
-import { ACCOUNT_NAME, ACCOUNTS, kindOf, money, RATES, settled, shortDate, useDash, type Currency, type Payment } from './store';
+import { kindOf, money, RATES, settled, shortDate, type Currency, type Payment } from './store';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
 
 // Each currency's own colour, as on its card in the app.
 const TONE: Record<Currency, string> = { NGN: '#1f6b33', USD: '#0b2350', GBP: '#c8102e', EUR: '#e0a526' };
+
+/** Who each account is for, in a line. */
+const TAKES: Record<Currency, string> = {
+  NGN: 'Transfers from any Nigerian bank. They arrive in seconds.',
+  USD: 'Payments from clients, marketplaces and banks in the US.',
+  GBP: 'Payments from clients and banks in the UK.',
+  EUR: 'Payments from clients and banks in Europe.',
+};
+
+/** The last four digits of an account's pay-in number, once it has one. */
+function NumberHint({ code }: { code: Currency }) {
+  const { account, ready, wallet } = usePayInAccount(code);
+  if (!wallet) return <span>Not open yet</span>;
+  if (!ready || !account?.accountNumber) return <span>Details on their way</span>;
+  return (
+    <>
+      <span className="font-ledger">•• {account.accountNumber.slice(-4)}</span>
+      <CopyButton text={account.accountNumber} label="" />
+    </>
+  );
+}
+
+/**
+ * The details to share with a payer, or what stands in the way: no wallet in
+ * this currency yet, or a pay-in account the provider hasn't issued.
+ */
+function PayInDetails({ code }: { code: Currency }) {
+  const c = CURRENCIES.find((x) => x.code === code)!;
+  const { wallet, account, ready, isLoading } = usePayInAccount(code);
+  const open = useOpenWallet();
+  const provision = useProvisionVirtualAccount();
+  const [shared, setShared] = useState(false);
+
+  if (isLoading) return <p className="mt-4 text-[14px] text-graphite/50">Loading…</p>;
+
+  if (!wallet) {
+    return (
+      <div className="mt-4 text-[14px] text-graphite/60">
+        <p>You don’t have a {c.name.toLowerCase()} account yet. It’s free to open.</p>
+        <button type="button" disabled={open.isPending} onClick={() => open.mutate(code)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg bg-graphite text-[14px] font-semibold text-white hover:bg-black disabled:opacity-50">
+          {open.isPending ? 'Opening…' : `Open a ${c.name} account`}
+        </button>
+        {open.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(open.error)}</p>}
+      </div>
+    );
+  }
+
+  if (!ready || !account) {
+    return (
+      <div className="mt-4 text-[14px] text-graphite/60">
+        <p>{account?.unavailableReason ?? 'The bank details for this account are still being issued.'}</p>
+        <button type="button" disabled={provision.isPending} onClick={() => provision.mutate(wallet.id)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg border border-graphite/15 text-[14px] font-semibold hover:border-graphite/30 disabled:opacity-50">
+          {provision.isPending ? 'Asking the bank…' : 'Try again'}
+        </button>
+        {provision.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(provision.error)}</p>}
+      </div>
+    );
+  }
+
+  const rows: [string, string][] = [
+    ['Account name', account.accountName ?? ''],
+    ['Account number', account.accountNumber ?? ''],
+    ['Bank', account.bankName ?? ''],
+    ...(account.rails?.iban ? ([['IBAN', account.rails.iban]] as [string, string][]) : []),
+    ...(account.rails?.sortCode ? ([['Sort code', account.rails.sortCode]] as [string, string][]) : []),
+    ...(account.rails?.routingNumber ? ([['Routing number', account.rails.routingNumber]] as [string, string][]) : []),
+    ...(account.rails?.swiftBic ? ([['SWIFT / BIC', account.rails.swiftBic]] as [string, string][]) : []),
+    ['Currency', `${c.name} (${code})`],
+  ];
+  const all = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
+
+  const share = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: `${c.name} account details`, text: all });
+      else throw new Error('no share');
+    } catch {
+      navigator.clipboard?.writeText(all).catch(() => {});
+      setShared(true);
+      window.setTimeout(() => setShared(false), 1600);
+    }
+  };
+
+  return (
+    <>
+      <dl className="mt-4 divide-y divide-graphite/[0.08] text-[14px]">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-center justify-between gap-4 py-2.5">
+            <dt className="text-graphite/55">{k}</dt>
+            <dd className="flex items-center gap-1 text-right font-medium">
+              <span className={k === 'Account number' || k === 'IBAN' ? 'font-ledger tracking-wide' : ''}>{v}</span>
+              {k === 'Account number' && <CopyButton text={v} label="" />}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <button type="button" onClick={share} className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[14px] font-semibold text-white hover:bg-black">
+        {shared ? <Check className="size-4" /> : <Share2 className="size-4" />} {shared ? 'Details copied' : 'Share details'}
+      </button>
+    </>
+  );
+}
 
 /** Money in and out of one account over the last 30 days, conversions left out. */
 function month(payments: Payment[], c: Currency) {
@@ -46,23 +149,10 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
 
 /** One account's details to share, and its latest transactions, in a panel from the right. */
 function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
-  const { payments, balances } = useDash();
+  const { payments } = usePayments();
+  const { balances } = useBalances();
   const c = CURRENCIES.find((x) => x.code === code)!;
-  const a = ACCOUNTS[code];
-  const [shared, setShared] = useState(false);
   const recent = payments.filter((p) => p.currency === code).slice(0, 5);
-  const all = `Account name: ${ACCOUNT_NAME}\nAccount number: ${a.number}\nBank: ${a.bank}\nCurrency: ${code}`;
-
-  const share = async () => {
-    try {
-      if (navigator.share) await navigator.share({ title: `${c.name} account details`, text: all });
-      else throw new Error('no share');
-    } catch {
-      navigator.clipboard?.writeText(all).catch(() => {});
-      setShared(true);
-      window.setTimeout(() => setShared(false), 1600);
-    }
-  };
 
   return (
     <motion.div className="fixed inset-0 z-50 bg-graphite/30 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
@@ -96,26 +186,8 @@ function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
 
         <div className="mx-6 mt-7 rounded-xl bg-[#f5f4ef] p-5">
           <p className="text-[14px] font-semibold">Details to get paid</p>
-          <p className="mt-1 text-[13px] text-graphite/55">{a.takes}</p>
-          <dl className="mt-4 divide-y divide-graphite/[0.08] text-[14px]">
-            {[
-              ['Account name', ACCOUNT_NAME],
-              ['Account number', a.number],
-              ['Bank', a.bank],
-              ['Currency', `${c.name} (${code})`],
-            ].map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between gap-4 py-2.5">
-                <dt className="text-graphite/55">{k}</dt>
-                <dd className="flex items-center gap-1 text-right font-medium">
-                  <span className={k === 'Account number' ? 'font-ledger tracking-wide' : ''}>{v}</span>
-                  {k === 'Account number' && <CopyButton text={v!} label="" />}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <button type="button" onClick={share} className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[14px] font-semibold text-white hover:bg-black">
-            {shared ? <Check className="size-4" /> : <Share2 className="size-4" />} {shared ? 'Details copied' : 'Share details'}
-          </button>
+          <p className="mt-1 text-[13px] text-graphite/55">{TAKES[code]}</p>
+          <PayInDetails code={code} />
         </div>
 
         <div className="px-6 py-7">
@@ -155,7 +227,9 @@ function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
 export default function Accounts() {
   const navigate = useNavigate();
   const { convert } = useOutletContext<{ convert: () => void }>();
-  const { session, balances, payments } = useDash();
+  const session = useSession();
+  const { balances } = useBalances();
+  const { payments } = usePayments();
   const [open, setOpen] = useState<Currency | null>(null);
   const [adding, setAdding] = useState(false);
 
@@ -189,14 +263,14 @@ export default function Accounts() {
           <p className="mt-1 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold tracking-[-0.03em] text-[#1f6b33]">{money(total)}</p>
           <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-[#efeee7]" role="img" aria-label="How your money splits across currencies">
             {inNaira.map((c) => (
-              <span key={c.code} style={{ width: `${(c.ngn / total) * 100}%`, backgroundColor: TONE[c.code] }} className="h-full first:rounded-l-full last:rounded-r-full" />
+              <span key={c.code} style={{ width: `${total ? (c.ngn / total) * 100 : 0}%`, backgroundColor: TONE[c.code] }} className="h-full first:rounded-l-full last:rounded-r-full" />
             ))}
           </div>
           <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-graphite/60">
             {inNaira.map((c) => (
               <li key={c.code} className="flex items-center gap-2">
                 <span className="size-2 rounded-full" style={{ backgroundColor: TONE[c.code] }} />
-                {c.name} <span className="font-medium text-graphite">{Math.round((c.ngn / total) * 100)}%</span>
+                {c.name} <span className="font-medium text-graphite">{total ? Math.round((c.ngn / total) * 100) : 0}%</span>
               </li>
             ))}
           </ul>
@@ -222,8 +296,7 @@ export default function Accounts() {
                   <span>
                     <span className="block text-[15px] font-semibold">{c.name}</span>
                     <span className="flex items-center text-[12.5px] text-graphite/50">
-                      <span className="font-ledger">•• {ACCOUNTS[c.code].number.slice(-4)}</span>
-                      <CopyButton text={ACCOUNTS[c.code].number} label="" />
+                      <NumberHint code={c.code} />
                     </span>
                   </span>
                 </span>

@@ -26,12 +26,14 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { errorMessage, useProfile, useSignedIn, useSignOut } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
+import { useSession } from './data';
 import NotificationBell from './Notifications';
 import { Convert } from './money';
-import { isOverdue, signOut, useDash } from './store';
+import { isOverdue, useDash } from './store';
 
 // Fine speckled grain, like uncoated paper: noise cut to small flecks in a
 // warm grey, tiled. Only the flecks are drawn, so the colour beneath stays.
@@ -153,8 +155,11 @@ function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => vo
 
 /** The signed-in dashboard: a calm sidebar, a top bar with search, the page in the middle. */
 export default function AppShell() {
-  const { session, payments, balances, invoices } = useDash();
-  const navigate = useNavigate();
+  const signedIn = useSignedIn();
+  const session = useSession();
+  const profile = useProfile();
+  const signOut = useSignOut();
+  const { invoices } = useDash();
   const { pathname } = useLocation();
   const [bar, setBar] = useState(false);
   const [drawer, setDrawer] = useState(false);
@@ -162,7 +167,6 @@ export default function AppShell() {
   const [menu, setMenu] = useState(false);
   const [switcher, setSwitcher] = useState(false);
   const [converting, setConverting] = useState(false);
-  const waiting = payments.filter((p) => p.status === 'waiting').length;
   const overdueInvoices = invoices.filter(isOverdue).length;
 
   // ⌘K, Ctrl+K or / opens search from anywhere.
@@ -184,12 +188,29 @@ export default function AppShell() {
     setSwitcher(false);
   }, [pathname]);
 
-  if (!session) return <Navigate to="/business/app/sign-in" replace />;
+  if (!signedIn) return <Navigate to="/business/app/sign-in" replace />;
 
-  const out = () => {
-    signOut();
-    navigate('/business/app/sign-in', { replace: true });
-  };
+  // Signed in, but the profile isn't here yet (or couldn't be fetched).
+  if (!session) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#f5f4ef] px-6 text-center text-graphite">
+        {profile.error ? (
+          <div>
+            <p className="text-[16px] font-semibold">We couldn’t load your dashboard</p>
+            <p className="mt-1 text-[14px] text-graphite/55">{errorMessage(profile.error)}</p>
+            <button type="button" onClick={() => profile.refetch()} className="mt-5 h-10 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black">
+              Try again
+            </button>
+          </div>
+        ) : (
+          <p className="text-[14px] text-graphite/50">Opening your dashboard…</p>
+        )}
+      </div>
+    );
+  }
+
+  // Signing out flips the session, and the guard above takes over from there.
+  const out = () => signOut.mutate();
 
   const initials = session.business
     .replace(/\b(Ltd|Limited|Plc)\b\.?/gi, '')
@@ -222,7 +243,7 @@ export default function AppShell() {
             { label: 'Bills', hint: 'Electricity, airtime, data, TV', to: '/business/app/pay/bills' },
           ],
         },
-        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, badge: waiting },
+        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck },
         {
           to: '/business/app/fx',
           label: 'FX',
@@ -415,7 +436,7 @@ export default function AppShell() {
       </main>
 
       <CommandBar open={bar} onClose={() => setBar(false)} />
-      <Convert open={converting} onClose={() => setConverting(false)} balances={balances} />
+      <Convert open={converting} onClose={() => setConverting(false)} />
     </div>
   );
 }

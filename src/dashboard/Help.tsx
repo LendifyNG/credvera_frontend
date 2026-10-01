@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeftRight, Check, ChevronDown, CreditCard, FileText, Mail, Search, Send, ShieldCheck, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { company } from '../lib/site';
-import { money, reportProblem, shortDate, TRANSFER_FEE, useDash } from './store';
+import { money, reportProblem, shortDate, useDash } from './store';
+import { usePayments } from './data';
 
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
 const field = 'h-11 w-full rounded-lg border border-graphite/15 bg-white px-3.5 text-[15px] outline-none transition-colors placeholder:text-graphite/35 focus:border-graphite/50';
@@ -18,7 +19,7 @@ function useTopics(limit: number): Topic[] {
       title: 'Payments',
       icon: Send,
       qa: [
-        ['How much does a payment cost?', `A naira payment to any Nigerian bank costs ${money(TRANSFER_FEE)}. You see the fee and the total before you confirm.`],
+        ['How much does a payment cost?', 'A naira payment to any Nigerian bank has a small flat fee. You see the fee and the total before you confirm.'],
         ['Why is my payment waiting?', `Payments of ${l} or more wait for a second person to approve them. You’ll find them under Approvals. The limit is set in Team.`],
         ['How do I pay many people at once?', 'Use Bulk payments. Download the template, fill in one row per person, and upload it. Each row is checked before anything is paid.'],
         ['Can I pay the same person every month?', 'Yes. When you pay someone, choose “Repeat it”. You can pause or delete it any time under Scheduled payments.'],
@@ -79,7 +80,8 @@ function useTopics(limit: number): Topic[] {
 
 /** Help: answers first, then a way to report a problem or reach us. */
 export default function Help() {
-  const { rules, payments, cases, profile } = useDash();
+  const { rules, cases, profile } = useDash();
+  const { payments } = usePayments();
   const topics = useTopics(rules.over);
   const [q, setQ] = useState('');
   const [topic, setTopic] = useState(topics[0]!.key);

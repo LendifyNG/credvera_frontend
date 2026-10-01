@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "biz-login": "node scripts/set-biz-login.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-query": "^5.104.0",
+    "axios": "^1.20.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lenis": "^1.3.26",

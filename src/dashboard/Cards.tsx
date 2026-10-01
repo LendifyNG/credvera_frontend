@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import CardArt from './CardArt';
 import { CURRENCIES } from './money';
 import { addCard, money, settled, shortDate, updateCard, useDash, type Card, type Currency, type Payment } from './store';
+import { usePayments, useSession } from './data';
 import { PinPrompt } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -185,7 +186,9 @@ function NewCard({ onClose, onCreated, company }: { onClose: () => void; onCreat
 
 /** Cards: virtual for online spending, physical for the team, each drawn for its own currency. */
 export default function Cards() {
-  const { cards, payments, session } = useDash();
+  const { cards } = useDash();
+  const { payments } = usePayments();
+  const session = useSession();
   const [selected, setSelected] = useState(cards[0]?.id ?? '');
   const [creating, setCreating] = useState(false);
   const [pin, setPin] = useState<'reveal' | 'activate' | null>(null);

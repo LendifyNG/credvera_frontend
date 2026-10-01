@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CornerDownLeft, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { recipients } from './store';
+import { recentRecipients, usePayments } from './data';
+import type { Recipient } from './store';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -17,7 +18,7 @@ function parseAmount(s: string) {
 }
 
 /** Turns what's typed into things the dashboard can do. */
-function understand(q: string): Action[] {
+function understand(q: string, recipients: Recipient[]): Action[] {
   const text = q.trim();
   const out: Action[] = [];
   const pay = text.match(/^(?:pay|send)\s+(.+?)(?:\s+([₦\d][\d,.]*\s?[km]?))?$/i);
@@ -29,7 +30,6 @@ function understand(q: string): Action[] {
     const params = new URLSearchParams({ to: name, ...(amount ? { amount: String(amount) } : {}) });
     out.push({ label: `Pay ${name}${amount ? ` ₦${amount.toLocaleString('en-NG')}` : ''}`, hint: 'Opens a payment, ready to confirm', go: `/business/app/pay?${params}` });
   }
-  if (/^(appro|wait|pend)/i.test(text)) out.push({ label: 'See what’s waiting for approval', hint: 'Approvals', go: '/business/app/approvals' });
   const find = text.match(/^(?:find|search|show)\s+(.+)$/i);
   if (find) out.push({ label: `Find “${find[1]}” in payments`, hint: 'Payments', go: `/business/app/payments?q=${encodeURIComponent(find[1]!)}` });
   if (/^(money in|received|in$)/i.test(text)) out.push({ label: 'Money that came in', hint: 'Payments', go: '/business/app/payments?f=in' });
@@ -38,8 +38,7 @@ function understand(q: string): Action[] {
 }
 
 const examples: Action[] = [
-  { label: 'Pay Adebayo Logistics 120k', hint: 'Try typing “pay …”', go: '/business/app/pay?to=Adebayo%20Logistics&amount=120000' },
-  { label: 'See what’s waiting for approval', hint: 'Approvals', go: '/business/app/approvals' },
+  { label: 'Pay someone', hint: 'Try typing “pay Ada 50k”', go: '/business/app/pay' },
   { label: 'Find Lekki in payments', hint: 'Payments', go: '/business/app/payments?q=Lekki' },
   { label: 'Go to Home', hint: 'Home', go: '/business/app' },
 ];
@@ -50,7 +49,9 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const input = useRef<HTMLInputElement>(null);
-  const actions = useMemo(() => (q.trim() ? understand(q) : examples), [q]);
+  const { payments } = usePayments();
+  const recipients = useMemo(() => recentRecipients(payments), [payments]);
+  const actions = useMemo(() => (q.trim() ? understand(q, recipients) : examples), [q, recipients]);
 
   useEffect(() => {
     if (!open) return;
@@ -99,7 +100,7 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
                   } else if (e.key === 'Enter') run(actions[sel]);
                   else if (e.key === 'Escape') onClose();
                 }}
-                placeholder="Pay Kemi 650k, find Lekki, approvals…"
+                placeholder="Pay Kemi 650k, find Lekki…"
                 aria-label="What do you need?"
                 className="h-16 w-full bg-transparent text-lg outline-none placeholder:text-graphite/35"
               />
@@ -108,7 +109,7 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
             <ul className="max-h-80 overflow-y-auto p-2">
               {actions.length === 0 && (
                 <li className="px-4 py-6 text-[14px] text-graphite/50">
-                  Try “pay” and a name, “find” and a word, or “approvals”.
+                  Try “pay” and a name, or “find” and a word.
                 </li>
               )}
               {actions.map((a, i) => (

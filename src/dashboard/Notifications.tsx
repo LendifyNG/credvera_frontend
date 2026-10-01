@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, ArrowDownLeft, Bell, CalendarClock, CheckCheck, Eye, FileSearch, FileWarning, LifeBuoy, PackageSearch, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, ArrowDownLeft, Bell, Eye, FileSearch, FileWarning, LifeBuoy, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { invoiceTotals, isOverdue, markSeen, money, RATES, shortDate, useDash } from './store';
+import { usePayments } from './data';
 
 const DAY = 86400000;
 
@@ -34,25 +35,20 @@ function ago(iso: string) {
 
 /** Everything worth telling the business about, built from what's happening now. */
 export function useNotes() {
-  const { payments, invoices, orders, checks, schedules, alerts, cases, documents, notify, seen } = useDash();
+  const { invoices, checks, alerts, cases, documents, notify, seen } = useDash();
+  const { payments } = usePayments();
   const notes = useMemo(() => {
     const out: Note[] = [];
-    for (const p of payments.filter((x) => x.status === 'waiting'))
-      out.push({ id: `ap-${p.id}`, group: 'needs', setting: 'approvals', icon: CheckCheck, tone: 'bg-[#fbf0d6] text-[#8a5a00]', title: `${p.requestedBy?.split(' ')[0]} asked to pay ${p.who} ${money(p.amount, p.currency)}`, body: p.reason, when: p.date, to: '/business/app/approvals' });
     for (const i of invoices.filter(isOverdue)) {
       const late = Math.round((Date.now() - new Date(i.due).getTime()) / DAY);
       out.push({ id: `od-${i.id}`, group: 'needs', setting: 'overdue', icon: FileWarning, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `${i.number} from ${i.customer} is ${late} ${late === 1 ? 'day' : 'days'} late`, body: money(invoiceTotals(i).total, i.currency), when: i.due, to: '/business/app/invoices?f=overdue' });
     }
     for (const k of checks.filter((x) => x.result === 'changed'))
       out.push({ id: `ck-${k.id}`, group: 'needs', icon: AlertTriangle, tone: 'bg-[#f6e7e0] text-[#9a3a17]', title: `${k.supplier} changed their bank details`, body: `On invoice ${k.invoice}. Check with them before you pay.`, when: k.checked, to: '/business/app/suppliers/checks' });
-    for (const o of orders.filter((x) => x.stage === 'checking'))
-      out.push({ id: `or-${o.id}`, group: 'needs', icon: PackageSearch, tone: 'bg-[#e6ecf7] text-[#2b4a86]', title: `${o.supplier} has shipped ${o.number}`, body: 'We’re checking the shipping documents. Release the money when you’re happy.', when: o.created, to: '/business/app/suppliers/orders' });
     for (const p of payments.filter((x) => x.kind === 'in' && !x.internal && x.status === 'received' && Date.now() - new Date(x.date).getTime() < 4 * DAY))
       out.push({ id: `in-${p.id}`, group: 'update', setting: 'in', icon: ArrowDownLeft, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${money(p.amount, p.currency)} from ${p.who}`, body: p.what.split(' · ')[0], when: p.date, to: `/business/app/payments?q=${encodeURIComponent(p.who)}` });
     for (const i of invoices.filter((x) => x.status === 'viewed' && !isOverdue(x)))
       out.push({ id: `vw-${i.id}`, group: 'update', icon: Eye, tone: 'bg-[#ece6f7] text-[#5a3d8f]', title: `${i.customer} opened ${i.number}`, body: `Due ${shortDate(i.due)}`, when: i.issued, to: '/business/app/invoices' });
-    for (const s of schedules.filter((x) => !x.paused && new Date(x.next).getTime() - Date.now() < 4 * DAY))
-      out.push({ id: `sc-${s.id}-${s.next.slice(0, 10)}`, group: 'update', setting: 'out', icon: CalendarClock, tone: 'bg-[#efeee7] text-graphite/70', title: `${s.reason}, ${money(s.amount)}, goes out ${shortDate(s.next)}`, body: `To ${s.who}`, when: s.next, to: '/business/app/pay/scheduled' });
     for (const a of alerts) {
       const hit = a.when === 'below' ? RATES[a.currency] < a.rate : RATES[a.currency] > a.rate;
       if (hit)
@@ -66,7 +62,7 @@ export function useNotes() {
     return out
       .filter((n) => !n.setting || notify[n.setting]?.app !== false)
       .sort((a, b) => (a.group === b.group ? b.when.localeCompare(a.when) : a.group === 'needs' ? -1 : 1));
-  }, [payments, invoices, orders, checks, schedules, alerts, cases, documents, notify]);
+  }, [payments, invoices, checks, alerts, cases, documents, notify]);
   const unread = notes.filter((n) => !seen.includes(n.id));
   return { notes, unread, seen };
 }

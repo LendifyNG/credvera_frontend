@@ -4,7 +4,8 @@ import { useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import { CURRENCIES } from './money';
-import { ACCOUNT_NAME, ACCOUNTS, invoiceTotals, kindOf, matchPayment, money, RATES, settled, shortDate, useDash, type Currency, type Payment } from './store';
+import { invoiceTotals, kindOf, matchPayment, money, RATES, settled, shortDate, useDash, type Currency, type Payment } from './store';
+import { useBalances, usePayInAccount, usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -39,8 +40,11 @@ const PERIODS = [
 ] as const;
 
 function Statements() {
-  const { payments, balances } = useDash();
+  const { payments } = usePayments();
+  const { balances } = useBalances();
+  const session = useSession();
   const [currency, setCurrency] = useState<Currency>('NGN');
+  const payIn = usePayInAccount(currency);
   const [period, setPeriod] = useState<(typeof PERIODS)[number][0]>('30');
   const from = useMemo(() => {
     if (period === 'month') {
@@ -117,9 +121,9 @@ function Statements() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <img src={logoDark} alt="Credvera" className="h-5 w-auto opacity-80" />
-            <p className="mt-4 text-[15px] font-semibold">{ACCOUNT_NAME}</p>
+            <p className="mt-4 text-[15px] font-semibold">{payIn.account?.accountName ?? session?.business}</p>
             <p className="text-graphite/55">
-              {name} account {ACCOUNTS[currency].number} · {ACCOUNTS[currency].bank}
+              {name} account{payIn.ready && payIn.account ? ` ${payIn.account.accountNumber} · ${payIn.account.bankName}` : ''}
             </p>
           </div>
           <div className="text-right">
@@ -186,7 +190,7 @@ function Statements() {
 /* ---------- Cash flow ---------- */
 
 function CashFlow() {
-  const { payments } = useDash();
+  const { payments } = usePayments();
   const [hover, setHover] = useState<number | null>(null);
   const WEEKS = 8;
   // Weeks ending today, in naira terms, conversions left out.
@@ -292,11 +296,12 @@ function CashFlow() {
 /* ---------- Reconciliation ---------- */
 
 function Reconciliation() {
-  const { payments, invoices, links } = useDash();
+  const { invoices, links } = useDash();
+  const { payments } = usePayments();
   const [done, setDone] = useState<string | null>(null);
   const incoming = payments.filter((p) => p.kind === 'in' && !p.internal && p.status === 'received');
   const matchOf = (p: Payment) => {
-    const inv = invoices.find((i) => p.what.includes(i.number));
+    const inv = invoices.find((i) => i.paymentId === p.id || p.what.includes(i.number));
     if (inv) return { kind: 'invoice' as const, label: inv.number };
     const link = links.find((l) => /payment link/i.test(p.what) && l.paidBy.includes(p.who) && l.currency === p.currency);
     if (link) return { kind: 'link' as const, label: link.title };
@@ -374,7 +379,7 @@ function Reconciliation() {
                           onChange={(e) => {
                             if (!e.target.value) return;
                             const inv = invoices.find((i) => i.id === e.target.value)!;
-                            matchPayment(p.id, inv.id);
+                            matchPayment(p, inv.id);
                             setDone(`${p.who}’s payment matched to ${inv.number}, and the invoice marked paid.`);
                             window.setTimeout(() => setDone(null), 4000);
                           }}
@@ -521,7 +526,7 @@ const SECTIONS = [
 /** Reports: statements, cash flow, reconciliation, and what an order really earns. */
 export default function Reports() {
   const { section } = useParams();
-  const { session } = useDash();
+  const session = useSession();
   return (
     <div className="mx-auto max-w-6xl">
       <p className="text-[13px] font-medium text-graphite/50">{session?.business}</p>

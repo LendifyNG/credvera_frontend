@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { ArrowDown, ArrowUp, Bell, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
-import { ConvertForm, CURRENCIES } from './money';
+import { ConvertPanel, CURRENCIES } from './money';
 import { addAlert, CHANGE_TODAY, money, RATES, RATES_UPDATED, rateHistory, removeAlert, useDash, type Currency } from './store';
+import { useBalances, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 type Foreign = Exclude<Currency, 'NGN'>;
@@ -39,7 +40,7 @@ function RateChart({ c }: { c: Foreign }) {
 }
 
 function Rates() {
-  const { balances } = useDash();
+  const { balances } = useBalances();
   return (
     <div className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
@@ -88,13 +89,13 @@ function Rates() {
 }
 
 function Convert() {
-  const { balances } = useDash();
+  const { balances } = useBalances();
   return (
     <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
       <section className={`${panel} p-6`}>
         <h2 className="text-[20px] font-semibold tracking-[-0.02em]">Convert</h2>
-        <p className="mb-6 mt-1 text-[14px] text-graphite/55">Between your own balances, at today’s rate. It lands straight away.</p>
-        <ConvertForm balances={balances} />
+        <p className="mb-6 mt-1 text-[14px] text-graphite/55">Between your own balances, at today’s rate.</p>
+        <ConvertPanel />
       </section>
       <section className={`${panel} p-6`}>
         <h2 className="text-[16px] font-semibold">Your balances</h2>
@@ -198,7 +199,7 @@ const SECTIONS = [
 /** FX: today's rates, converting between your balances, and alerts for the rate you want. */
 export default function Fx() {
   const { section } = useParams();
-  const { session } = useDash();
+  const session = useSession();
   return (
     <div className="mx-auto max-w-6xl">
       <div>

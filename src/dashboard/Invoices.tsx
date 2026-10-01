@@ -5,8 +5,6 @@ import { useSearchParams } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import { CURRENCIES } from './money';
 import {
-  ACCOUNT_NAME,
-  ACCOUNTS,
   invoiceTotals,
   isOverdue,
   markInvoicePaid,
@@ -20,6 +18,7 @@ import {
   type Invoice,
   type InvoiceItem,
 } from './store';
+import { usePayInAccount, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -59,6 +58,7 @@ const payLink = (i: Invoice) => `https://pay.credvera.co/i/${i.number.replace('I
 /** The invoice as the customer receives it: on paper, in a panel from the right. */
 function Paper({ inv, company, onClose }: { inv: Invoice; company?: string; onClose: () => void }) {
   const address = useDash().profile.address;
+  const payIn = usePayInAccount(inv.currency);
   const { subtotal, vat, total } = invoiceTotals(inv);
   const [note, setNote] = useState<string | null>(null);
   const status = shownStatus(inv);
@@ -160,7 +160,8 @@ function Paper({ inv, company, onClose }: { inv: Invoice; company?: string; onCl
             <div className="mt-8 rounded-lg bg-[#f5f4ef] p-4">
               <p className="font-semibold">How to pay</p>
               <p className="mt-1 text-graphite/60">
-                Pay online at <span className="font-medium text-graphite">{payLink(inv).replace('https://', '')}</span>, or transfer to {ACCOUNT_NAME}, account {ACCOUNTS[inv.currency].number}, {ACCOUNTS[inv.currency].bank}.
+                Pay online at <span className="font-medium text-graphite">{payLink(inv).replace('https://', '')}</span>
+                {payIn.ready && payIn.account ? `, or transfer to ${payIn.account.accountName}, account ${payIn.account.accountNumber}, ${payIn.account.bankName}.` : '.'}
               </p>
             </div>
             {inv.note && <p className="mt-5 text-graphite/55">{inv.note}</p>}
@@ -367,7 +368,8 @@ function NewInvoice({ onClose, onDone, to, toEmail }: { onClose: () => void; onD
 
 /** Invoices: what customers owe, what's late, and what's been paid. */
 export default function Invoices() {
-  const { invoices, session } = useDash();
+  const { invoices } = useDash();
+  const session = useSession();
   const [params] = useSearchParams();
   const [tab, setTab] = useState<(typeof TABS)[number][0]>((params.get('f') as (typeof TABS)[number][0] | null) ?? 'all');
   const [q, setQ] = useState('');

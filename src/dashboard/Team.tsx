@@ -3,6 +3,7 @@ import { Check, Minus, Plus, Send, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { inviteMember, money, removeMember, setRules, shortDate, updateMember, useDash, type Role } from './store';
+import { useSession } from './data';
 import { PinPrompt } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -38,7 +39,8 @@ const initials = (n: string) =>
     .toUpperCase();
 
 function People() {
-  const { team, session } = useDash();
+  const { team } = useDash();
+  const session = useSession();
   const [inviting, setInviting] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -324,7 +326,7 @@ const SECTIONS = [
 /** Team: who has access, what each role can do, and who approves big payments. */
 export default function Team() {
   const { section } = useParams();
-  const { session } = useDash();
+  const session = useSession();
   return (
     <div className="mx-auto max-w-6xl">
       <p className="text-[13px] font-medium text-graphite/50">{session?.business}</p>

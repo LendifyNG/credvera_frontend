@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpDown, Check, Copy, X } from 'lucide-react';
+import { Check, Copy, X } from 'lucide-react';
 import { useState } from 'react';
-import { convert, money, nairaAccount, RATES, RATES_UPDATED, type Currency } from './store';
-import { PinPrompt } from './ui';
+import { Link } from 'react-router-dom';
+import { usePayInAccount } from './data';
+import type { Currency } from './store';
+import { ComingSoon, Loading } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -43,137 +45,72 @@ export function Modal({ open, title, onClose, children }: { open: boolean; title
   );
 }
 
+/** The naira account to transfer into, straight from the bank that issued it. */
 export function AddMoney({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { account, ready, isLoading } = usePayInAccount('NGN');
   const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard?.writeText(nairaAccount.number).catch(() => {});
+
+  const copy = (number: string) => {
+    navigator.clipboard?.writeText(number).catch(() => {});
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
+
   return (
     <Modal open={open} title="Add money" onClose={onClose}>
-      <p className="mt-1 text-[14px] text-graphite/55">Send naira from any Nigerian bank to these details. It arrives in seconds.</p>
-      <dl className="mt-6 divide-y divide-graphite/10 rounded-2xl bg-ledger px-5">
-        {[
-          ['Account name', nairaAccount.name],
-          ['Bank', nairaAccount.bank],
-        ].map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-4 py-3.5 text-[14px]">
-            <dt className="text-graphite/55">{k}</dt>
-            <dd className="font-medium">{v}</dd>
-          </div>
-        ))}
-        <div className="flex items-center justify-between gap-4 py-3.5">
-          <dt className="text-[14px] text-graphite/55">Account number</dt>
-          <dd className="flex items-center gap-3">
-            <span className="font-ledger text-[17px] font-semibold tracking-wide">{nairaAccount.number}</span>
-            <button type="button" onClick={copy} className="inline-flex items-center gap-1.5 rounded-full bg-graphite px-3 py-1.5 text-[12px] font-semibold text-white">
-              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />} {copied ? 'Copied' : 'Copy'}
-            </button>
-          </dd>
+      {isLoading ? (
+        <Loading />
+      ) : ready && account ? (
+        <>
+          <p className="mt-1 text-[14px] text-graphite/55">Send naira from any Nigerian bank to these details. It arrives in seconds.</p>
+          <dl className="mt-6 divide-y divide-graphite/10 rounded-2xl bg-ledger px-5">
+            {[
+              ['Account name', account.accountName],
+              ['Bank', account.bankName],
+            ].map(([k, v]) => (
+              <div key={k} className="flex justify-between gap-4 py-3.5 text-[14px]">
+                <dt className="text-graphite/55">{k}</dt>
+                <dd className="font-medium">{v}</dd>
+              </div>
+            ))}
+            <div className="flex items-center justify-between gap-4 py-3.5">
+              <dt className="text-[14px] text-graphite/55">Account number</dt>
+              <dd className="flex items-center gap-3">
+                <span className="font-ledger text-[17px] font-semibold tracking-wide">{account.accountNumber}</span>
+                <button type="button" onClick={() => copy(account.accountNumber!)} className="inline-flex items-center gap-1.5 rounded-full bg-graphite px-3 py-1.5 text-[12px] font-semibold text-white">
+                  {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />} {copied ? 'Copied' : 'Copy'}
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </>
+      ) : (
+        <div className="mt-4 text-[14px] leading-relaxed text-graphite/60">
+          <p>{account?.unavailableReason ?? 'Your naira account isn’t open yet, so there are no details to pay into.'}</p>
+          <Link to="/business/app/accounts" onClick={onClose} className="mt-5 inline-flex h-10 items-center rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black">
+            Go to Accounts
+          </Link>
         </div>
-      </dl>
+      )}
     </Modal>
   );
 }
 
-/**
- * Converting between the business's own balances at today's rate, confirmed
- * with the PIN. Used on the FX page and in the Convert pop-up.
- */
-export function ConvertForm({ balances, onClose }: { balances: Record<Currency, number>; onClose?: () => void }) {
-  const [from, setFrom] = useState<Currency>('USD');
-  const [to, setTo] = useState<Currency>('NGN');
-  const [text, setText] = useState('');
-  const [pin, setPin] = useState(false);
-  const [done, setDone] = useState<string | null>(null);
-  const amount = Number(text.replace(/[^\d.]/g, '')) || 0;
-  const rate = RATES[from] / RATES[to];
-  const receive = amount * rate;
-  const valid = amount > 0 && from !== to && amount <= balances[from];
-  const select = 'h-12 rounded-lg border border-graphite/15 bg-white px-3 text-[15px] font-medium outline-none';
-  const swap = () => {
-    setFrom(to);
-    setTo(from);
-  };
-
-  if (done)
-    return (
-      <div className="py-4 text-center">
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-primary text-graphite">
-          <Check className="size-6" />
-        </span>
-        <p className="mt-4 text-[17px] font-semibold">
-          {done} is in your {CURRENCIES.find((w) => w.code === to)!.name} balance.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setText('');
-            setDone(null);
-            onClose?.();
-          }}
-          className="mt-6 h-11 w-full rounded-lg bg-graphite text-[15px] font-semibold text-white"
-        >
-          {onClose ? 'Done' : 'Convert again'}
-        </button>
-      </div>
-    );
-
+/** Converting between your own balances. The FX API isn't live yet. */
+export function ConvertPanel() {
   return (
-    <div>
-      <div className="space-y-3">
-        <span className="block text-[13px] font-medium text-graphite/60">You convert</span>
-        <div className="flex gap-2">
-          <select value={from} onChange={(e) => setFrom(e.target.value as Currency)} className={select} aria-label="From">
-            {CURRENCIES.map((w) => (
-              <option key={w.code}>{w.code}</option>
-            ))}
-          </select>
-          <input inputMode="decimal" value={text} onChange={(e) => setText(e.target.value)} placeholder="Amount" className="h-12 min-w-0 flex-1 rounded-lg border border-graphite/15 bg-white px-4 font-ledger text-[17px] outline-none focus:border-graphite/50" aria-label="Amount" />
-        </div>
-        <p className="text-[13px] text-graphite/50">
-          Available {money(balances[from], from)}
-          {amount > balances[from] ? <span className="text-[#9a3a17]"> · more than you have</span> : null}
-        </p>
-        <button type="button" onClick={swap} className="mx-auto flex items-center gap-1.5 rounded-full border border-graphite/15 px-3 py-1 text-[12.5px] font-medium text-graphite/60 hover:border-graphite/35">
-          <ArrowUpDown className="size-3.5" /> Swap
-        </button>
-        <span className="block text-[13px] font-medium text-graphite/60">You get</span>
-        <div className="flex items-center gap-2">
-          <select value={to} onChange={(e) => setTo(e.target.value as Currency)} className={select} aria-label="To">
-            {CURRENCIES.map((w) => (
-              <option key={w.code}>{w.code}</option>
-            ))}
-          </select>
-          <span className="flex h-12 flex-1 items-center rounded-lg bg-[#f5f4ef] px-4 font-ledger text-[17px]">{amount > 0 && from !== to ? money(receive, to) : '—'}</span>
-        </div>
-        <p className="text-[13px] text-graphite/50">
-          {from === to ? 'Pick two different currencies.' : `${rate >= 1 ? `1 ${from} = ${money(rate, to)}` : `1 ${to} = ${money(1 / rate, from)}`} · no markup · updated ${RATES_UPDATED}`}
-        </p>
-      </div>
-      <button type="button" disabled={!valid} onClick={() => setPin(true)} className="mt-6 h-12 w-full rounded-lg bg-graphite text-[15px] font-semibold text-white transition-colors hover:bg-black disabled:bg-graphite/15 disabled:text-graphite/40">
-        Convert
-      </button>
-      <PinPrompt
-        open={pin}
-        title={`Convert ${money(amount, from)}`}
-        detail={`You get ${money(receive, to)}`}
-        onClose={() => setPin(false)}
-        onConfirm={() => {
-          setPin(false);
-          setDone(money(convert(from, to, amount), to));
-        }}
-      />
-    </div>
+    <ComingSoon title="Convert between your currencies">
+      You’ll be able to move money between your naira, dollar, pound and euro balances at a rate held while you confirm. Today’s rates are on the FX page.
+    </ComingSoon>
   );
 }
 
-export function Convert({ open, onClose, balances }: { open: boolean; onClose: () => void; balances: Record<Currency, number> }) {
+export function Convert({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Modal open={open} title="Convert" onClose={onClose}>
-      <p className="mb-6 mt-1 text-[14px] text-graphite/55">Between your own balances, at today’s rate.</p>
-      <ConvertForm balances={balances} onClose={onClose} />
+      <div className="mt-5">
+        <ConvertPanel />
+      </div>
     </Modal>
   );
 }

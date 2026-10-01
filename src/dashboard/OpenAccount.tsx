@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import StoreButtons from '../components/business/StoreButtons';
-import { signIn } from './store';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -201,22 +200,21 @@ export default function OpenAccount() {
                 ))}
               </ol>
               <p className="mt-12 max-w-lg text-lg leading-relaxed text-graphite/70">
-                You can start using {COMPANY.name}’s account now. Some limits lift once the review is done.
+                We’ll email you when the review is done. Meanwhile, you can sign in with the details you use in the Credvera app.
               </p>
               <div className="mt-10 rounded-xl bg-white p-6 ring-1 ring-graphite/10">
                 <p className="text-lg font-semibold tracking-tight">Get the Credvera app</p>
-                <p className="mt-1 max-w-md text-[15px] text-graphite/60">You’ll use it to sign in here by scanning a code, and to approve payments with your PIN or Face ID.</p>
+                <p className="mt-1 max-w-md text-[15px] text-graphite/60">You’ll use it to approve payments with your PIN or Face ID, and its sign-in details work here too.</p>
                 <StoreButtons className="mt-5" />
               </div>
               <button
                 type="button"
                 onClick={() => {
-                  signIn({ business: COMPANY.name, person: 'Adaeze', role: 'Owner' });
-                  navigate('/business/app', { replace: true });
+                  navigate('/business/app/sign-in', { replace: true });
                 }}
                 className="group mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-graphite px-6 text-[15px] font-semibold text-white hover:bg-black"
               >
-                Go to your dashboard <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                Sign in to your dashboard <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </button>
             </motion.div>
           )}

@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, FileCheck2, FileSearch, KeyRound, Laptop, QrCode, ShieldCheck, Smartphone } from 'lucide-react';
 import { useState } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { setNotify, signOut, updateProfile, useDash, type Profile } from './store';
+import { NavLink, useParams } from 'react-router-dom';
+import { useSignOut } from '../api';
+import { setNotify, updateProfile, useDash, type Profile } from './store';
+import { useSession } from './data';
 import { PinPrompt } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -24,7 +26,8 @@ function Saved({ show, children }: { show: boolean; children: React.ReactNode })
 /* ---------- Business ---------- */
 
 function Business() {
-  const { profile, session } = useDash();
+  const { profile } = useDash();
+  const session = useSession();
   const [draft, setDraft] = useState<Profile>(profile);
   const [pin, setPin] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -98,7 +101,7 @@ function Business() {
 /* ---------- Security ---------- */
 
 function Security() {
-  const navigate = useNavigate();
+  const signOut = useSignOut();
   const [phoneOut, setPhoneOut] = useState(false);
   // TODO(credvera): the real list of signed-in devices from the API.
   const sessions = [
@@ -123,8 +126,8 @@ function Security() {
                 <button
                   type="button"
                   onClick={() => {
-                    signOut();
-                    navigate('/business/app/sign-in', { replace: true });
+                    // The dashboard's guard returns to sign-in once the session ends.
+                    signOut.mutate();
                   }}
                   className="text-[13.5px] font-semibold text-graphite/60 hover:text-graphite"
                 >
@@ -274,7 +277,7 @@ const SECTIONS = [
 /** Settings: the business's details, how it's kept safe, what we tell you about, and its documents. */
 export default function Settings() {
   const { section } = useParams();
-  const { session } = useDash();
+  const session = useSession();
   return (
     <div className="mx-auto max-w-6xl">
       <p className="text-[13px] font-medium text-graphite/50">{session?.business}</p>
