@@ -30,6 +30,9 @@ export const queryKeys = {
   supplier: (id: string) => ['suppliers', 'one', id] as const,
   team: ['team'] as const,
   approvals: ['approvals'] as const,
+  fxRates: ['fx', 'rates'] as const,
+  fxHistory: (currency: string, days: number) => ['fx', 'history', currency, days] as const,
+  fxAlerts: ['fx', 'alerts'] as const,
 };
 
 export const queryClient = new QueryClient({
@@ -73,4 +76,5 @@ activeBusiness.subscribe(() => {
   queryClient.removeQueries({ queryKey: queryKeys.suppliers });
   queryClient.removeQueries({ queryKey: queryKeys.team });
   queryClient.removeQueries({ queryKey: queryKeys.approvals });
+  queryClient.removeQueries({ queryKey: queryKeys.fxAlerts });
 });

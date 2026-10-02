@@ -286,7 +286,7 @@ export default function AppShell() {
           ],
         },
         { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, badge: approvals.data?.forYou || undefined },
-        { to: '/business/app/fx', label: 'FX', icon: ArrowLeftRight, soon: true },
+        { to: '/business/app/fx', label: 'FX', icon: ArrowLeftRight },
         { to: '/business/app/cards', label: 'Cards', icon: CreditCard, soon: true },
       ],
     },
