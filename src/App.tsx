@@ -31,6 +31,7 @@ import Links from './dashboard/Links';
 import OpenAccount from './dashboard/OpenAccount';
 import PayHub from './dashboard/PayHub';
 import Payments from './dashboard/Payments';
+import OfficialStatement from './dashboard/OfficialStatement';
 import Reports from './dashboard/Reports';
 import Settings from './dashboard/Settings';
 import SignIn from './dashboard/SignIn';
@@ -155,7 +156,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -183,6 +184,7 @@ export default function App() {
           {/* The business dashboard */}
           <Route path="/business/app/sign-in" element={<SignIn />} />
           <Route path="/business/app/open" element={<OpenAccount />} />
+          <Route path="/business/app/statements/:id" element={<OfficialStatement />} />
           <Route path="/business/app" element={<AppShell />}>
             <Route index element={<Today />} />
             <Route path="payments" element={<Payments />} />

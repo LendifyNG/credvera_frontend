@@ -477,6 +477,16 @@ export default function AppShell() {
  * yet. Gone once it's approved.
  */
 function ReviewBanner({ business }: { business: BusinessDto }) {
+  if (business.closedAt) {
+    return (
+      <div className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center gap-3 rounded-xl border border-graphite/15 bg-[#efeee7] px-4 py-3 text-[14px]">
+        <span className="size-1.5 rounded-full bg-graphite/50" />
+        <p className="flex-1">
+          <span className="font-semibold">{business.name}’s account is closed.</span> <span className="text-graphite/60">Its history and statements stay here for you to see.</span>
+        </p>
+      </div>
+    );
+  }
   if (business.status === 'approved') return null;
 
   const asked = business.status === 'more_info';

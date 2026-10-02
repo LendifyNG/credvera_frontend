@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import { errorMessage, useChangePassword, useChangePin, useProfile, useSignOut, useSignOutEverywhere, type BusinessDto } from '../api';
 import { nameCase, useActiveBusiness, useSession } from './data';
+import { CloseAccount } from './service';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
@@ -108,6 +109,13 @@ function Business({ business }: { business: BusinessDto }) {
           ]}
         />
       </section>
+
+      {/* A draft has no account yet, and a rejected business's is already closed. */}
+      {business.status !== 'draft' && business.status !== 'rejected' && (
+        <div className="lg:col-span-2">
+          <CloseAccount />
+        </div>
+      )}
     </div>
   );
 }

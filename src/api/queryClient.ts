@@ -24,6 +24,8 @@ export const queryKeys = {
   paymentLinkCurrencies: ['payment-links', 'currencies'] as const,
   publicInvoice: (slug: string) => ['pay', slug] as const,
   content: ['content'] as const,
+  serviceRequests: ['service-requests'] as const,
+  serviceRequest: (id: string) => ['service-requests', id] as const,
 };
 
 export const queryClient = new QueryClient({
@@ -63,4 +65,5 @@ activeBusiness.subscribe(() => {
   queryClient.removeQueries({ queryKey: queryKeys.wallets });
   queryClient.removeQueries({ queryKey: queryKeys.transactions });
   queryClient.removeQueries({ queryKey: queryKeys.paymentLinks, exact: true });
+  queryClient.removeQueries({ queryKey: queryKeys.serviceRequests });
 });

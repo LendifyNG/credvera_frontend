@@ -51,3 +51,17 @@ export {
 export { contentApi, useBusinessContent, type PublishedContent, type PublishedItem } from './content';
 export { securityApi, useChangePassword, useChangePin, useSignOutEverywhere, type ChangePasswordInput, type ChangePinInput } from './security';
 export { onboardingApi, useFinishSignUp, useRegister, useResendCode, useVerifyCode, type AddressInput, type RegisterInput } from './onboarding';
+export {
+  serviceRequestsApi,
+  useCancelServiceRequest,
+  useRequestClosure,
+  useRequestStatement,
+  useServiceRequest,
+  useServiceRequests,
+  type OfficialStatement,
+  type ServiceRequestDto,
+  type ServiceRequestKind,
+  type ServiceRequestStatus,
+  type StatementLine,
+  type StatementRequestInput,
+} from './serviceRequests';

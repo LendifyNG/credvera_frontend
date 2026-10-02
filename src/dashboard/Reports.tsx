@@ -7,6 +7,7 @@ import { CURRENCIES } from './money';
 import { usePaymentLinks } from '../api';
 import { kindOf, money, reference, settled, shortDate, type Currency, type Payment } from './model';
 import { useBalances, usePayInAccount, usePayments, useSession } from './data';
+import { OfficialStatements } from './service';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -513,7 +514,12 @@ export default function Reports() {
         ))}
       </nav>
       <motion.div key={section ?? 'statements'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
-        {section === 'cash-flow' ? <CashFlow /> : section === 'reconciliation' ? <Reconciliation /> : section === 'profit' ? <Profit /> : <Statements />}
+        {section === 'cash-flow' ? <CashFlow /> : section === 'reconciliation' ? <Reconciliation /> : section === 'profit' ? <Profit /> : (
+          <>
+            <Statements />
+            <OfficialStatements />
+          </>
+        )}
       </motion.div>
     </div>
   );

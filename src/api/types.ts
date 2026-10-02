@@ -236,6 +236,8 @@ export type BusinessDto = {
   contactPhone: string | null;
   status: BusinessStatus;
   submittedAt: IsoDate | null;
+  /** Set once the account was closed at the owner’s request. */
+  closedAt: IsoDate | null;
   /** Why it was rejected, or what the reviewer asked for. */
   decisionNote: string | null;
   people: BusinessPersonDto[];
