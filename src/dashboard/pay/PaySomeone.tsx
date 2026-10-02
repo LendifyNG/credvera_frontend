@@ -3,10 +3,10 @@ import { Check, Loader2, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { errorMessage, useAccountName, useBanks, useSendMoney, useTransferQuote } from '../../api';
-import { recentRecipients, useBalances, usePayments } from '../data';
+import { recentRecipients, useActiveBusiness, useBalances, usePayments } from '../data';
 import { money, shortDate, type Recipient } from '../model';
 import { Notice, PinPrompt } from '../ui';
-import { field, initials, label, NairaInput, nairaFrom, panel, primary, useDebounced } from './shared';
+import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './shared';
 
 type Outcome = { tone: 'good' | 'bad'; text: string };
 
@@ -21,6 +21,8 @@ export default function PaySomeone() {
   const [params] = useSearchParams();
   const { payments } = usePayments();
   const { balances } = useBalances();
+  const business = useActiveBusiness();
+  const threshold = business?.approvalThreshold ? Number(business.approvalThreshold) : null;
   const banks = useBanks();
   const send = useSendMoney();
 
@@ -64,10 +66,7 @@ export default function PaySomeone() {
       { bankCode, accountNumber, amount: String(amount), narration: reason.trim().slice(0, 100), pin },
       {
         onSuccess: (result) => {
-          setOutcome({
-            tone: 'good',
-            text: result.status === 'success' ? `Paid ${money(amount)} to ${result.accountName}.` : `${money(amount)} to ${result.accountName} is on its way. It usually lands in ${result.estimatedDelivery ?? 'a few minutes'}.`,
-          });
+          setOutcome({ tone: 'good', text: paidText(result, amount) });
           setText('');
           setReason('');
           setAccountNumber('');
@@ -177,6 +176,7 @@ export default function PaySomeone() {
               <>
                 Fee {money(quote.data!.fee)} · total <span className="font-semibold text-graphite">{money(total)}</span>
                 {short && <span className="mt-1 block text-[#9a3a17]">More than the {money(balances.NGN)} in your naira account.</span>}
+                {threshold !== null && amount >= threshold && <span className="mt-1 block text-graphite/70">Over {money(threshold)}: it waits for someone else on the team to approve it before it goes.</span>}
               </>
             ) : (
               'You’ll see the fee and the total before you pay.'

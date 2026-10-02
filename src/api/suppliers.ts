@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http } from './client';
 import { invalidateMoney, queryKeys } from './queryClient';
 import { useSignedIn } from './session';
-import type { TransferResultDto } from './types';
+import type { AwaitingApprovalDto, TransferResultDto } from './types';
 
 // Suppliers: the businesses this account pays, each with a bank account the
 // bank itself named. Acting for a business, they're the business's (the
@@ -62,7 +62,7 @@ export const suppliersApi = {
   update: (id: string, input: SupplierContact) => http.patch<SupplierDetail>(`/suppliers/${id}`, input),
   changeBank: (id: string, input: { bankCode: string; accountNumber: string; pin: string }) => http.put<SupplierDetail>(`/suppliers/${id}/bank`, input),
   archive: (id: string, archive: boolean) => http.post<SupplierDetail>(`/suppliers/${id}/${archive ? 'archive' : 'restore'}`),
-  pay: (id: string, input: PaySupplierInput) => http.post<TransferResultDto>(`/suppliers/${id}/pay`, input),
+  pay: (id: string, input: PaySupplierInput) => http.post<TransferResultDto | AwaitingApprovalDto>(`/suppliers/${id}/pay`, input),
 };
 
 export function useSuppliers(archived = false) {

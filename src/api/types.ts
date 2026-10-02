@@ -144,6 +144,22 @@ export type SendMoneyInput = {
   pin: string;
 };
 
+/** owner: opened it. admin: pays, approves, runs the team. payer: pays (big ones wait). viewer: looks only. */
+export type BusinessRole = 'owner' | 'admin' | 'payer' | 'viewer';
+
+/** A payment over the business's approval limit: nothing has moved yet. */
+export type AwaitingApprovalDto = {
+  status: 'awaiting_approval';
+  message: string;
+  approvalId: string;
+  amount: Decimal;
+  fee: Decimal;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  expiresAt: IsoDate;
+};
+
 export type TransferResultDto = {
   message: string;
   reference: string;
@@ -238,6 +254,10 @@ export type BusinessDto = {
   submittedAt: IsoDate | null;
   /** Set once the account was closed at the owner’s request. */
   closedAt: IsoDate | null;
+  /** Naira payments of this much or more need a second person; null when approvals are off. */
+  approvalThreshold: Decimal | null;
+  /** What you can do on this business: you opened it, or your role on its team. */
+  role: BusinessRole;
   /** Why it was rejected, or what the reviewer asked for. */
   decisionNote: string | null;
   people: BusinessPersonDto[];

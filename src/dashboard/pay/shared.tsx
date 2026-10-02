@@ -1,3 +1,5 @@
+import type { AwaitingApprovalDto, TransferResultDto } from '../../api';
+import { money } from '../model';
 import { useEffect, useState } from 'react';
 
 // Styles and helpers shared by the payment forms.
@@ -44,4 +46,11 @@ export function NairaInput({ value, onChange, disabled, id }: { value: number; o
       />
     </span>
   );
+}
+
+/** What to tell someone after they pay: sent, on its way, or waiting for a second person. */
+export function paidText(r: TransferResultDto | AwaitingApprovalDto, amount: number) {
+  if (r.status === 'awaiting_approval') return `${money(amount)} to ${r.accountName} needs approval. It goes once someone else on the team approves it; you’ll find it under Approvals.`;
+  if (r.status === 'success') return `Paid ${money(amount)} to ${r.accountName}.`;
+  return `${money(amount)} to ${r.accountName} is on its way. It usually lands in ${r.estimatedDelivery ?? 'a few minutes'}.`;
 }

@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { http } from './client';
 import { invalidateMoney, queryKeys } from './queryClient';
-import type { AccountNameDto, BankDto, SendMoneyInput, TransferQuoteDto, TransferResultDto } from './types';
+import type { AccountNameDto, AwaitingApprovalDto, BankDto, SendMoneyInput, TransferQuoteDto, TransferResultDto } from './types';
 
 export const transfersApi = {
   banks: () => http.get<BankDto[]>('/transfers/banks'),
@@ -11,7 +11,8 @@ export const transfersApi = {
 
   quote: (amount: string) => http.post<TransferQuoteDto>('/transfers/quote', { amount }),
 
-  send: (input: SendMoneyInput) => http.post<TransferResultDto>('/transfers/send', input),
+  /** Sent, or (over the business's approval limit) waiting for someone else on the team. */
+  send: (input: SendMoneyInput) => http.post<TransferResultDto | AwaitingApprovalDto>('/transfers/send', input),
 };
 
 /** The bank list barely changes; fetch it once per visit. */

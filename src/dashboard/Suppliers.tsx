@@ -21,7 +21,7 @@ import {
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
 import { Modal } from './money';
-import { field, initials, label, NairaInput, nairaFrom, panel, primary, useDebounced } from './pay/shared';
+import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './pay/shared';
 import { Notice, PinPrompt } from './ui';
 
 const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
@@ -449,6 +449,8 @@ function SupplierView({ s, done, clearDone, canPay, setMode }: { s: SupplierDeta
 function PayForm({ s, onBack, onPaid }: { s: SupplierDetail; onBack: () => void; onPaid: (text: string) => void }) {
   const pay = usePaySupplier(s.id);
   const { balances } = useBalances();
+  const business = useActiveBusiness();
+  const threshold = business?.approvalThreshold ? Number(business.approvalThreshold) : null;
   const [text, setText] = useState('');
   const [reason, setReason] = useState('');
   const [checked, setChecked] = useState(false);
@@ -465,8 +467,7 @@ function PayForm({ s, onBack, onPaid }: { s: SupplierDetail; onBack: () => void;
     pay.mutate(
       { amount: String(amount), narration: reason.trim().slice(0, 100), pin: code, ...(needsCheck ? { confirmNewDetails: true } : {}) },
       {
-        onSuccess: (r) =>
-          onPaid(r.status === 'success' ? `Paid ${money(amount)} to ${r.accountName}.` : `${money(amount)} to ${r.accountName} is on its way. It usually lands in ${r.estimatedDelivery ?? 'a few minutes'}.`),
+        onSuccess: (r) => onPaid(paidText(r, amount)),
       },
     );
   };
@@ -503,6 +504,7 @@ function PayForm({ s, onBack, onPaid }: { s: SupplierDetail; onBack: () => void;
           <>
             Fee {money(quote.data!.fee)} · total <span className="font-semibold text-graphite">{money(total)}</span>
             {short && <span className="mt-1 block text-[#9a3a17]">More than the {money(balances.NGN)} in your naira account.</span>}
+            {threshold !== null && amount >= threshold && <span className="mt-1 block text-graphite/70">Over {money(threshold)}: it waits for someone else on the team to approve it before it goes.</span>}
           </>
         ) : (
           'You’ll see the fee and the total before you pay.'

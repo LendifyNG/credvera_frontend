@@ -34,6 +34,8 @@ import Payments from './dashboard/Payments';
 import OfficialStatement from './dashboard/OfficialStatement';
 import Reports from './dashboard/Reports';
 import Suppliers from './dashboard/Suppliers';
+import Team from './dashboard/Team';
+import JoinTeam from './dashboard/JoinTeam';
 import Settings from './dashboard/Settings';
 import SignIn from './dashboard/SignIn';
 import Soon, { SoonPage } from './dashboard/Soon';
@@ -90,7 +92,6 @@ const titles: Record<string, string> = {
   '/business/app/reports/cash-flow': 'Cash flow | Credvera Business',
   '/business/app/reports/reconciliation': 'Reconciliation | Credvera Business',
   '/business/app/reports/profit': 'Order profit | Credvera Business',
-  '/business/app/team/roles': 'Roles and approvals | Credvera Business',
   '/business/app/fx/convert': 'Convert | Credvera Business',
   '/business/app/fx/alerts': 'Rate alerts | Credvera Business',
   '/business/app/approvals': 'Approvals | Credvera Business',
@@ -155,7 +156,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app/join/') ? 'Join a team | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -184,6 +185,7 @@ export default function App() {
           <Route path="/business/app/sign-in" element={<SignIn />} />
           <Route path="/business/app/open" element={<OpenAccount />} />
           <Route path="/business/app/statements/:id" element={<OfficialStatement />} />
+          <Route path="/business/app/join/:token" element={<JoinTeam />} />
           <Route path="/business/app" element={<AppShell />}>
             <Route index element={<Today />} />
             <Route path="payments" element={<Payments />} />
@@ -199,8 +201,8 @@ export default function App() {
             <Route path="customers" element={<Customers />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="suppliers/*" element={<Navigate to="/business/app/suppliers" replace />} />
-            <Route path="team" element={<SoonPage what="team" />} />
-            <Route path="team/:section" element={<SoonPage what="team" />} />
+            <Route path="team" element={<Team />} />
+            <Route path="team/*" element={<Navigate to="/business/app/team" replace />} />
             <Route path="reports" element={<Reports />} />
             <Route path="reports/:section" element={<Reports />} />
             <Route path="settings" element={<Settings />} />

@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { activeBusiness, errorMessage, useBusinesses, usePaymentLinks, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
+import { activeBusiness, errorMessage, useApprovals, useBusinesses, usePaymentLinks, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
 import { usableBusinesses, useActiveBusiness, useSession } from './data';
@@ -53,6 +53,9 @@ const PAPER = `url("data:image/svg+xml,${encodeURIComponent(
 
 type Sub = { label: string; hint?: string; to?: string; action?: 'convert'; badge?: number };
 /** `soon`: the page says it's on its way; the API for it isn't there yet. */
+/** Shown under the business name when you're on someone else's team. */
+const ROLE_NAME: Record<BusinessDto["role"], string> = { owner: "Owner", admin: "Admin", payer: "Can pay", viewer: "View only" };
+
 type Item = { label: string; icon: LucideIcon; to: string; end?: boolean; menu?: Sub[]; badge?: number; soon?: boolean };
 
 
@@ -175,6 +178,8 @@ export default function AppShell() {
   const signOut = useSignOut();
   const businesses = useBusinesses();
   const active = useActiveBusiness();
+  // Payments waiting on this person, for the badge beside Approvals.
+  const approvals = useApprovals(!!active && !active.closedAt);
   const usable = usableBusinesses(businesses.data);
   const links = usePaymentLinks();
   const { pathname } = useLocation();
@@ -280,7 +285,7 @@ export default function AppShell() {
             { label: 'Bills', hint: 'Electricity, airtime and data', to: '/business/app/pay/bills' },
           ],
         },
-        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, soon: true },
+        { to: '/business/app/approvals', label: 'Approvals', icon: CheckCheck, badge: approvals.data?.forYou || undefined },
         { to: '/business/app/fx', label: 'FX', icon: ArrowLeftRight, soon: true },
         { to: '/business/app/cards', label: 'Cards', icon: CreditCard, soon: true },
       ],
@@ -302,7 +307,7 @@ export default function AppShell() {
     {
       label: 'Business',
       items: [
-        { to: '/business/app/team', label: 'Team', icon: Users, soon: true },
+        { to: '/business/app/team', label: 'Team', icon: Users },
         {
           to: '/business/app/reports',
           label: 'Reports',
@@ -337,7 +342,7 @@ export default function AppShell() {
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-[13px] font-bold text-graphite">{initials}</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-semibold">{session.business}</span>
-            <span className="block text-[12px] text-white/50">{active.status === 'approved' ? 'Business account' : 'Under review'}</span>
+            <span className="block text-[12px] text-white/50">{active.status !== 'approved' ? 'Under review' : active.role === 'owner' ? 'Business account' : ROLE_NAME[active.role]}</span>
           </span>
           <ChevronsUpDown className="size-4 text-white/45" />
         </button>
@@ -477,6 +482,16 @@ export default function AppShell() {
  * yet. Gone once it's approved.
  */
 function ReviewBanner({ business }: { business: BusinessDto }) {
+  if (business.role === 'viewer' && !business.closedAt) {
+    return (
+      <div className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center gap-3 rounded-xl border border-graphite/15 bg-[#efeee7] px-4 py-3 text-[14px]">
+        <span className="size-1.5 rounded-full bg-graphite/50" />
+        <p className="flex-1">
+          <span className="font-semibold">You can view {business.name}’s account.</span> <span className="text-graphite/60">Payments and changes are for others on the team. Ask the owner or an admin for more access.</span>
+        </p>
+      </div>
+    );
+  }
   if (business.closedAt) {
     return (
       <div className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center gap-3 rounded-xl border border-graphite/15 bg-[#efeee7] px-4 py-3 text-[14px]">

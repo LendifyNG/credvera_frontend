@@ -28,6 +28,8 @@ export const queryKeys = {
   serviceRequest: (id: string) => ['service-requests', id] as const,
   suppliers: ['suppliers'] as const,
   supplier: (id: string) => ['suppliers', 'one', id] as const,
+  team: ['team'] as const,
+  approvals: ['approvals'] as const,
 };
 
 export const queryClient = new QueryClient({
@@ -69,4 +71,6 @@ activeBusiness.subscribe(() => {
   queryClient.removeQueries({ queryKey: queryKeys.paymentLinks, exact: true });
   queryClient.removeQueries({ queryKey: queryKeys.serviceRequests });
   queryClient.removeQueries({ queryKey: queryKeys.suppliers });
+  queryClient.removeQueries({ queryKey: queryKeys.team });
+  queryClient.removeQueries({ queryKey: queryKeys.approvals });
 });

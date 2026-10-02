@@ -37,6 +37,8 @@ function Facts({ rows }: { rows: [string, string | null | undefined][] }) {
   );
 }
 
+const ROLE_LABEL: Record<BusinessDto['role'], string> = { owner: 'Owner', admin: 'Admin', payer: 'Can pay', viewer: 'View only' };
+
 const TURNOVER: Record<string, string> = {
   under_10m: 'Under ₦10m',
   '10m_50m': '₦10m to ₦50m',
@@ -105,13 +107,13 @@ function Business({ business }: { business: BusinessDto }) {
             ['Name', me ? nameCase(`${me.firstName} ${me.lastName}`) : null],
             ['Email', me?.email],
             ['Phone', me?.phoneNumber],
-            ['Role', 'Owner'],
+            ['Role', ROLE_LABEL[business.role]],
           ]}
         />
       </section>
 
       {/* A draft has no account yet, and a rejected business's is already closed. */}
-      {business.status !== 'draft' && business.status !== 'rejected' && (
+      {business.role === 'owner' && business.status !== 'draft' && business.status !== 'rejected' && (
         <div className="lg:col-span-2">
           <CloseAccount />
         </div>
