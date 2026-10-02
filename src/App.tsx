@@ -33,6 +33,7 @@ import PayHub from './dashboard/PayHub';
 import Payments from './dashboard/Payments';
 import OfficialStatement from './dashboard/OfficialStatement';
 import Reports from './dashboard/Reports';
+import Suppliers from './dashboard/Suppliers';
 import Settings from './dashboard/Settings';
 import SignIn from './dashboard/SignIn';
 import Soon, { SoonPage } from './dashboard/Soon';
@@ -90,8 +91,6 @@ const titles: Record<string, string> = {
   '/business/app/reports/reconciliation': 'Reconciliation | Credvera Business',
   '/business/app/reports/profit': 'Order profit | Credvera Business',
   '/business/app/team/roles': 'Roles and approvals | Credvera Business',
-  '/business/app/suppliers/orders': 'Protected orders | Credvera Business',
-  '/business/app/suppliers/checks': 'Invoice checks | Credvera Business',
   '/business/app/fx/convert': 'Convert | Credvera Business',
   '/business/app/fx/alerts': 'Rate alerts | Credvera Business',
   '/business/app/approvals': 'Approvals | Credvera Business',
@@ -198,8 +197,8 @@ export default function App() {
             <Route path="invoices" element={<Invoices />} />
             <Route path="links" element={<Links />} />
             <Route path="customers" element={<Customers />} />
-            <Route path="suppliers" element={<SoonPage what="suppliers" />} />
-            <Route path="suppliers/:section" element={<SoonPage what="suppliers" />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="suppliers/*" element={<Navigate to="/business/app/suppliers" replace />} />
             <Route path="team" element={<SoonPage what="team" />} />
             <Route path="team/:section" element={<SoonPage what="team" />} />
             <Route path="reports" element={<Reports />} />

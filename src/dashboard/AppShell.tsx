@@ -296,7 +296,7 @@ export default function AppShell() {
     {
       label: 'Trade',
       items: [
-        { to: '/business/app/suppliers', label: 'Suppliers', icon: PackageCheck, soon: true },
+        { to: '/business/app/suppliers', label: 'Suppliers', icon: PackageCheck },
       ],
     },
     {

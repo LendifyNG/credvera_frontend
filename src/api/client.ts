@@ -117,6 +117,7 @@ export const http = {
   get: <T>(url: string, config?: AxiosRequestConfig) => unwrap<T>(instance.get(url, config)),
   post: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.post(url, body, config)),
   patch: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.patch(url, body, config)),
+  put: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.put(url, body, config)),
 };
 
 // ── Refresh ──────────────────────────────────────────────────────────────────

@@ -89,7 +89,7 @@ export default function PaySomeone() {
           )}
         </AnimatePresence>
         <h2 className="text-[20px] font-semibold tracking-[-0.02em]">Pay someone</h2>
-        <p className="mt-1 text-[14px] text-graphite/55">In naira, to any Nigerian bank. For a supplier abroad, use Suppliers.</p>
+        <p className="mt-1 text-[14px] text-graphite/55">In naira, to any Nigerian bank. For businesses you pay often, save them in Suppliers.</p>
 
         <div className="mt-6 space-y-5">
           {recipients.length > 0 && (
