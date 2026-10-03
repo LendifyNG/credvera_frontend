@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import {
   useActiveBusinessId,
   useBusinesses,
+  useFxRates,
   useProfile,
   useTransactions,
   useVirtualAccount,
@@ -73,6 +74,23 @@ export function useBalances() {
   }, [query.data]);
 
   return { balances, wallets, isLoading: query.isLoading, error: query.error };
+}
+
+/**
+ * Every balance in naira at today's reference rate, and each currency's part
+ * of it. Until a held currency has a rate, `priced` is false and the total is
+ * the naira balance alone, so nothing is guessed.
+ */
+export function useNairaTotal() {
+  const { balances } = useBalances();
+  const rates = useFxRates();
+
+  return useMemo(() => {
+    const rate = (code: Currency) => (code === 'NGN' ? 1 : Number(rates.data?.rates.find((r) => r.currency === code)?.rate ?? NaN));
+    const parts = CURRENCY_CODES.map((code) => ({ code, ngn: balances[code] ? balances[code] * rate(code) : 0 }));
+    const priced = parts.every((p) => Number.isFinite(p.ngn));
+    return { parts, priced, total: priced ? parts.reduce((sum, p) => sum + p.ngn, 0) : balances.NGN };
+  }, [balances, rates.data]);
 }
 
 /** The account people pay into for one currency, or why there isn't one yet. */

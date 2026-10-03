@@ -6,7 +6,7 @@ import { AddMoney, CURRENCIES } from './money';
 import { PromoCard } from './published';
 import { byCurrency, valueOf } from './requests';
 import { kindOf, money, settled, shortDate, type Payment } from './model';
-import { useBalances, usePayments, useSession } from './data';
+import { useBalances, useNairaTotal, usePayments, useSession } from './data';
 
 const DAY = 86400000;
 
@@ -97,6 +97,8 @@ export default function Today() {
   const unpaid = (links.data ?? []).filter((l) => l.status === 'pending');
   const done30 = payments.filter((p) => settled(p) && daysAgo(p.date) < 30).length;
   const others = CURRENCIES.filter((c) => c.code !== 'NGN' && balances[c.code] > 0);
+  const estimate = useNairaTotal();
+  const allIn = others.length > 0 && estimate.priced;
   const week = useMemo(() => sums(payments, 0, 6), [payments]);
   const lastWeek = useMemo(() => sums(payments, 7, 13), [payments]);
   const rows = (tab === 'posted' ? payments.filter(settled) : payments.filter((p) => !settled(p))).slice(0, 6);
@@ -147,13 +149,22 @@ export default function Today() {
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(20,28,23,0.07)_1px,transparent_1px)] [background-size:14px_14px]" />
         <div className="relative grid xl:grid-cols-[1fr_2fr]">
           <div className="border-b border-graphite/10 p-6 xl:border-b-0 xl:border-r">
-            <h2 className="text-[20px] font-semibold tracking-[-0.02em]">Cash</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">Cash</h2>
+              {allIn && <span className="rounded-md bg-[#efeee7] px-2 py-0.5 text-[12px] font-medium text-graphite/60">All currencies</span>}
+            </div>
             <div className={`${tile} mt-5`}>
-              <p className="text-[14px] font-medium text-graphite/70">Naira balance</p>
-              <p className="mt-2 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold leading-none tracking-[-0.03em] text-[#1f6b33]">{money(balances.NGN)}</p>
+              <p className="text-[14px] font-medium text-graphite/70">{allIn ? 'Estimated total in NGN' : 'Naira balance'}</p>
+              <p className="mt-2 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold leading-none tracking-[-0.03em] text-[#1f6b33]">{money(allIn ? estimate.total : balances.NGN)}</p>
               <p className="mt-5 flex gap-2 text-[13px] leading-relaxed text-graphite/55">
                 <Info className="mt-0.5 size-4 shrink-0" />
-                <span>{others.length ? `Plus ${others.map((c) => money(balances[c.code], c.code)).join(', ')}, kept in their own currencies.` : 'Available to pay out now.'}</span>
+                <span>
+                  {allIn
+                    ? `Your balances in naira at today’s reference rate: ${money(balances.NGN)} plus ${others.map((c) => money(balances[c.code], c.code)).join(', ')}.`
+                    : others.length
+                      ? `Plus ${others.map((c) => money(balances[c.code], c.code)).join(', ')}, kept in their own currencies.`
+                      : 'Available to pay out now.'}
+                </span>
               </p>
             </div>
           </div>

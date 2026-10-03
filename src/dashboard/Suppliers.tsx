@@ -1,6 +1,7 @@
-import { AnimatePresence } from 'framer-motion';
-import { Archive, ArchiveRestore, BadgeCheck, Check, Landmark, Loader2, Pencil, Plus, Search, ShieldAlert, TriangleAlert } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Archive, ArchiveRestore, BadgeCheck, Check, Landmark, Loader2, Pencil, Plus, Search, ShieldAlert, TriangleAlert, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { NavLink, useParams } from 'react-router-dom';
 import {
   errorMessage,
   isApiError,
@@ -20,10 +21,10 @@ import {
 } from '../api';
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
-import { Modal } from './money';
 import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './pay/shared';
-import { Notice, PinPrompt } from './ui';
+import { ComingSoon, Notice, PinPrompt } from './ui';
 
+const ease = [0.16, 1, 0.3, 1] as const;
 const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
 const area = 'w-full resize-none rounded-lg border border-graphite/15 bg-white px-3.5 py-2.5 text-[15px] outline-none placeholder:text-graphite/35 focus:border-graphite/50';
 const ago = (iso: string) => {
@@ -31,14 +32,46 @@ const ago = (iso: string) => {
   return h < 1 ? 'just now' : h < 24 ? `${h} ${h === 1 ? 'hour' : 'hours'} ago` : `${Math.round(h / 24)} days ago`;
 };
 
+/** A panel from the right, for adding a supplier or working with one. */
+function Drawer({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-50 bg-graphite/30 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+          <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.4, ease }}
+            onClick={(e) => e.stopPropagation()}
+            className="ml-auto flex h-full w-full max-w-lg flex-col bg-white shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-graphite/10 px-6 py-4">
+              <p className="text-[15px] font-semibold">{title}</p>
+              <button type="button" onClick={onClose} aria-label="Close" className="text-graphite/45 hover:text-graphite">
+                <X className="size-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+          </motion.aside>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ---------- Your suppliers ---------- */
+
 /**
- * Suppliers: the businesses you pay, each with a bank account the bank itself
- * named. Saving or changing bank details takes your PIN; the first payment to
- * new details asks you to confirm them; and every payment checks the bank
- * still names the account the same.
+ * The businesses you pay, each with a bank account the bank itself named.
+ * Saving or changing bank details takes your PIN; the first payment to new
+ * details asks you to confirm them; and every payment checks the bank still
+ * names the account the same.
  */
-export default function Suppliers() {
-  const business = useActiveBusiness();
+function Directory({ closed }: { closed: boolean }) {
   const [archived, setArchived] = useState(false);
   const [q, setQ] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
@@ -51,60 +84,110 @@ export default function Suppliers() {
     return t ? rows.filter((s) => `${s.name} ${s.category ?? ''} ${s.bank.accountName} ${s.bank.name}`.toLowerCase().includes(t)) : rows;
   }, [list.data, q]);
 
-  const closed = !!business?.closedAt || business?.status === 'rejected';
-
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <section className={panel}>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-graphite/10 p-5">
         <div>
-          <h1 className="text-[clamp(1.8rem,3vw,2.3rem)] font-semibold tracking-[-0.035em]">Suppliers</h1>
-          <p className="mt-1 max-w-2xl text-[14.5px] text-graphite/60">
-            The businesses you pay, with their bank details checked with the bank. Naira accounts at Nigerian banks for now.
-          </p>
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em]">Your suppliers</h2>
+          <p className="text-[13.5px] text-graphite/55">Their bank details are kept here, checked with the bank, so every payment goes to the same place.</p>
         </div>
         {!closed && (
-          <button type="button" onClick={() => setAdding(true)} className={primary}>
+          <button type="button" onClick={() => setAdding(true)} className={secondary}>
             <Plus className="size-4" /> Add a supplier
           </button>
         )}
       </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <label className="flex h-11 min-w-[240px] flex-1 items-center gap-2.5 rounded-lg border border-graphite/15 bg-white px-3.5 focus-within:border-graphite/40 sm:max-w-sm">
+      <div className="flex flex-wrap items-center gap-3 border-b border-graphite/10 px-5 py-3">
+        <label className="flex h-10 min-w-[220px] flex-1 items-center gap-2.5 rounded-lg border border-graphite/15 bg-white px-3.5 focus-within:border-graphite/40 sm:max-w-sm">
           <Search className="size-4 text-graphite/40" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or what they supply" aria-label="Search suppliers" className="w-full bg-transparent text-[15px] outline-none placeholder:text-graphite/35" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or what they supply" aria-label="Search suppliers" className="w-full bg-transparent text-[14.5px] outline-none placeholder:text-graphite/35" />
         </label>
         <div className="flex gap-1 rounded-lg bg-[#efeee7] p-1 text-[13.5px] font-medium">
           {[false, true].map((a) => (
-            <button key={String(a)} type="button" onClick={() => setArchived(a)} className={`rounded-md px-3 py-1.5 ${archived === a ? 'bg-white shadow-sm' : 'text-graphite/60'}`}>
+            <button key={String(a)} type="button" onClick={() => setArchived(a)} className={`rounded-md px-3 py-1 ${archived === a ? 'bg-white shadow-sm' : 'text-graphite/55'}`}>
               {a ? 'Archived' : 'Active'}
             </button>
           ))}
         </div>
       </div>
-
-      <section className={`${panel} mt-4 overflow-hidden`}>
-        {list.isLoading ? (
-          <Loader2 className="mx-auto my-14 size-5 animate-spin text-graphite/40" aria-label="Loading" />
-        ) : list.error ? (
-          <p className="px-6 py-12 text-center text-[14px] text-[#a3261b]">{errorMessage(list.error)}</p>
-        ) : shown.length === 0 ? (
-          <div className="px-6 py-14 text-center">
-            <Landmark className="mx-auto size-6 text-graphite/35" />
-            <p className="mt-2 text-[15px] font-medium">{q ? `No supplier matches “${q.trim()}”.` : archived ? 'Nothing archived.' : 'No suppliers yet.'}</p>
-            {!q && !archived && !closed && <p className="mt-1 text-[14px] text-graphite/55">Add the businesses you pay, and pay them in two taps with their details checked every time.</p>}
-          </div>
-        ) : (
-          <ul className="divide-y divide-graphite/[0.07]">
-            {shown.map((s) => (
-              <Row key={s.id} s={s} onOpen={() => setSelected(s.id)} />
-            ))}
-          </ul>
-        )}
-      </section>
+      {list.isLoading ? (
+        <Loader2 className="mx-auto my-14 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+      ) : list.error ? (
+        <p className="px-6 py-12 text-center text-[14px] text-[#a3261b]">{errorMessage(list.error)}</p>
+      ) : shown.length === 0 ? (
+        <div className="px-6 py-14 text-center">
+          <Landmark className="mx-auto size-6 text-graphite/35" />
+          <p className="mt-2 text-[15px] font-medium">{q ? `No supplier matches “${q.trim()}”.` : archived ? 'Nothing archived.' : 'No suppliers yet.'}</p>
+          {!q && !archived && !closed && <p className="mt-1 text-[14px] text-graphite/55">Add the businesses you pay, and pay them in two taps with their details checked every time.</p>}
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-[14px]">
+            <thead>
+              <tr className="border-b border-graphite/10 text-[12.5px] text-graphite/45">
+                <th className="py-3 pl-5 pr-4 font-medium">Supplier</th>
+                <th className="py-3 pr-4 font-medium">Bank</th>
+                <th className="py-3 pr-4 text-right font-medium">Paid so far</th>
+                <th className="py-3 pr-5 font-medium">Last paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((s) => (
+                <Row key={s.id} s={s} onOpen={() => setSelected(s.id)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <AddSupplier open={adding} onClose={() => setAdding(false)} onAdded={(id) => setSelected(id)} />
       <SupplierPanel id={selected} onClose={() => setSelected(null)} canPay={!closed} />
+    </section>
+  );
+}
+
+const SECTIONS = [
+  { to: '/business/app/suppliers', label: 'Your suppliers', end: true },
+  { to: '/business/app/suppliers/orders', label: 'Protected orders' },
+  { to: '/business/app/suppliers/checks', label: 'Invoice checks' },
+];
+
+/** Suppliers: who you pay, orders paid safely, and invoices checked before paying. */
+export default function Suppliers() {
+  const { section } = useParams();
+  const business = useActiveBusiness();
+  const closed = !!business?.closedAt || business?.status === 'rejected';
+
+  return (
+    <div className="mx-auto max-w-6xl">
+      <p className="text-[13px] font-medium text-graphite/50">{business?.name}</p>
+      <h1 className="mt-1 text-[clamp(1.8rem,3vw,2.3rem)] font-semibold tracking-[-0.035em]">Suppliers</h1>
+      <p className="mt-1 text-[15px] text-graphite/55">The businesses you buy from, paid safely. Naira accounts at Nigerian banks for now.</p>
+      <nav className="mt-6 flex gap-1 overflow-x-auto border-b border-graphite/10" aria-label="Suppliers">
+        {SECTIONS.map((s) => (
+          <NavLink
+            key={s.to}
+            to={s.to}
+            end={s.end}
+            className={({ isActive }) => `-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-[14.5px] font-medium transition-colors ${isActive ? 'border-graphite text-graphite' : 'border-transparent text-graphite/50 hover:text-graphite'}`}
+          >
+            {s.label}
+          </NavLink>
+        ))}
+      </nav>
+      <motion.div key={section ?? 'directory'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
+        {section === 'orders' ? (
+          <ComingSoon title="Protected orders">
+            Pay a supplier without paying blind. A deposit goes now if you agree one; the rest is held until their shipping documents are checked, then released to them.
+          </ComingSoon>
+        ) : section === 'checks' ? (
+          <ComingSoon title="Invoice checks">
+            Check a supplier’s invoice before you pay it, with a warning when the bank details on it don’t match the ones you’ve paid before. Changed bank details are already flagged on each supplier.
+          </ComingSoon>
+        ) : (
+          <Directory closed={closed} />
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -131,25 +214,28 @@ function Flags({ s }: { s: SupplierDto }) {
 
 function Row({ s, onOpen }: { s: SupplierDto; onOpen: () => void }) {
   return (
-    <li>
-      <button type="button" onClick={onOpen} className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-[#fafaf7]">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#efeee7] text-[13px] font-semibold">{initials(s.name)}</span>
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-2">
-            <span className="text-[15px] font-semibold">{s.name}</span>
-            <Flags s={s} />
-          </span>
-          <span className="mt-0.5 block truncate text-[13.5px] text-graphite/55">
-            {s.bank.accountName} · {s.bank.name} ••••{s.bank.accountLast4}
-            {s.category && ` · ${s.category}`}
+    <tr onClick={onOpen} className="cursor-pointer border-b border-graphite/[0.06] transition-colors last:border-0 hover:bg-[#fafaf7]">
+      <td className="py-3.5 pl-5 pr-4">
+        <span className="flex items-center gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#efeee7] text-[12px] font-semibold">{initials(s.name)}</span>
+          <span className="min-w-0">
+            <button type="button" onClick={onOpen} className="block text-left font-medium hover:underline">
+              {s.name}
+            </button>
+            <span className="block text-[12.5px] text-graphite/45">{s.category ?? 'Nigeria'}</span>
+            <span className="mt-1 flex flex-wrap gap-1.5 empty:hidden">
+              <Flags s={s} />
+            </span>
           </span>
         </span>
-        <span className="hidden shrink-0 text-right sm:block">
-          <span className="block font-ledger text-[15px] font-semibold">{money(Number(s.stats.paid))}</span>
-          <span className="block text-[12.5px] text-graphite/50">{s.stats.lastPaidAt ? `${s.stats.payments} paid · last ${shortDate(s.stats.lastPaidAt)}` : 'Not paid yet'}</span>
-        </span>
-      </button>
-    </li>
+      </td>
+      <td className="py-3.5 pr-4 text-graphite/65">
+        {s.bank.name} <span className="font-ledger">•••• {s.bank.accountLast4}</span>
+        <span className="block text-[12.5px] text-graphite/45">{s.bank.accountName}</span>
+      </td>
+      <td className="whitespace-nowrap py-3.5 pr-4 text-right font-ledger font-medium">{Number(s.stats.paid) ? money(Number(s.stats.paid)) : '—'}</td>
+      <td className="whitespace-nowrap py-3.5 pr-5 text-graphite/60">{s.stats.lastPaidAt ? shortDate(s.stats.lastPaidAt) : 'Not yet'}</td>
+    </tr>
   );
 }
 
@@ -256,7 +342,7 @@ function AddSupplier({ open, onClose, onAdded }: { open: boolean; onClose: () =>
 
   return (
     <>
-      <Modal open={open && !pin} title="Add a supplier" onClose={onClose}>
+      <Drawer open={open && !pin} title="Add a supplier" onClose={onClose}>
         <div className="space-y-4">
           <label className="block">
             <span className={label}>Supplier</span>
@@ -272,7 +358,7 @@ function AddSupplier({ open, onClose, onAdded }: { open: boolean; onClose: () =>
             </button>
           </div>
         </div>
-      </Modal>
+      </Drawer>
       <PinPrompt open={open && pin} title="Save this supplier" detail={verified.data ? `${verified.data.accountName} · ${verified.data.bankName}` : undefined} onClose={() => setPin(false)} onConfirm={save} />
     </>
   );
@@ -295,7 +381,7 @@ function SupplierPanel({ id, onClose, canPay }: { id: string | null; onClose: ()
   const title = s ? (mode === 'pay' ? `Pay ${s.name}` : mode === 'bank' ? 'New bank details' : mode === 'edit' ? `Edit ${s.name}` : s.name) : 'Supplier';
 
   return (
-    <Modal open={!!id} title={title} onClose={close}>
+    <Drawer open={!!id} title={title} onClose={close}>
       {!s ? (
         supplier.error ? <p className="text-[14px] text-[#a3261b]">{errorMessage(supplier.error)}</p> : <Loader2 className="mx-auto my-10 size-5 animate-spin text-graphite/40" />
       ) : mode === 'pay' ? (
@@ -324,7 +410,7 @@ function SupplierPanel({ id, onClose, canPay }: { id: string | null; onClose: ()
           }}
         />
       )}
-    </Modal>
+    </Drawer>
   );
 }
 

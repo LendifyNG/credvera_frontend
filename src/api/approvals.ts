@@ -59,6 +59,7 @@ function useApprovalChange<I>(fn: (input: I) => Promise<ApprovalsDto>, movesMone
     onSuccess: (data) => client.setQueryData(queryKeys.approvals, data),
     onSettled: () => {
       void client.invalidateQueries({ queryKey: queryKeys.businesses });
+      void client.invalidateQueries({ queryKey: queryKeys.team });
       if (movesMoney) void invalidateMoney();
     },
   });

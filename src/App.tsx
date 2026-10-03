@@ -78,11 +78,16 @@ const titles: Record<string, string> = {
   '/business/app/pay/scheduled': 'Scheduled payments | Credvera Business',
   '/business/app/pay/bills': 'Bills | Credvera Business',
   '/business/app/fx': 'FX | Credvera Business',
+  '/business/app/fx/convert': 'Convert | Credvera Business',
+  '/business/app/fx/alerts': 'Rate alerts | Credvera Business',
   '/business/app/cards': 'Cards | Credvera Business',
   '/business/app/invoices': 'Invoices | Credvera Business',
   '/business/app/links': 'Payment links | Credvera Business',
   '/business/app/customers': 'Customers | Credvera Business',
+  '/business/app/suppliers/orders': 'Protected orders | Credvera Business',
+  '/business/app/suppliers/checks': 'Invoice checks | Credvera Business',
   '/business/app/suppliers': 'Suppliers | Credvera Business',
+  '/business/app/team/roles': 'Roles and approvals | Credvera Business',
   '/business/app/team': 'Team | Credvera Business',
   '/business/app/reports': 'Reports | Credvera Business',
   '/business/app/settings': 'Settings | Credvera Business',
@@ -193,15 +198,15 @@ export default function App() {
             <Route path="pay" element={<PayHub />} />
             <Route path="pay/:section" element={<PayHub />} />
             <Route path="fx" element={<Fx />} />
-            <Route path="fx/*" element={<Navigate to="/business/app/fx" replace />} />
+            <Route path="fx/:section" element={<Fx />} />
             <Route path="cards" element={<SoonPage what="cards" />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="links" element={<Links />} />
             <Route path="customers" element={<Customers />} />
             <Route path="suppliers" element={<Suppliers />} />
-            <Route path="suppliers/*" element={<Navigate to="/business/app/suppliers" replace />} />
+            <Route path="suppliers/:section" element={<Suppliers />} />
             <Route path="team" element={<Team />} />
-            <Route path="team/*" element={<Navigate to="/business/app/team" replace />} />
+            <Route path="team/:section" element={<Team />} />
             <Route path="reports" element={<Reports />} />
             <Route path="reports/:section" element={<Reports />} />
             <Route path="settings" element={<Settings />} />

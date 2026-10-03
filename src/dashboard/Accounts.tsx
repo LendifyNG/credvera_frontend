@@ -3,7 +3,7 @@ import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Check, Copy, P
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { errorMessage, useOpenWallet, useProvisionVirtualAccount } from '../api';
-import { useBalances, usePayInAccount, usePayments, useSession } from './data';
+import { useBalances, useNairaTotal, usePayInAccount, usePayments, useSession } from './data';
 import { AddMoney, CURRENCIES } from './money';
 import { kindOf, money, settled, shortDate, type Currency, type Payment } from './model';
 
@@ -112,6 +112,8 @@ function PayInDetails({ code }: { code: Currency }) {
     </>
   );
 }
+
+const TONE: Record<Currency, string> = { NGN: '#1f6b33', USD: '#0b2350', GBP: '#c8102e', EUR: '#e0a526' };
 
 /** Money in and out of one account over the last 30 days, conversions left out. */
 function month(payments: Payment[], c: Currency) {
@@ -230,6 +232,8 @@ export default function Accounts() {
   const { payments } = usePayments();
   const [open, setOpen] = useState<Currency | null>(null);
   const [adding, setAdding] = useState(false);
+  const estimate = useNairaTotal();
+  const split = estimate.parts.filter((p) => p.ngn > 0).map((p) => ({ ...p, name: CURRENCIES.find((c) => c.code === p.code)!.name }));
 
   const months = useMemo(() => Object.fromEntries(CURRENCIES.map((c) => [c.code, month(payments, c.code)])) as Record<Currency, { inflow: number; outflow: number }>, [payments]);
 
@@ -250,6 +254,31 @@ export default function Accounts() {
           </button>
         </div>
       </div>
+
+      {/* The total, and how it splits across currencies */}
+      {estimate.priced && estimate.total > 0 && (
+        <section className="relative mt-6 overflow-hidden rounded-2xl border border-graphite/10 bg-white p-6">
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(20,28,23,0.06)_1px,transparent_1px)] [background-size:14px_14px]" />
+          <div className="relative">
+            <p className="text-[14px] font-medium text-graphite/60">Estimated total in NGN</p>
+            <p className="mt-1 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold tracking-[-0.03em] text-[#1f6b33]">{money(estimate.total)}</p>
+            <div className="mt-5 flex h-2.5 overflow-hidden rounded-full bg-[#efeee7]" role="img" aria-label="How your money splits across currencies">
+              {split.map((c) => (
+                <span key={c.code} style={{ width: `${(c.ngn / estimate.total) * 100}%`, backgroundColor: TONE[c.code] }} className="h-full first:rounded-l-full last:rounded-r-full" />
+              ))}
+            </div>
+            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-graphite/60">
+              {split.map((c) => (
+                <li key={c.code} className="flex items-center gap-2">
+                  <span className="size-2 rounded-full" style={{ backgroundColor: TONE[c.code] }} />
+                  {c.name} <span className="font-medium text-graphite">{Math.round((c.ngn / estimate.total) * 100)}%</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[12.5px] text-graphite/45">At today’s reference rate, from FX.</p>
+          </div>
+        </section>
+      )}
 
       {/* One panel per account */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
