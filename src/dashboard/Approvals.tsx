@@ -1,270 +1,355 @@
-import { AnimatePresence } from 'framer-motion';
-import { CheckCheck, Loader2, ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, CornerUpLeft, Loader2, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { errorMessage, useApprovals, useApprove, useCancelApproval, useReject, useSetThreshold, type ApprovalDto, type ApprovalStatus } from '../api';
+import { errorMessage, useApprovals, useApprove, useCancelApproval, useReject, type ApprovalDto, type ApprovalStatus } from '../api';
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
-import { Modal } from './money';
-import { label, NairaInput, nairaFrom, panel, primary } from './pay/shared';
 import { Notice, PinPrompt } from './ui';
 
-const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
+const ease = [0.16, 1, 0.3, 1] as const;
+const DAY = 86400000;
 
 const STATUS: Record<ApprovalStatus, { label: string; tone: string }> = {
   pending: { label: 'Waiting', tone: 'bg-[#fbf5e6] text-[#8a5a00]' },
-  approved: { label: 'Approved and sent', tone: 'bg-[#e3f1e6] text-[#1f6b33]' },
-  rejected: { label: 'Rejected', tone: 'bg-[#fbe9e7] text-[#a3261b]' },
+  approved: { label: 'Approved', tone: 'bg-[#e3f1e0] text-[#1f6b33]' },
+  rejected: { label: 'Sent back', tone: 'bg-[#f6e7e0] text-[#9a3a17]' },
   cancelled: { label: 'Withdrawn', tone: 'bg-[#efeee7] text-graphite/55' },
   expired: { label: 'Lapsed', tone: 'bg-[#efeee7] text-graphite/55' },
-  failed: { label: 'Approved, didn’t go', tone: 'bg-[#fbe9e7] text-[#a3261b]' },
+  failed: { label: 'Approved, didn’t go', tone: 'bg-[#f6e7e0] text-[#9a3a17]' },
 };
 
+// Letters only, so "Tunde (Finance)" gives "TF".
+const initials = (name: string) =>
+  name
+    .replace(/[^\p{L}\s]/gu, '')
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+
+const naira = (v: string) => money(Number(v));
+const payee = (p: ApprovalDto) => p.to.supplierName ?? p.to.accountName;
+const asker = (p: ApprovalDto) => (p.requestedByYou ? 'you' : p.requestedBy);
+const firstName = (p: ApprovalDto) => p.requestedBy.split(' ')[0];
 const left = (iso: string) => {
   const h = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 3_600_000));
   return h < 1 ? 'under an hour' : h < 48 ? `${h} hours` : `${Math.round(h / 24)} days`;
 };
-const naira = (v: string) => money(Number(v));
+
+/** A quiet drawing for when nothing is waiting: a ledger with its line ticked off. */
+function AllClear() {
+  return (
+    <svg viewBox="0 0 120 80" className="mx-auto h-16 w-auto" aria-hidden>
+      <rect x="22" y="10" width="76" height="60" rx="6" fill="#f5f4ef" stroke="#141c17" strokeOpacity="0.15" />
+      {[26, 38, 50].map((y) => (
+        <line key={y} x1="34" x2="86" y1={y} y2={y} stroke="#141c17" strokeOpacity="0.12" strokeWidth="2" strokeLinecap="round" />
+      ))}
+      <circle cx="92" cy="58" r="14" fill="#7fde80" />
+      <path d="M85 58 l5 5 l9 -10" fill="none" stroke="#141c17" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 /**
- * Approvals: payments over the limit, waiting for someone else on the team.
- * Nothing moves until it's approved; then it's sent from the balance as it
- * stands, with the approver's PIN.
+ * Big payments waiting for a second person. Nothing moves until it's
+ * approved; then it's sent from the balance as it stands, with the approver's
+ * PIN. Whoever asked can't approve their own.
  */
 export default function Approvals() {
   const business = useActiveBusiness();
   const approvals = useApprovals(!!business);
+  const { balances } = useBalances();
+  const approve = useApprove();
+  const [tab, setTab] = useState<'waiting' | 'decided'>('waiting');
+  const [picked, setPicked] = useState<string[]>([]);
+  const [pinFor, setPinFor] = useState<ApprovalDto[] | null>(null);
   const [done, setDone] = useState<{ tone: 'good' | 'bad'; text: string } | null>(null);
+
   const a = approvals.data;
+  const waiting = a?.waiting ?? [];
+  const decided = a?.history ?? [];
+  const chosen = waiting.filter((p) => p.canDecide && picked.includes(p.id));
+  const total = waiting.reduce((sum, p) => sum + Number(p.amount), 0);
+  const oldest = waiting.length ? Math.max(...waiting.map((p) => Math.floor((Date.now() - new Date(p.createdAt).getTime()) / DAY))) : 0;
+  const nairaAfter = balances.NGN - total;
+
+  const toggle = (id: string) => setPicked((x) => (x.includes(id) ? x.filter((i) => i !== id) : [...x, id]));
+
+  // One PIN covers the batch; each payment is approved in turn, so one that
+  // can't go doesn't stop the rest.
+  const confirm = async (pin: string) => {
+    const batch = pinFor ?? [];
+    setPinFor(null);
+    let sent = 0;
+    let problem: string | null = null;
+    for (const p of batch) {
+      try {
+        const after = await approve.mutateAsync({ id: p.id, pin });
+        const row = after.history.find((h) => h.id === p.id);
+        if (row?.status === 'approved') sent++;
+        else problem ??= `${naira(p.amount)} to ${payee(p)} was approved but didn’t go: ${row?.note ?? 'the transfer failed'}. Nothing was taken.`;
+      } catch (error) {
+        problem ??= errorMessage(error);
+        break;
+      }
+    }
+    setPicked([]);
+    if (problem) setDone({ tone: 'bad', text: sent ? `Approved ${sent}. ${problem}` : problem });
+    else if (batch.length === 1) setDone({ tone: 'good', text: `Approved. ${naira(batch[0]!.amount)} is on its way to ${payee(batch[0]!)}.` });
+    else setDone({ tone: 'good', text: `Approved ${sent} payments.` });
+  };
 
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="text-[13px] font-medium text-graphite/50">{business?.name}</p>
-      <h1 className="mt-1 text-[clamp(1.8rem,3vw,2.3rem)] font-semibold tracking-[-0.035em]">Approvals</h1>
-      <p className="mt-1 text-[15px] text-graphite/55">Big payments, checked by a second person before they go.</p>
-
-      <AnimatePresence>
-        {done && (
-          <div className="mt-5">
-            <Notice tone={done.tone} onClose={() => setDone(null)}>
-              {done.text}
-            </Notice>
-          </div>
-        )}
-      </AnimatePresence>
+      <div className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <p className="text-[13px] font-medium text-graphite/50">{business?.name}</p>
+          <h1 className="mt-1 text-[clamp(1.8rem,3vw,2.3rem)] font-semibold tracking-[-0.035em]">Approvals</h1>
+          <p className="mt-1 text-[15px] text-graphite/55">
+            {a?.threshold ? `Payments of ${naira(a.threshold).replace(/\.00$/, '')} or more wait here for a second person.` : 'Big payments, checked by a second person before they go.'}
+          </p>
+        </div>
+        <Link to="/business/app/team/roles" className="inline-flex h-10 items-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold hover:border-graphite/30">
+          <ShieldCheck className="size-4" /> Approval rules
+        </Link>
+      </div>
 
       {approvals.isLoading ? (
         <Loader2 className="mx-auto mt-14 size-5 animate-spin text-graphite/40" aria-label="Loading" />
       ) : approvals.error ? (
         <p className="mt-10 text-center text-[14px] text-[#a3261b]">{errorMessage(approvals.error)}</p>
       ) : a ? (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <div className="space-y-6">
-            <section className={`${panel} overflow-hidden`}>
-              <h2 className="border-b border-graphite/[0.07] px-5 py-4 text-[16px] font-semibold">
-                Waiting {a.waiting.length > 0 && <span className="ml-1 font-ledger text-graphite/50">{a.waiting.length}</span>}
-              </h2>
-              {a.waiting.length ? (
-                <ul className="divide-y divide-graphite/[0.07]">
-                  {a.waiting.map((p) => (
-                    <Waiting key={p.id} p={p} onDone={setDone} />
-                  ))}
-                </ul>
-              ) : (
-                <div className="px-6 py-12 text-center">
-                  <CheckCheck className="mx-auto size-6 text-graphite/35" />
-                  <p className="mt-2 text-[14.5px] text-graphite/55">{a.threshold ? 'Nothing waiting.' : 'Nothing waits while approvals are off.'}</p>
-                </div>
-              )}
-            </section>
+        <>
+          {/* The picture in four numbers */}
+          <section className="mt-6 grid overflow-hidden rounded-2xl border border-graphite/10 bg-white sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: 'Waiting', value: `${waiting.length} ${waiting.length === 1 ? 'payment' : 'payments'}` },
+              { label: 'In total', value: money(total) },
+              { label: 'Oldest waiting', value: waiting.length ? (oldest === 0 ? 'Since today' : `${oldest} ${oldest === 1 ? 'day' : 'days'}`) : '—' },
+              { label: 'Naira left after all', value: money(nairaAfter), tone: nairaAfter < 0 ? 'text-[#9a3a17]' : '' },
+            ].map((s, i) => (
+              <div key={s.label} className={`border-graphite/10 px-6 py-5 ${i ? 'border-t sm:border-t-0' : ''} ${i % 2 ? 'sm:border-l' : ''} ${i >= 2 ? 'sm:border-t lg:border-t-0' : ''} ${i === 2 ? 'lg:border-l' : ''}`}>
+                <p className="text-[13px] font-medium text-graphite/55">{s.label}</p>
+                <p className={`mt-1 font-ledger text-[20px] font-semibold tracking-[-0.02em] ${s.tone ?? ''}`}>{s.value}</p>
+              </div>
+            ))}
+          </section>
 
-            {a.history.length > 0 && (
-              <section className={`${panel} overflow-hidden`}>
-                <h2 className="border-b border-graphite/[0.07] px-5 py-4 text-[16px] font-semibold">Decided</h2>
-                <ul className="divide-y divide-graphite/[0.07]">
-                  {a.history.map((p) => (
-                    <li key={p.id} className="flex flex-wrap items-start gap-3 px-5 py-3.5 text-[14px]">
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-medium">
-                          {naira(p.amount)} to {p.to.supplierName ?? p.to.accountName}
-                        </span>
-                        <span className="block text-[12.5px] text-graphite/50">
-                          Asked by {p.requestedByYou ? 'you' : p.requestedBy} · {shortDate(p.createdAt)}
-                          {p.decidedBy && ` · ${p.status === 'cancelled' ? 'withdrawn' : 'decided'} by ${p.decidedBy}`}
-                          {p.transferReference && ` · ${p.transferReference}`}
-                        </span>
-                        {p.note && <span className="mt-0.5 block text-[13px] text-graphite/70">“{p.note}”</span>}
-                      </span>
-                      <span className={`shrink-0 rounded-md px-2 py-0.5 text-[12px] font-medium ${STATUS[p.status].tone}`}>{STATUS[p.status].label}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+          <AnimatePresence>
+            {done && (
+              <div className="mt-6">
+                <Notice tone={done.tone} onClose={() => setDone(null)}>
+                  {done.text}
+                </Notice>
+              </div>
             )}
-          </div>
+          </AnimatePresence>
 
-          <aside>
-            <Limit threshold={a.threshold} approvers={a.approvers} canManage={a.you.canManage} closed={!!business?.closedAt} />
-          </aside>
-        </div>
+          <section className="mt-6 rounded-2xl border border-graphite/10 bg-white">
+            <div className="flex flex-wrap items-center gap-3 border-b border-graphite/10 p-4">
+              <div className="flex rounded-lg bg-[#efeee7] p-1 text-[13.5px] font-medium">
+                {(['waiting', 'decided'] as const).map((t) => (
+                  <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-md px-3 py-1 capitalize ${tab === t ? 'bg-white shadow-sm' : 'text-graphite/55 hover:text-graphite'}`}>
+                    {t}
+                    {t === 'waiting' && waiting.length ? <span className="ml-1.5 rounded bg-[#f5c451] px-1.5 text-[11px] font-semibold text-graphite">{waiting.length}</span> : null}
+                  </button>
+                ))}
+              </div>
+              {tab === 'waiting' && chosen.length > 0 && (
+                <button type="button" disabled={approve.isPending} onClick={() => setPinFor(chosen)} className="ml-auto inline-flex h-9 items-center gap-2 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black disabled:opacity-50">
+                  {approve.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />} Approve {chosen.length} selected
+                </button>
+              )}
+            </div>
+
+            {tab === 'waiting' ? (
+              waiting.length === 0 ? (
+                <div className="py-14 text-center">
+                  <AllClear />
+                  <p className="mt-4 text-[16px] font-semibold">Nothing waiting</p>
+                  <p className="mt-1 text-[14px] text-graphite/55">{a.threshold ? 'New requests appear here, and on Home.' : 'Approvals are off, so every payment goes as soon as it’s confirmed.'}</p>
+                </div>
+              ) : (
+                <ul>
+                  <AnimatePresence initial={false}>
+                    {waiting.map((p) => (
+                      <Waiting key={p.id} p={p} picked={picked.includes(p.id)} onPick={() => toggle(p.id)} onApprove={() => setPinFor([p])} busy={approve.isPending} inNaira={balances.NGN} onDone={setDone} />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              )
+            ) : decided.length === 0 ? (
+              <p className="py-14 text-center text-[14px] text-graphite/50">Decisions will show here.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left text-[14px]">
+                  <thead>
+                    <tr className="border-b border-graphite/10 text-[12.5px] text-graphite/45">
+                      <th className="py-3 pl-5 pr-4 font-medium">Date</th>
+                      <th className="py-3 pr-4 font-medium">To</th>
+                      <th className="py-3 pr-4 font-medium">Asked by</th>
+                      <th className="py-3 pr-4 text-right font-medium">Amount</th>
+                      <th className="py-3 pr-5 font-medium">Decision</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {decided.map((p) => (
+                      <tr key={p.id} className="border-b border-graphite/[0.06] last:border-0">
+                        <td className="whitespace-nowrap py-3.5 pl-5 pr-4 text-graphite/60">{shortDate(p.createdAt)}</td>
+                        <td className="py-3.5 pr-4 font-medium">{payee(p)}</td>
+                        <td className="py-3.5 pr-4 text-graphite/65">{p.requestedByYou ? 'You' : p.requestedBy}</td>
+                        <td className="whitespace-nowrap py-3.5 pr-4 text-right font-ledger font-medium">{naira(p.amount)}</td>
+                        <td className="py-3.5 pr-5">
+                          <span className="text-[13px]">
+                            <span className={`rounded-md px-2 py-0.5 font-medium ${STATUS[p.status].tone}`}>{STATUS[p.status].label}</span>
+                            {p.decidedBy && <span className="ml-2 text-graphite/50">by {p.decidedBy}</span>}
+                            {p.note && <span className="ml-2 text-graphite/55">“{p.note}”</span>}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </>
       ) : null}
+
+      <PinPrompt
+        open={!!pinFor}
+        title={pinFor ? (pinFor.length === 1 ? `Approve ${naira(pinFor[0]!.amount)}` : `Approve ${pinFor.length} payments`) : ''}
+        detail={
+          pinFor
+            ? pinFor.length === 1
+              ? `To ${payee(pinFor[0]!)}, asked by ${pinFor[0]!.requestedBy}`
+              : `${money(pinFor.reduce((sum, p) => sum + Number(p.amount), 0))} in total`
+            : undefined
+        }
+        onClose={() => setPinFor(null)}
+        onConfirm={confirm}
+      />
+
     </div>
   );
 }
 
-function Waiting({ p, onDone }: { p: ApprovalDto; onDone: (n: { tone: 'good' | 'bad'; text: string }) => void }) {
-  const approve = useApprove();
+function Waiting({
+  p,
+  picked,
+  onPick,
+  onApprove,
+  busy,
+  inNaira,
+  onDone,
+}: {
+  p: ApprovalDto;
+  picked: boolean;
+  onPick: () => void;
+  onApprove: () => void;
+  busy: boolean;
+  inNaira: number;
+  onDone: (n: { tone: 'good' | 'bad'; text: string }) => void;
+}) {
   const reject = useReject();
   const cancel = useCancelApproval();
-  const { balances } = useBalances();
-  const [pin, setPin] = useState(false);
-  const [rejecting, setRejecting] = useState(false);
+  const [back, setBack] = useState(false);
   const [note, setNote] = useState('');
-  const busy = approve.isPending || reject.isPending || cancel.isPending;
-  const error = approve.error ?? cancel.error;
-  const to = p.to.supplierName ? `${p.to.supplierName} (${p.to.accountName})` : p.to.accountName;
+  const working = busy || reject.isPending || cancel.isPending;
 
   return (
-    <li className="px-5 py-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-ledger text-[20px] font-semibold tracking-[-0.02em]">{naira(p.amount)}</p>
-          <p className="mt-0.5 text-[14.5px]">
-            To <span className="font-semibold">{to}</span> · {p.to.bankName} ••••{p.to.accountLast4}
-          </p>
-          {p.narration && <p className="text-[13.5px] text-graphite/60">For: {p.narration}</p>}
-          <p className="mt-1 text-[12.5px] text-graphite/50">
-            Asked by {p.requestedByYou ? 'you' : p.requestedBy} · {shortDate(p.createdAt)} · lapses in {left(p.expiresAt)}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {p.canDecide && (
-            <>
-              <button type="button" disabled={busy} onClick={() => setRejecting(true)} className={secondary}>
-                Reject
-              </button>
-              <button type="button" disabled={busy} onClick={() => setPin(true)} className={primary}>
-                {approve.isPending && <Loader2 className="size-4 animate-spin" />} Approve and send
-              </button>
-            </>
-          )}
-          {p.canCancel && (
-            <button type="button" disabled={busy} onClick={() => cancel.mutate(p.id, { onSuccess: () => onDone({ tone: 'good', text: 'Withdrawn. Nothing was sent.' }) })} className={secondary}>
+    <motion.li layout exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.35, ease }} className="overflow-hidden border-b border-graphite/[0.07] last:border-0">
+      <div className="flex flex-wrap items-center gap-4 px-5 py-4">
+        <input type="checkbox" checked={picked} disabled={!p.canDecide} onChange={onPick} aria-label={`Select ${payee(p)}`} className="size-4 accent-[#141c17] disabled:opacity-30" />
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#efeee7] text-[11.5px] font-semibold" title={`Asked by ${p.requestedBy}`}>
+          {initials(p.requestedBy)}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-medium">
+            {payee(p)} <span className="font-normal text-graphite/50">· {p.narration ?? `${p.to.bankName} ••••${p.to.accountLast4}`}</span>
+          </span>
+          <span className="block text-[13px] text-graphite/50">
+            Asked by {asker(p)} · {shortDate(p.createdAt)} · lapses in {left(p.expiresAt)}
+          </span>
+        </span>
+        <span className="font-ledger text-[17px] font-semibold">{naira(p.amount)}</span>
+        {p.canDecide ? (
+          <span className="flex gap-2">
+            <button
+              type="button"
+              disabled={working}
+              onClick={() => {
+                setBack(!back);
+                setNote('');
+              }}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-graphite/15 px-3 text-[13.5px] font-semibold hover:border-graphite/30 disabled:opacity-40"
+            >
+              <CornerUpLeft className="size-4" /> Send back
+            </button>
+            <button type="button" disabled={working} onClick={onApprove} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-graphite px-3.5 text-[13.5px] font-semibold text-white hover:bg-black disabled:opacity-40">
+              <Check className="size-4" /> Approve
+            </button>
+          </span>
+        ) : p.canCancel ? (
+          <span className="flex flex-wrap items-center gap-3">
+            <span className="text-[13px] text-graphite/50">You asked for this one; someone else approves it.</span>
+            <button
+              type="button"
+              disabled={working}
+              onClick={() => cancel.mutate(p.id, { onSuccess: () => onDone({ tone: 'good', text: 'Withdrawn. Nothing was sent.' }) })}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-graphite/15 px-3 text-[13.5px] font-semibold hover:border-graphite/30 disabled:opacity-40"
+            >
               Withdraw
             </button>
-          )}
-        </div>
+          </span>
+        ) : (
+          <span className="w-full text-[13px] text-graphite/50 sm:w-auto">Approved by the owner or an admin.</span>
+        )}
       </div>
-      {!p.canDecide && !p.canCancel && <p className="mt-2 text-[13px] text-graphite/55">Waiting for the owner or an admin.</p>}
-      {p.canCancel && <p className="mt-2 text-[13px] text-graphite/55">Waiting for someone else to approve it.</p>}
-      {p.canDecide && Number(p.amount) + 10 > balances.NGN && <p className="mt-2 text-[13px] text-[#9a3a17]">The naira account holds {money(balances.NGN)} now: not enough to send this.</p>}
-      {error && <p className="mt-2 text-[13px] text-[#a3261b]">{errorMessage(error)}</p>}
-
-      <PinPrompt
-        open={pin}
-        title={`Approve ${naira(p.amount)}`}
-        detail={`To ${to} · asked by ${p.requestedBy}`}
-        onClose={() => setPin(false)}
-        onConfirm={(code) => {
-          setPin(false);
-          approve.mutate(
-            { id: p.id, pin: code },
-            {
-              onSuccess: (data) => {
-                const after = [...data.history].find((h) => h.id === p.id);
-                onDone(
-                  after?.status === 'approved'
-                    ? { tone: 'good', text: `Approved. ${naira(p.amount)} is on its way to ${p.to.accountName}.` }
-                    : { tone: 'bad', text: `Approved, but the payment didn’t go: ${after?.note ?? 'the transfer failed'}. Nothing was taken.` },
-                );
-              },
-            },
-          );
-        }}
-      />
-
-      <Modal open={rejecting} title={`Reject ${naira(p.amount)}?`} onClose={() => setRejecting(false)}>
-        <p className="text-[14.5px] text-graphite/65">Nothing is sent. {p.requestedBy} sees your reason.</p>
-        <textarea autoFocus value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} placeholder="For example: we paid this invoice last week" aria-label="Reason" className="mt-3 w-full resize-none rounded-lg border border-graphite/15 px-3.5 py-2.5 text-[15px] outline-none placeholder:text-graphite/35 focus:border-graphite/50" />
-        {reject.error && <p className="mt-2 text-[13.5px] text-[#a3261b]">{errorMessage(reject.error)}</p>}
-        <div className="mt-4 flex justify-end gap-2">
-          <button type="button" onClick={() => setRejecting(false)} className={secondary}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={note.trim().length < 5 || reject.isPending}
-            onClick={() =>
+      {p.canDecide && Number(p.amount) > inNaira && <p className="-mt-2 px-5 pb-3 text-[13px] text-[#9a3a17] sm:pl-[4.75rem]">The naira account holds {money(inNaira)} now: not enough to send this.</p>}
+      {cancel.error && <p className="-mt-2 px-5 pb-3 text-[13px] text-[#a3261b] sm:pl-[4.75rem]">{errorMessage(cancel.error)}</p>}
+      <AnimatePresence>
+        {back && (
+          <motion.form
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: 0 }}
+            className="overflow-hidden bg-[#faf9f5]"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (note.trim().length < 5) return;
               reject.mutate(
                 { id: p.id, note: note.trim() },
                 {
                   onSuccess: () => {
-                    setRejecting(false);
-                    onDone({ tone: 'good', text: 'Rejected. Nothing was sent.' });
+                    setBack(false);
+                    onDone({ tone: 'good', text: `Sent back to ${p.requestedByYou ? 'you' : firstName(p)} with your note. Nothing was sent.` });
                   },
                 },
-              )
-            }
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#a3261b] px-4 text-[14px] font-semibold text-white hover:bg-[#8f1c13] disabled:opacity-40"
+              );
+            }}
           >
-            Reject
-          </button>
-        </div>
-      </Modal>
-    </li>
-  );
-}
-
-function Limit({ threshold, approvers, canManage, closed }: { threshold: string | null; approvers: number; canManage: boolean; closed: boolean }) {
-  const set = useSetThreshold();
-  const [text, setText] = useState(threshold ? String(Math.round(Number(threshold))) : '500000');
-  const amount = nairaFrom(text);
-  const on = threshold !== null;
-
-  return (
-    <section className={`${panel} p-5`}>
-      <div className="flex items-center gap-2">
-        <ShieldCheck className={`size-5 ${on ? 'text-[#1f6b33]' : 'text-graphite/35'}`} />
-        <h2 className="text-[16px] font-semibold">{on ? 'Approvals are on' : 'Approvals are off'}</h2>
-      </div>
-      <p className="mt-1.5 text-[14px] text-graphite/60">
-        {on
-          ? `Naira payments of ${naira(threshold!)} or more wait for the owner or an admin. Whoever asked can’t approve their own.`
-          : 'Every payment goes as soon as it’s confirmed.'}
-      </p>
-
-      {approvers < 2 ? (
-        <p className="mt-4 rounded-lg bg-[#f5f4ef] px-3.5 py-3 text-[13.5px] text-graphite/70">
-          Approvals need two people who can approve, so neither waits on themselves: the owner and at least one admin.{' '}
-          <Link to="/business/app/team" className="font-semibold text-graphite underline-offset-4 hover:underline">
-            Invite an admin
-          </Link>
-        </p>
-      ) : canManage && !closed ? (
-        <div className="mt-4 space-y-3">
-          <label className="block">
-            <span className={label}>{on ? 'Limit' : 'Turn on for payments of'}</span>
-            <NairaInput value={amount} onChange={setText} />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={amount < 1000 || set.isPending || (on && amount === Number(threshold))} onClick={() => set.mutate(String(amount))} className={primary}>
-              {set.isPending && <Loader2 className="size-4 animate-spin" />} {on ? 'Change the limit' : 'Turn on'}
-            </button>
-            {on && (
-              <button type="button" disabled={set.isPending} onClick={() => set.mutate(null)} className={secondary}>
-                Turn off
+            <div className="flex flex-col gap-2 px-5 py-4 sm:flex-row">
+              <input
+                autoFocus
+                value={note}
+                maxLength={500}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={`Why it's going back, for ${firstName(p)}`}
+                aria-label="Why it's going back"
+                className="h-10 flex-1 rounded-lg border border-graphite/15 bg-white px-3.5 text-[14.5px] outline-none focus:border-graphite/50"
+              />
+              <button type="submit" disabled={note.trim().length < 5 || reject.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black disabled:opacity-40">
+                {reject.isPending && <Loader2 className="size-4 animate-spin" />} Send back
               </button>
-            )}
-          </div>
-          {amount > 0 && amount < 1000 && <p className="text-[13px] text-graphite/55">The limit is ₦1,000 at least.</p>}
-          {set.error && <p className="text-[13px] text-[#a3261b]">{errorMessage(set.error)}</p>}
-        </div>
-      ) : (
-        !canManage && <p className="mt-3 text-[13px] text-graphite/50">The owner or an admin sets the limit.</p>
-      )}
-      <p className="mt-4 text-[12.5px] text-graphite/45">Bank transfers and supplier payments. Airtime, data and electricity aren’t held.</p>
-    </section>
+            </div>
+            {reject.error && <p className="px-5 pb-3 text-[13px] text-[#a3261b]">{errorMessage(reject.error)}</p>}
+          </motion.form>
+        )}
+      </AnimatePresence>
+    </motion.li>
   );
 }
-
 
