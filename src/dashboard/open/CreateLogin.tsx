@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { errorMessage, useFinishSignUp, useRegister, useResendCode, useSignIn, useVerifyCode } from '../../api';
 import { ease, field, label, primary, Problem, toE164 } from './parts';
+import { Spinner } from '../../components/ui/Loader';
 
 type Stage = { name: 'details' } | { name: 'code'; token: string; sentTo: string } | { name: 'secure'; token: string };
 
@@ -87,7 +88,7 @@ function Details({ onDone }: { onDone: (token: string, sentTo: string, email: st
       </div>
       <Problem>{register.error && errorMessage(register.error)}</Problem>
       <button type="submit" disabled={!ready || register.isPending} className={`${primary} mt-8`}>
-        {register.isPending && <Loader2 className="size-4 animate-spin" />} Text me a code <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+        {register.isPending && <Spinner className="size-4" />} Text me a code <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </button>
     </form>
   );
@@ -112,7 +113,7 @@ function Code({ token, sentTo, onDone, onRetarget }: { token: string; sentTo: st
       <Problem>{(verify.error && errorMessage(verify.error)) || (resend.error && errorMessage(resend.error))}</Problem>
       <div className="mt-8 flex flex-wrap items-center gap-5">
         <button type="submit" disabled={code.length !== 6 || verify.isPending} className={primary}>
-          {verify.isPending && <Loader2 className="size-4 animate-spin" />} Confirm my phone
+          {verify.isPending && <Spinner className="size-4" />} Confirm my phone
         </button>
         <button
           type="button"
@@ -194,7 +195,7 @@ function Secure({ token, email }: { token: string; email: string }) {
 
       <Problem>{(finish.error && errorMessage(finish.error)) || (signIn.error && errorMessage(signIn.error))}</Problem>
       <button type="submit" disabled={!ready || busy} className={`${primary} mt-8`}>
-        {busy && <Loader2 className="size-4 animate-spin" />} Create my login <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+        {busy && <Spinner className="size-4" />} Create my login <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </button>
     </form>
   );

@@ -1,8 +1,9 @@
-import { Loader2, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import { activeBusiness, errorMessage, useAcceptInvitation, useInvitation, useProfile, useSignedIn } from '../api';
 import { ROLES } from './Team';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const primary = 'inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-graphite px-5 text-[15px] font-semibold text-white transition-colors hover:bg-black disabled:opacity-40';
 const secondary = 'inline-flex h-11 items-center justify-center rounded-lg border border-graphite/15 bg-white px-5 text-[15px] font-semibold hover:border-graphite/35';
@@ -27,7 +28,7 @@ export default function JoinTeam() {
         <img src={logoDark} alt="Credvera" className="mx-auto h-6 w-auto" />
         <section className="mt-8 rounded-2xl border border-graphite/10 bg-white p-7 text-center">
           {invitation.isLoading ? (
-            <Loader2 className="mx-auto my-8 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+            <LoaderMark size={36} className="mx-auto my-8" />
           ) : invitation.error || !i ? (
             <>
               <h1 className="text-[22px] font-semibold tracking-[-0.02em]">This invitation can’t be used</h1>
@@ -61,7 +62,7 @@ export default function JoinTeam() {
                     }
                     className={`${primary} mt-4 w-full`}
                   >
-                    {accept.isPending && <Loader2 className="size-4 animate-spin" />} Join {i.businessName}
+                    {accept.isPending && <Spinner className="size-4" />} Join {i.businessName}
                   </button>
                 </>
               ) : (

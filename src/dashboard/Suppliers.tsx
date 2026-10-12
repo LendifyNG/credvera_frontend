@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Archive, ArchiveRestore, BadgeCheck, Check, Landmark, Loader2, Pencil, Plus, Search, ShieldAlert, TriangleAlert, X } from 'lucide-react';
+import { Archive, ArchiveRestore, BadgeCheck, Check, Landmark, Pencil, Plus, Search, ShieldAlert, TriangleAlert, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import {
@@ -23,6 +23,7 @@ import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
 import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './pay/shared';
 import { ComingSoon, Notice, PinPrompt } from './ui';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
@@ -111,7 +112,7 @@ function Directory({ closed }: { closed: boolean }) {
         </div>
       </div>
       {list.isLoading ? (
-        <Loader2 className="mx-auto my-14 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+        <LoaderMark size={36} className="mx-auto my-14" />
       ) : list.error ? (
         <p className="px-6 py-12 text-center text-[14px] text-[#a3261b]">{errorMessage(list.error)}</p>
       ) : shown.length === 0 ? (
@@ -265,7 +266,7 @@ function BankFields({ bankCode, setBankCode, accountNumber, setAccountNumber }: 
       <p className="flex items-center gap-2 text-[13.5px] sm:col-span-2">
         {name.isFetching ? (
           <>
-            <Loader2 className="size-4 animate-spin text-graphite/50" /> <span className="text-graphite/55">Asking the bank for the name on this account…</span>
+            <Spinner className="size-4 text-graphite/50" /> <span className="text-graphite/55">Asking the bank for the name on this account…</span>
           </>
         ) : name.data ? (
           <>
@@ -354,7 +355,7 @@ function AddSupplier({ open, onClose, onAdded }: { open: boolean; onClose: () =>
           <div className="flex items-center justify-between gap-3 border-t border-graphite/10 pt-4">
             <p className="text-[12.5px] text-graphite/50">You’ll confirm with your PIN.</p>
             <button type="button" disabled={!ready} onClick={() => setPin(true)} className={primary}>
-              {create.isPending && <Loader2 className="size-4 animate-spin" />} Save supplier
+              {create.isPending && <Spinner className="size-4" />} Save supplier
             </button>
           </div>
         </div>
@@ -383,7 +384,7 @@ function SupplierPanel({ id, onClose, canPay }: { id: string | null; onClose: ()
   return (
     <Drawer open={!!id} title={title} onClose={close}>
       {!s ? (
-        supplier.error ? <p className="text-[14px] text-[#a3261b]">{errorMessage(supplier.error)}</p> : <Loader2 className="mx-auto my-10 size-5 animate-spin text-graphite/40" />
+        supplier.error ? <p className="text-[14px] text-[#a3261b]">{errorMessage(supplier.error)}</p> : <LoaderMark size={36} className="mx-auto my-10" />
       ) : mode === 'pay' ? (
         <PayForm
           s={s}
@@ -607,7 +608,7 @@ function PayForm({ s, onBack, onPaid }: { s: SupplierDetail; onBack: () => void;
           Back
         </button>
         <button type="button" disabled={!ready} onClick={() => setPin(true)} className={primary}>
-          {pay.isPending && <Loader2 className="size-4 animate-spin" />}
+          {pay.isPending && <Spinner className="size-4" />}
           {pay.isPending ? 'Sending…' : `Pay ${amount ? money(amount) : ''}`}
         </button>
       </div>
@@ -649,7 +650,7 @@ function ChangeBank({ s, onDone }: { s: SupplierDetail; onDone: () => void }) {
           Back
         </button>
         <button type="button" disabled={!verified.data || change.isPending} onClick={() => setPin(true)} className={primary}>
-          {change.isPending && <Loader2 className="size-4 animate-spin" />} Save new details
+          {change.isPending && <Spinner className="size-4" />} Save new details
         </button>
       </div>
       <PinPrompt open={pin} title="Save new bank details" detail={verified.data ? `${verified.data.accountName} · ${verified.data.bankName}` : undefined} onClose={() => setPin(false)} onConfirm={save} />
@@ -675,7 +676,7 @@ function EditContact({ s, onDone }: { s: SupplierDetail; onDone: () => void }) {
           Cancel
         </button>
         <button type="button" disabled={name.trim().length < 2 || update.isPending} onClick={() => update.mutate({ name: name.trim(), ...v }, { onSuccess: onDone })} className={primary}>
-          {update.isPending && <Loader2 className="size-4 animate-spin" />} Save
+          {update.isPending && <Spinner className="size-4" />} Save
         </button>
       </div>
     </div>

@@ -1,9 +1,10 @@
-import { FileCheck2, Loader2 } from 'lucide-react';
+import { FileCheck2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { errorMessage, useCancelServiceRequest, useRequestClosure, useRequestStatement, useServiceRequests, useWallets, type ServiceRequestDto, type ServiceRequestStatus } from '../api';
 import { useActiveBusiness } from './data';
 import { CURRENCIES } from './money';
+import { Spinner } from '../components/ui/Loader';
 
 // Requests that go to Credvera's operations team: an official statement, and
 // closing the account. Each shows where it stands and what the team said.
@@ -107,7 +108,7 @@ export function OfficialStatements() {
           </label>
           <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
             <button type="submit" disabled={!ready || ask.isPending} className={primary}>
-              {ask.isPending && <Loader2 className="size-4 animate-spin" />} Ask for the statement
+              {ask.isPending && <Spinner className="size-4" />} Ask for the statement
             </button>
             {ask.error && <p className="text-[13.5px] text-[#a3261b]">{errorMessage(ask.error)}</p>}
             {sent && !ask.error && (
@@ -215,7 +216,7 @@ export function CloseAccount() {
               {ask.error && <p className="text-[13.5px] text-[#a3261b]">{errorMessage(ask.error)}</p>}
               <div className="flex gap-2">
                 <button type="submit" disabled={reason.trim().length < 3 || ask.isPending} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#a3261b] px-4 text-[14px] font-semibold text-white hover:bg-[#8f1c13] disabled:opacity-40">
-                  {ask.isPending && <Loader2 className="size-4 animate-spin" />} Ask us to close it
+                  {ask.isPending && <Spinner className="size-4" />} Ask us to close it
                 </button>
                 <button type="button" onClick={() => setOpen(false)} className="inline-flex h-10 items-center rounded-lg border border-graphite/15 px-4 text-[14px] font-semibold hover:border-graphite/30">
                   Cancel

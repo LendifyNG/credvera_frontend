@@ -202,7 +202,7 @@ function CashFlow() {
       let outflow = 0;
       for (const p of payments) {
         const t = new Date(p.date).getTime();
-        if (!settled(p) || p.currency !== 'NGN' || t <= from || t > to) continue;
+        if (!settled(p) || p.internal || p.currency !== 'NGN' || t <= from || t > to) continue;
         if (p.kind === 'in') inflow += p.amount;
         else outflow += p.amount;
       }
@@ -213,7 +213,7 @@ function CashFlow() {
     const m = new Map<string, number>();
     const since = Date.now() - WEEKS * 7 * DAY;
     for (const p of payments) {
-      if (!settled(p) || p.currency !== 'NGN' || p.kind !== kind || new Date(p.date).getTime() < since) continue;
+      if (!settled(p) || p.internal || p.currency !== 'NGN' || p.kind !== kind || new Date(p.date).getTime() < since) continue;
       m.set(kindOf(p), (m.get(kindOf(p)) ?? 0) + p.amount);
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
@@ -297,7 +297,7 @@ function CashFlow() {
 function Reconciliation() {
   const links = usePaymentLinks();
   const { payments } = usePayments();
-  const incoming = payments.filter((p) => p.kind === 'in' && p.status === 'received');
+  const incoming = payments.filter((p) => p.kind === 'in' && !p.internal && p.status === 'received');
   // An invoice paid through its link is credited under the invoice's own
   // reference, so the match is exact rather than guessed from names or amounts.
   const byReference = useMemo(() => new Map((links.data ?? []).map((l) => [l.reference, l])), [links.data]);

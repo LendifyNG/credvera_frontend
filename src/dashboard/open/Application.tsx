@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, ArrowRight, Check, FileUp, Loader2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, FileUp } from 'lucide-react';
 import { useState } from 'react';
 import {
   errorMessage,
@@ -14,6 +14,7 @@ import {
   type UpdateBusinessInput,
 } from '../../api';
 import { ease, field, label, primary, Problem, secondary, Step, toE164 } from './parts';
+import { Spinner } from '../../components/ui/Loader';
 
 /** The same bands the API accepts, in words. */
 const TURNOVER: [string, string][] = [
@@ -93,7 +94,7 @@ function Lookup({ onStarted }: { onStarted: (id: string) => void }) {
           <span className="pb-2.5 text-[17px] font-medium text-graphite/45">RC</span>
           <input autoFocus value={rc} onChange={(e) => setRc(e.target.value.replace(/\D/g, '').slice(0, 8))} inputMode="numeric" placeholder="1234567" className={field} />
           <button type="submit" disabled={!ready || start.isPending} className={secondary}>
-            {start.isPending && <Loader2 className="size-4 animate-spin" />} Look it up
+            {start.isPending && <Spinner className="size-4" />} Look it up
           </button>
         </div>
       </label>
@@ -177,7 +178,7 @@ function Person({ business, person }: { business: BusinessDto; person: BusinessP
               className="w-full border-b border-graphite/15 bg-transparent py-2 font-ledger text-[15px] tracking-wide outline-none focus:border-graphite"
             />
             <button type="submit" disabled={bvn.length !== 11 || verify.isPending} className="h-9 shrink-0 rounded-md bg-graphite px-3 text-[13px] font-semibold text-white disabled:bg-graphite/20 disabled:text-graphite/45">
-              {verify.isPending ? <Loader2 className="size-4 animate-spin" /> : 'Check'}
+              {verify.isPending ? <Spinner className="size-4" /> : 'Check'}
             </button>
           </div>
           <p className="mt-2 text-[12px] text-[#b42318]">{verify.error ? errorMessage(verify.error) : person.status === 'failed' ? person.failureReason : ''}</p>
@@ -265,7 +266,7 @@ function Details({ business }: { business: BusinessDto }) {
       </div>
       <Problem>{update.error && errorMessage(update.error)}</Problem>
       <button type="submit" disabled={!dirty || update.isPending} className={`${secondary} mt-6`}>
-        {update.isPending && <Loader2 className="size-4 animate-spin" />} {update.isSuccess && !dirty ? 'Saved' : 'Save'}
+        {update.isPending && <Spinner className="size-4" />} {update.isSuccess && !dirty ? 'Saved' : 'Save'}
       </button>
     </form>
   );
@@ -291,7 +292,7 @@ function Documents({ business }: { business: BusinessDto }) {
                   </span>
                   <span className="block text-[13px] text-graphite/50">{current ? `${current.fileName} · choose again to replace` : 'PDF, JPEG or PNG, up to 10MB'}</span>
                 </span>
-                {busy ? <Loader2 className="size-5 animate-spin text-graphite/45" /> : current ? <Check className="size-5 text-[#1f6b33]" /> : <FileUp className="size-5 text-graphite/45" />}
+                {busy ? <Spinner className="size-5 text-graphite/45" /> : current ? <Check className="size-5 text-[#1f6b33]" /> : <FileUp className="size-5 text-graphite/45" />}
                 <input
                   type="file"
                   accept=".pdf,image/jpeg,image/png"
@@ -333,7 +334,7 @@ function Submit({ business }: { business: BusinessDto }) {
         )}
       </AnimatePresence>
       <button type="button" disabled={business.missing.length > 0 || submit.isPending} onClick={() => submit.mutate(business.id)} className={primary}>
-        {submit.isPending && <Loader2 className="size-4 animate-spin" />}
+        {submit.isPending && <Spinner className="size-4" />}
         {business.status === 'more_info' ? 'Send it again' : 'Send my application'} <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </button>
       <Problem>{submit.error && errorMessage(submit.error)}</Problem>

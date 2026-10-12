@@ -20,10 +20,11 @@ type Note = {
   to: string;
 };
 
-/** "2h ago", "Yesterday", "3 days ago", or a date. */
+/** "Just now", "12 min ago", "2h ago", "Yesterday", "3 days ago", or a date. */
 function ago(iso: string) {
   const d = Date.now() - new Date(iso).getTime();
-  if (d < 3600000) return 'Just now';
+  if (d < 2 * 60000) return 'Just now';
+  if (d < 3600000) return `${Math.floor(d / 60000)} min ago`;
   if (d < DAY) return `${Math.floor(d / 3600000)}h ago`;
   if (d < 2 * DAY) return 'Yesterday';
   if (d < 7 * DAY) return `${Math.floor(d / DAY)} days ago`;
@@ -84,7 +85,7 @@ function useNotes() {
 
     for (const l of (links.data ?? []).filter((x) => x.status === 'paid' && x.paidAt && recent(x.paidAt, 7)))
       out.push({ id: `paid-${l.reference}`, group: 'update', icon: CircleCheck, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${l.recipient.name} paid ${l.invoiceName}`, body: amount(Number(l.paidAmount ?? l.amount), l.currency), when: l.paidAt!, to: '/business/app/invoices' });
-    for (const p of payments.filter((x) => x.kind === 'in' && x.status === 'received' && x.what !== 'Payment link' && recent(x.date, 4)))
+    for (const p of payments.filter((x) => x.kind === 'in' && !x.internal && x.status === 'received' && x.what !== 'Payment link' && recent(x.date, 4)))
       out.push({ id: `in-${p.id}`, group: 'update', icon: ArrowDownLeft, tone: 'bg-[#e3f1e0] text-[#1f6b33]', title: `${money(p.amount, p.currency)} from ${p.who}`, body: p.what, when: p.date, to: `/business/app/payments?q=${encodeURIComponent(p.who)}` });
     if (business && (business.status === 'pending' || business.status === 'second_review'))
       out.push({ id: `biz-review-${business.id}`, group: 'update', icon: FileSearch, tone: 'bg-[#fbf0d6] text-[#8a5a00]', title: `We’re reviewing ${business.name}`, body: 'Usually one or two working days.', when: business.submittedAt ?? new Date().toISOString(), to: '/business/app/open' });

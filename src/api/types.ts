@@ -84,7 +84,7 @@ export type CreateWalletResponse = {
 
 // ── Transactions ─────────────────────────────────────────────────────────────
 
-export type TransactionType = 'deposit' | 'withdrawal' | 'transfer' | 'airtime' | 'data' | 'electricity';
+export type TransactionType = 'deposit' | 'withdrawal' | 'transfer' | 'airtime' | 'data' | 'electricity' | 'conversion';
 export type TransactionStatus = 'pending' | 'success' | 'failed' | 'reversed';
 
 /** Free-form per type; the fields below are the ones the backend writes today. */
@@ -108,6 +108,14 @@ export type TransactionMetadata = {
   senderName?: string | null;
   payerName?: string | null;
   reason?: string | null;
+  // Conversions: one row on each side, sharing these.
+  direction?: 'in' | 'out';
+  from?: string;
+  to?: string;
+  sellAmount?: string;
+  buyAmount?: string;
+  rate?: string;
+  conversionReference?: string;
 };
 
 export type TransactionDto = {

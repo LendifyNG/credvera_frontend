@@ -1,7 +1,8 @@
-import { ArrowLeft, Loader2, Printer } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import logoDark from '../assets/logo-dark.png';
 import { errorMessage, useServiceRequest, useSignedIn } from '../api';
+import { LoaderMark } from '../components/ui/Loader';
 
 const SYMBOL: Record<string, string> = { NGN: '₦', USD: '$', GBP: '£', EUR: '€' };
 const amount = (v: string, c: string) => `${SYMBOL[c] ?? `${c} `}${Number(v).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -36,7 +37,7 @@ export default function OfficialStatement() {
       </div>
 
       {request.isLoading ? (
-        <Loader2 className="mx-auto mt-16 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+        <LoaderMark size={36} className="mx-auto mt-16" />
       ) : request.error ? (
         <p className="mt-16 text-center text-[14px] text-[#a3261b]">{errorMessage(request.error)}</p>
       ) : !s ? (

@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { Check, Loader2, Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { errorMessage, useAccountName, useBanks, useSendMoney, useTransferQuote } from '../../api';
@@ -7,6 +7,7 @@ import { recentRecipients, useActiveBusiness, useBalances, usePayments } from '.
 import { money, shortDate, type Recipient } from '../model';
 import { Notice, PinPrompt } from '../ui';
 import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './shared';
+import { Spinner } from '../../components/ui/Loader';
 
 type Outcome = { tone: 'good' | 'bad'; text: string };
 
@@ -142,7 +143,7 @@ export default function PaySomeone() {
             <p className="flex items-center gap-2 text-[13.5px] sm:col-span-2">
               {name.isFetching ? (
                 <>
-                  <Loader2 className="size-4 animate-spin text-graphite/50" /> <span className="text-graphite/55">Checking the name on this account…</span>
+                  <Spinner className="size-4 text-graphite/50" /> <span className="text-graphite/55">Checking the name on this account…</span>
                 </>
               ) : payee ? (
                 <>
@@ -183,7 +184,7 @@ export default function PaySomeone() {
             )}
           </p>
           <button type="button" disabled={!ready} onClick={() => setConfirming(true)} className={primary}>
-            {send.isPending && <Loader2 className="size-4 animate-spin" />}
+            {send.isPending && <Spinner className="size-4" />}
             {send.isPending ? 'Sending…' : `Pay ${amount ? money(amount) : ''}`}
           </button>
         </div>

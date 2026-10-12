@@ -1,8 +1,9 @@
-import { CircleCheck, CreditCard, Loader2, Lock } from 'lucide-react';
+import { CircleCheck, CreditCard, Lock } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { errorMessage, useCheckout, usePublicInvoice } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import { money, shortDate, type Currency } from '../dashboard/model';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const amount = (n: string | number, currency: string) => money(Number(n), currency as Currency);
 
@@ -22,7 +23,7 @@ export default function PayPage() {
         <img src={logoDark} alt="Credvera" className="mx-auto h-6 w-auto" />
 
         {invoice.isLoading ? (
-          <Loader2 className="mx-auto mt-16 size-6 animate-spin text-graphite/40" aria-label="Loading" />
+          <LoaderMark size={36} className="mx-auto mt-16" />
         ) : !inv ? (
           <div className="mt-12 rounded-2xl bg-white p-8 text-center ring-1 ring-graphite/10">
             <p className="text-[18px] font-semibold">We can’t open this payment link</p>
@@ -71,7 +72,7 @@ export default function PayPage() {
                     onClick={() => checkout.mutate(undefined, { onSuccess: ({ url }) => window.location.assign(url) })}
                     className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[15px] font-semibold text-white hover:bg-black disabled:opacity-60"
                   >
-                    {checkout.isPending ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Pay {amount(inv.amount, inv.currency)}
+                    {checkout.isPending ? <Spinner className="size-4" /> : <CreditCard className="size-4" />} Pay {amount(inv.amount, inv.currency)}
                   </button>
                   {checkout.error && <p className="mt-3 text-center text-[13.5px] text-[#9a3a17]">{errorMessage(checkout.error)}</p>}
                   {inv.expiresAt && <p className="mt-3 text-center text-[12.5px] text-graphite/50">Open until {shortDate(inv.expiresAt)}</p>}

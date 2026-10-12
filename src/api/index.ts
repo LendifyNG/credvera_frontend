@@ -106,4 +106,4 @@ export {
   type ApprovalStatus,
   type ApprovalsDto,
 } from './approvals';
-export { fxApi, useCancelFxAlert, useCreateFxAlert, useFxAlerts, useFxHistory, useFxRates, type FxAlertDto, type FxHistoryDto, type FxRateDto, type FxRatesDto } from './fx';
+export { fxApi, useCancelFxAlert, useCreateFxAlert, useFxAlerts, useFxHistory, useFxRates, useConversionQuote, useConvert, type ConversionQuoteDto, type ConversionResultDto, type ConvertibleCurrency, type FxAlertDto, type FxHistoryDto, type FxRateDto, type FxRatesDto } from './fx';

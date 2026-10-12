@@ -55,6 +55,29 @@
 }
 
 @layer utilities {
+  /* The loader (components/ui/Loader.tsx): a ring that circles the coin and a
+     diamond that turns a quarter at a time, both on the same beat. */
+  .cv-loader-orbit {
+    transform-box: view-box;
+    transform-origin: center;
+    animation: cv-loader-orbit 1.1s linear infinite;
+  }
+  .cv-loader-tick {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cv-loader-tick 1.1s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+  /* A full-screen loader waits a beat before showing, so quick loads don't flash. */
+  .cv-loader-appear {
+    animation: cv-loader-appear 0.35s var(--ease-out-expo) 0.2s both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cv-loader-orbit,
+    .cv-loader-tick {
+      animation: cv-loader-breathe 1.8s ease-in-out infinite;
+    }
+  }
+
   /* Figures in tables and totals: digits of equal width, so columns line up. */
   .font-ledger {
     font-variant-numeric: tabular-nums;
@@ -151,4 +174,39 @@ select {
 }
 select:disabled {
   opacity: 0.6;
+}
+
+@keyframes cv-loader-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cv-loader-tick {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(90deg) scale(0.55);
+  }
+  100% {
+    transform: rotate(180deg) scale(1);
+  }
+}
+
+@keyframes cv-loader-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes cv-loader-appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
 }

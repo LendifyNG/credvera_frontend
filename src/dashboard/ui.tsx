@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ShieldCheck, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { LoaderMark } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -18,6 +19,18 @@ export function PinPrompt({ open, title, detail, onConfirm, onClose }: { open: b
     const t = window.setTimeout(() => input.current?.focus(), 50);
     return () => clearTimeout(t);
   }, [open]);
+
+  // Escape closes just this prompt, not a dialog it was opened from.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopImmediatePropagation();
+      onClose();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [open, onClose]);
 
   useEffect(() => {
     if (digits.length !== 4) return;
@@ -138,7 +151,12 @@ export function Notice({ tone, children, onClose }: { tone: 'good' | 'bad'; chil
   );
 }
 
-/** A quiet placeholder while data loads. */
+/** A panel's placeholder while its data loads: the brand mark, and what's coming. */
 export function Loading({ label = 'Loading…' }: { label?: string }) {
-  return <p className="py-10 text-center text-[14px] text-graphite/50">{label}</p>;
+  return (
+    <div className="flex flex-col items-center gap-3 py-10">
+      <LoaderMark size={32} label={label} />
+      <p className="text-[13.5px] text-graphite/50">{label}</p>
+    </div>
+  );
 }

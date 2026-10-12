@@ -1,11 +1,13 @@
+import { AnimatePresence } from 'framer-motion';
 import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, ChevronDown, Info, Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { usePaymentLinks } from '../api';
 import { AddMoney, CURRENCIES } from './money';
+import { Detail } from './Payments';
 import { PromoCard } from './published';
 import { byCurrency, valueOf } from './requests';
-import { kindOf, money, settled, shortDate, type Payment } from './model';
+import { kindOf, money, settled, shortDate, STATUS, type Currency, type Payment } from './model';
 import { useBalances, useNairaTotal, usePayments, useSession } from './data';
 
 const DAY = 86400000;
@@ -28,7 +30,7 @@ function sums(payments: Payment[], from: number, to: number) {
   let outflow = 0;
   for (const p of payments) {
     const d = daysAgo(p.date);
-    if (d < from || d > to || !settled(p) || p.currency !== 'NGN') continue;
+    if (d < from || d > to || !settled(p) || p.internal || p.currency !== 'NGN') continue;
     if (p.kind === 'in') inflow += p.amount;
     else outflow += p.amount;
   }
@@ -90,18 +92,34 @@ export default function Today() {
   const { payments } = usePayments();
   const links = usePaymentLinks();
   const [adding, setAdding] = useState(false);
+  const [addCurrency, setAddCurrency] = useState<Currency>('NGN');
+  const [params, setParams] = useSearchParams();
+
+  // ?add=USD (from the search bar) opens Add money on that currency.
+  useEffect(() => {
+    const code = params.get('add') as Currency | null;
+    if (!code || !CURRENCIES.some((c) => c.code === code)) return;
+    setAddCurrency(code);
+    setAdding(true);
+    setParams((p) => {
+      p.delete('add');
+      return p;
+    }, { replace: true });
+  }, [params, setParams]);
   const [tab, setTab] = useState<'posted' | 'pending'>('posted');
+  const [open, setOpen] = useState<Payment | null>(null);
 
   const moving = payments.filter((p) => p.status === 'pending');
   const failed = payments.filter((p) => p.status === 'failed' && daysAgo(p.date) < 7);
   const unpaid = (links.data ?? []).filter((l) => l.status === 'pending');
-  const done30 = payments.filter((p) => settled(p) && daysAgo(p.date) < 30).length;
+  // A conversion stays inside the business: it isn't a payment.
+  const done30 = payments.filter((p) => settled(p) && !p.internal && daysAgo(p.date) < 30).length;
   const others = CURRENCIES.filter((c) => c.code !== 'NGN' && balances[c.code] > 0);
   const estimate = useNairaTotal();
   const allIn = others.length > 0 && estimate.priced;
   const week = useMemo(() => sums(payments, 0, 6), [payments]);
   const lastWeek = useMemo(() => sums(payments, 7, 13), [payments]);
-  const rows = (tab === 'posted' ? payments.filter(settled) : payments.filter((p) => !settled(p))).slice(0, 6);
+  const rows = payments.filter((p) => (tab === 'posted' ? settled(p) : p.status === 'pending')).slice(0, 6);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -227,10 +245,10 @@ export default function Today() {
           </div>
           <div className="mt-5 grid grid-cols-2 divide-x divide-graphite/10">
             {[
-              { label: 'In progress', n: moving.length },
-              { label: 'Done in 30 days', n: done30 },
+              { label: 'In progress', n: moving.length, to: '/business/app/payments?f=pending' },
+              { label: 'Done in 30 days', n: done30, to: '/business/app/payments' },
             ].map((s, i) => (
-              <Link key={s.label} to="/business/app/payments" className={`group block ${i ? 'pl-4' : 'pr-4'}`}>
+              <Link key={s.label} to={s.to} className={`group block ${i ? 'pl-4' : 'pr-4'}`}>
                 <p className="text-[12.5px] font-medium text-graphite/50">{s.label}</p>
                 <p className="mt-1 flex items-baseline gap-1.5">
                   <span className="font-ledger text-[26px] font-semibold">{s.n}</span>
@@ -335,7 +353,13 @@ export default function Today() {
             </thead>
             <tbody>
               {rows.map((p) => (
-                <tr key={p.id} className="border-b border-graphite/[0.06] last:border-0">
+                <tr
+                  key={p.id}
+                  tabIndex={0}
+                  onClick={() => setOpen(p)}
+                  onKeyDown={(e) => e.key === 'Enter' && setOpen(p)}
+                  className="cursor-pointer border-b border-graphite/[0.06] outline-none transition-colors last:border-0 hover:bg-[#faf9f5] focus-visible:bg-[#faf9f5]"
+                >
                   <td className="whitespace-nowrap py-3 pr-4 text-graphite/60">{shortDate(p.date)}</td>
                   <td className="py-3 pr-4">
                     <span className="flex items-center gap-3">
@@ -351,7 +375,7 @@ export default function Today() {
                   </td>
                   <td className="whitespace-nowrap py-3 pr-4 text-graphite/65">
                     {kindOf(p)}
-                    {tab === 'pending' && <span className="ml-2 rounded-md bg-[#efeee7] px-1.5 py-0.5 text-[11.5px] capitalize text-graphite/60">{p.status}</span>}
+                    {tab === 'pending' && <span className={`ml-2 rounded-md px-1.5 py-0.5 text-[11.5px] font-medium ${STATUS[p.status].tone}`}>{STATUS[p.status].short}</span>}
                   </td>
                   <td className="whitespace-nowrap py-3 text-graphite/65">{CURRENCIES.find((c) => c.code === p.currency)!.name}</td>
                 </tr>
@@ -368,7 +392,8 @@ export default function Today() {
         </div>
       </section>
 
-      <AddMoney open={adding} onClose={() => setAdding(false)} />
+      <AddMoney open={adding} currency={addCurrency} onClose={() => setAdding(false)} />
+      <AnimatePresence>{open && <Detail key={open.id} p={open} onClose={() => setOpen(null)} />}</AnimatePresence>
     </div>
   );
 }

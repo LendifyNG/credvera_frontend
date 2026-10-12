@@ -7,7 +7,39 @@ import type { Recipient } from './model';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-type Action = { label: string; hint: string; go: string };
+/** Somewhere to go, or (for Convert, a dialog) something to open. */
+type Action = { label: string; hint: string; go: string | (() => void) };
+
+/** Every place and action the bar can find by name, with the words people use for it. */
+const PLACES: { label: string; hint: string; go: string; words: string }[] = [
+  { label: 'Add money', hint: 'Your account details, in each currency', go: '/business/app?add=NGN', words: 'add money fund deposit top up account details receive' },
+  { label: 'Pay someone', hint: 'In naira, to any Nigerian bank', go: '/business/app/pay', words: 'pay send transfer bank' },
+  { label: 'Pay a bill', hint: 'Electricity, airtime and data', go: '/business/app/pay/bills', words: 'bill bills airtime data electricity power' },
+  { label: 'New invoice', hint: 'Get paid through a link', go: '/business/app/invoices?new=1', words: 'invoice new get paid request' },
+  { label: 'Invoices', hint: 'Sent, paid and waiting', go: '/business/app/invoices', words: 'invoices' },
+  { label: 'Payment links', hint: 'Links anyone can pay', go: '/business/app/links', words: 'payment links link' },
+  { label: 'Transactions', hint: 'Everything in and out', go: '/business/app/payments', words: 'transactions payments history statement' },
+  { label: 'Money that came in', hint: 'Transactions', go: '/business/app/payments?f=in', words: 'money in received income' },
+  { label: 'Payments in progress', hint: 'Transactions', go: '/business/app/payments?f=pending', words: 'pending processing in progress' },
+  { label: 'Accounts', hint: 'Your balances and account details', go: '/business/app/accounts', words: 'accounts balances naira dollar pound euro' },
+  { label: 'Today’s rates', hint: 'FX', go: '/business/app/fx', words: 'fx rates exchange rate dollar rate' },
+  { label: 'Rate alerts', hint: 'FX', go: '/business/app/fx/alerts', words: 'rate alerts alert' },
+  { label: 'Approvals', hint: 'Payments waiting for a second person', go: '/business/app/approvals', words: 'approvals approve' },
+  { label: 'Customers', hint: 'Who pays you', go: '/business/app/customers', words: 'customers clients' },
+  { label: 'Suppliers', hint: 'Who you pay', go: '/business/app/suppliers', words: 'suppliers vendors' },
+  { label: 'Team', hint: 'People and roles', go: '/business/app/team', words: 'team members invite roles staff' },
+  { label: 'Statements', hint: 'Reports', go: '/business/app/reports', words: 'statements reports statement' },
+  { label: 'Cash flow', hint: 'Reports', go: '/business/app/reports/cash-flow', words: 'cash flow report' },
+  { label: 'Settings', hint: 'Business details, security, notifications', go: '/business/app/settings', words: 'settings profile security password pin' },
+  { label: 'Help', hint: 'Questions and support', go: '/business/app/help', words: 'help support contact' },
+  { label: 'Go to Home', hint: 'Home', go: '/business/app', words: 'home today brief dashboard' },
+];
+
+/** True when every word typed starts some word of the place's name or keywords. */
+const matches = (q: string, words: string) => {
+  const hay = words.toLowerCase().split(/\s+/);
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.some((h) => h.startsWith(w)));
+};
 
 /** "650k", "₦650,000", "1.2m" → 650000 / 1200000. */
 function parseAmount(s: string) {
@@ -18,7 +50,7 @@ function parseAmount(s: string) {
 }
 
 /** Turns what's typed into things the dashboard can do. */
-function understand(q: string, recipients: Recipient[]): Action[] {
+function understand(q: string, recipients: Recipient[], convert: () => void): Action[] {
   const text = q.trim();
   const out: Action[] = [];
   const pay = text.match(/^(?:pay|send)\s+(.+?)(?:\s+([₦\d][\d,.]*\s?[km]?))?$/i);
@@ -32,27 +64,35 @@ function understand(q: string, recipients: Recipient[]): Action[] {
   }
   const find = text.match(/^(?:find|search|show)\s+(.+)$/i);
   if (find) out.push({ label: `Find “${find[1]}” in payments`, hint: 'Payments', go: `/business/app/payments?q=${encodeURIComponent(find[1]!)}` });
-  if (/^(money in|received|in$)/i.test(text)) out.push({ label: 'Money that came in', hint: 'Payments', go: '/business/app/payments?f=in' });
-  if (/^(today|brief|home)/i.test(text)) out.push({ label: 'Go to Home', hint: 'Home', go: '/business/app' });
-  return out;
+  if (pay || find) return out;
+
+  // Plain words: actions and pages by name, people you've paid, then a search of every transaction.
+  if (matches(text, 'convert exchange swap change currency fx')) out.push({ label: 'Convert', hint: 'Between your currencies', go: convert });
+  for (const p of PLACES) if (matches(text, `${p.label} ${p.words}`)) out.push(p);
+  for (const r of recipients.filter((r) => matches(text, r.name)).slice(0, 3)) {
+    out.push({ label: `Pay ${r.name}`, hint: `${r.bankName} · paid before`, go: `/business/app/pay?${new URLSearchParams({ to: r.name })}` });
+  }
+  out.push({ label: `Find “${text}” in transactions`, hint: 'Names, references and notes', go: `/business/app/payments?q=${encodeURIComponent(text)}` });
+  return out.slice(0, 8);
 }
 
 const examples: Action[] = [
   { label: 'Pay someone', hint: 'Try typing “pay Ada 50k”', go: '/business/app/pay' },
+  { label: 'Add money', hint: 'Your account details, in each currency', go: '/business/app?add=NGN' },
   { label: 'New invoice', hint: 'Get paid through a link', go: '/business/app/invoices?new=1' },
   { label: 'Money that came in', hint: 'Payments', go: '/business/app/payments?f=in' },
   { label: 'Go to Home', hint: 'Home', go: '/business/app' },
 ];
 
 /** The dashboard's command bar: type what you need, press Enter. Opens with ⌘K, Ctrl+K or /. */
-export default function CommandBar({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function CommandBar({ open, onClose, onConvert }: { open: boolean; onClose: () => void; onConvert: () => void }) {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const input = useRef<HTMLInputElement>(null);
   const { payments } = usePayments();
   const recipients = useMemo(() => recentRecipients(payments), [payments]);
-  const actions = useMemo(() => (q.trim() ? understand(q, recipients) : examples), [q, recipients]);
+  const actions = useMemo(() => (q.trim() ? understand(q, recipients, onConvert) : examples), [q, recipients, onConvert]);
 
   useEffect(() => {
     if (!open) return;
@@ -66,8 +106,9 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
 
   const run = (a?: Action) => {
     if (!a) return;
-    navigate(a.go);
     onClose();
+    if (typeof a.go === 'string') navigate(a.go);
+    else a.go();
   };
 
   return (
@@ -109,9 +150,7 @@ export default function CommandBar({ open, onClose }: { open: boolean; onClose: 
             </div>
             <ul className="max-h-80 overflow-y-auto p-2">
               {actions.length === 0 && (
-                <li className="px-4 py-6 text-[14px] text-graphite/50">
-                  Try “pay” and a name, or “find” and a word.
-                </li>
+                <li className="px-4 py-6 text-[14px] text-graphite/50">Try “pay Ada 50k”, “convert”, or any name or reference.</li>
               )}
               {actions.map((a, i) => (
                 <li key={a.label}>

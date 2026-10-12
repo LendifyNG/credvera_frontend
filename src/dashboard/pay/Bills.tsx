@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { Check, Lightbulb, Loader2, Smartphone, Tv, Wifi, type LucideIcon } from 'lucide-react';
+import { Check, Lightbulb, Smartphone, Tv, Wifi, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import {
   errorMessage,
@@ -16,6 +16,7 @@ import {
 import { money } from '../model';
 import { ComingSoon, Notice, PinPrompt } from '../ui';
 import { field, label, NairaInput, nairaFrom, panel, primary } from './shared';
+import { Spinner } from '../../components/ui/Loader';
 
 /** What a form hands the page once it's filled in: enough to confirm and pay. */
 type Purchase = {
@@ -211,7 +212,7 @@ function ElectricityForm({ onPay, busy }: FormProps) {
             onClick={() => lookup.mutate({ provider, meterNumber, meterType })}
             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-graphite/15 text-[15px] font-semibold hover:border-graphite/35 disabled:opacity-50"
           >
-            {lookup.isPending && <Loader2 className="size-4 animate-spin" />} Check the meter
+            {lookup.isPending && <Spinner className="size-4" />} Check the meter
           </button>
         </div>
       </div>
@@ -334,7 +335,7 @@ export default function Bills() {
       <section className={`${panel} p-6`}>
         {busy ? (
           <p className="flex items-center gap-2 text-[14px] text-graphite/60">
-            <Loader2 className="size-4 animate-spin" /> Paying…
+            <Spinner className="size-4" /> Paying…
           </p>
         ) : receipt ? (
           <div>

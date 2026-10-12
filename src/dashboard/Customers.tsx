@@ -66,7 +66,7 @@ function useCustomers() {
     }
     for (const p of payments) {
       // Invoice payments are already counted through their invoice.
-      if (p.kind !== 'in' || p.status !== 'received' || p.what === 'Payment link' || UNNAMED.has(p.who)) continue;
+      if (p.kind !== 'in' || p.internal || p.status !== 'received' || p.what === 'Payment link' || UNNAMED.has(p.who)) continue;
       const c = get(p.who);
       c.transfers.push(p);
       seen(c, p.date);

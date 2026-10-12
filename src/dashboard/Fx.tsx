@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowLeftRight, ArrowUp, Bell, BellRing, Loader2, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowUp, Bell, BellRing, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { errorMessage, useCancelFxAlert, useCreateFxAlert, useFxAlerts, useFxHistory, useFxRates, type FxAlertDto, type FxRateDto } from '../api';
 import { useActiveBusiness, useBalances } from './data';
 import { money, type Currency } from './model';
-import { CURRENCIES } from './money';
+import { CURRENCIES, ConvertPanel } from './money';
 import { field, label } from './pay/shared';
-import { ComingSoon } from './ui';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
@@ -43,7 +43,7 @@ function RateChart({ r }: { r: FxRateDto }) {
       <div>
         <p className="h-5 text-[12.5px] text-graphite/50">30 days</p>
         <div className="mt-1 grid h-[90px] place-items-center rounded-lg bg-[#f5f4ef] px-4 text-center text-[12.5px] text-graphite/50">
-          {history.isLoading ? <Loader2 className="size-4 animate-spin text-graphite/40" /> : 'The line builds a day at a time. Come back tomorrow.'}
+          {history.isLoading ? <Spinner className="size-4 text-graphite/40" /> : 'The line builds a day at a time. Come back tomorrow.'}
         </div>
       </div>
     );
@@ -178,9 +178,11 @@ function Convert({ rates }: { rates: FxRateDto[] }) {
           </p>
           <p className="text-[12.5px] text-graphite/50">1 {r.currency} = {naira(r.rate, dpOf(r.rate))}</p>
         </div>
-        <ComingSoon title="Move money between your balances" className="mt-6 py-8">
-          Converting from one of your accounts to another, at a rate held while you confirm.
-        </ComingSoon>
+        <div className="mt-6 border-t border-graphite/10 pt-6">
+          <h3 className="text-[16px] font-semibold">Move money between your balances</h3>
+          <p className="mb-4 mt-1 text-[13.5px] text-graphite/55">At a rate held while you confirm with your PIN.</p>
+          <ConvertPanel />
+        </div>
       </section>
       <section className={`${panel} p-6`}>
         <h2 className="text-[16px] font-semibold">Your balances</h2>
@@ -252,7 +254,7 @@ function Alerts({ rates }: { rates: FxRateDto[] }) {
           {already && <p className="mt-1 text-[13px] text-graphite/65">It’s already {when === 'above' ? 'at or above' : 'at or below'} that today.</p>}
           {create.error && <p className="mt-2 text-[13px] text-[#a3261b]">{errorMessage(create.error)}</p>}
           <button type="submit" disabled={!rate || already || create.isPending} className="mt-6 inline-flex h-11 items-center gap-2 rounded-lg bg-graphite px-5 text-[15px] font-semibold text-white hover:bg-black disabled:bg-graphite/15 disabled:text-graphite/40">
-            {create.isPending ? <Loader2 className="size-4 animate-spin" /> : <Bell className="size-4" />} Set alert
+            {create.isPending ? <Spinner className="size-4" /> : <Bell className="size-4" />} Set alert
           </button>
         </form>
       </section>
@@ -268,7 +270,7 @@ function Alerts({ rates }: { rates: FxRateDto[] }) {
           ))}
           {alerts.isLoading && (
             <li className="py-8 text-center">
-              <Loader2 className="mx-auto size-4 animate-spin text-graphite/40" />
+              <LoaderMark size={36} className="mx-auto" />
             </li>
           )}
           {!alerts.isLoading && active.length + fired.length === 0 && <li className="py-8 text-center text-[14px] text-graphite/50">No alerts yet.</li>}
@@ -338,7 +340,7 @@ export default function Fx() {
       </nav>
       <motion.div key={section ?? 'rates'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
         {rates.isLoading ? (
-          <Loader2 className="mx-auto mt-8 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+          <LoaderMark size={36} className="mx-auto mt-8" />
         ) : rates.error ? (
           <p className="mt-4 text-center text-[14px] text-[#a3261b]">{errorMessage(rates.error)}</p>
         ) : !data?.rates.length ? (

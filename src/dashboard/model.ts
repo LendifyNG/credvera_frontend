@@ -21,6 +21,8 @@ export type Payment = {
   status: Status;
   /** For a bank transfer: who it went to, so they can be paid again. */
   recipient?: Recipient;
+  /** Moved between the business's own balances (a conversion): never money in or out. */
+  internal?: boolean;
   note?: string;
 };
 
@@ -33,6 +35,7 @@ export type Session = { business: string; person: string; role: 'Owner' };
 export function kindOf(p: Payment) {
   if (/payment link/i.test(p.what)) return 'Invoice payment';
   if (/^bill/i.test(p.what)) return 'Bill';
+  if (p.internal) return 'Conversion';
   return p.kind === 'in' ? 'Transfer in' : 'Transfer';
 }
 

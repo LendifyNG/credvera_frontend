@@ -26,7 +26,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { activeBusiness, errorMessage, useApprovals, useBusinesses, usePaymentLinks, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
@@ -35,6 +35,7 @@ import { usableBusinesses, useActiveBusiness, useSession } from './data';
 import NotificationBell from './Notifications';
 import { Convert } from './money';
 import { Notices } from './published';
+import { PageLoader } from '../components/ui/Loader';
 
 // Demo data and tips saved by earlier versions of the dashboard; nothing reads them now.
 for (const key of ['credvera.dashboard.v16', 'credvera.dash.tip']) {
@@ -189,6 +190,7 @@ export default function AppShell() {
   const [menu, setMenu] = useState(false);
   const [switcher, setSwitcher] = useState(false);
   const [converting, setConverting] = useState(false);
+  const openConvert = useCallback(() => setConverting(true), []);
   // Invoices whose link ran out unpaid: worth chasing.
   const expiredInvoices = (links.data ?? []).filter((l) => l.status === 'expired').length;
 
@@ -227,26 +229,23 @@ export default function AppShell() {
   // go out without it and fetch the person's personal money instead.
   if (!session || !active) {
     const error = profile.error ?? businesses.error;
+    if (!error) return <PageLoader label="Opening your dashboard…" />;
     return (
       <div className="grid min-h-screen place-items-center bg-[#f5f4ef] px-6 text-center text-graphite">
-        {error ? (
-          <div>
-            <p className="text-[16px] font-semibold">We couldn’t load your dashboard</p>
-            <p className="mt-1 text-[14px] text-graphite/55">{errorMessage(error)}</p>
-            <button
-              type="button"
-              onClick={() => {
-                profile.refetch();
-                businesses.refetch();
-              }}
-              className="mt-5 h-10 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black"
-            >
-              Try again
-            </button>
-          </div>
-        ) : (
-          <p className="text-[14px] text-graphite/50">Opening your dashboard…</p>
-        )}
+        <div>
+          <p className="text-[16px] font-semibold">We couldn’t load your dashboard</p>
+          <p className="mt-1 text-[14px] text-graphite/55">{errorMessage(error)}</p>
+          <button
+            type="button"
+            onClick={() => {
+              profile.refetch();
+              businesses.refetch();
+            }}
+            className="mt-5 h-10 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
@@ -471,7 +470,7 @@ export default function AppShell() {
         <Outlet context={{ convert: () => setConverting(true) }} />
       </main>
 
-      <CommandBar open={bar} onClose={() => setBar(false)} />
+      <CommandBar open={bar} onClose={() => setBar(false)} onConvert={openConvert} />
       <Convert open={converting} onClose={() => setConverting(false)} />
     </div>
   );

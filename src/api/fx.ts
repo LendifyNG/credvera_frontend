@@ -1,10 +1,11 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http } from './client';
-import { queryKeys } from './queryClient';
+import { invalidateMoney, queryKeys } from './queryClient';
 import { useSignedIn } from './session';
 
 // Reference exchange rates (naira per one unit, mid-market, published once a
-// day) and alerts on them. To watch, not to deal at: nothing here moves money.
+// day) and alerts on them, to watch; and converting between your own balances
+// at a quote held for a few seconds, which is the one thing here that moves money.
 
 export type FxRateDto = { currency: string; name: string; rate: string; asOf: string; previous: string | null; /** Percent since the publication before. */ change: number | null };
 export type FxRatesDto = { source: string; attribution: { name: string; url: string }; asOf: string | null; rates: FxRateDto[] };
@@ -22,12 +23,32 @@ export type FxAlertDto = {
   yours: boolean;
 };
 
+export type ConvertibleCurrency = 'NGN' | 'USD' | 'GBP' | 'EUR';
+export type ConversionQuoteInput = { from: ConvertibleCurrency; to: ConvertibleCurrency; side: 'sell' | 'buy'; amount: string };
+export type ConversionQuoteDto = {
+  quoteId: string;
+  from: { currency: ConvertibleCurrency; amount: string };
+  to: { currency: ConvertibleCurrency; amount: string };
+  side: 'sell' | 'buy';
+  /** Units of `to` per one unit of `from`, after the spread. */
+  rate: string;
+  inverseRate: string;
+  midRate: string;
+  spreadBps: number;
+  rateAsOf: string;
+  expiresAt: string;
+  ttlSeconds: number;
+};
+export type ConversionResultDto = { message: string; reference: string; from: { currency: string; amount: string }; to: { currency: string; amount: string }; rate: string };
+
 export const fxApi = {
   rates: () => http.get<FxRatesDto>('/fx/rates'),
   history: (currency: string, days: number) => http.get<FxHistoryDto>(`/fx/rates/${currency}/history`, { params: { days } }),
   alerts: () => http.get<FxAlertDto[]>('/fx/alerts'),
   createAlert: (input: { currency: string; direction: 'above' | 'below'; target: string }) => http.post<FxAlertDto>('/fx/alerts', input),
   cancelAlert: (id: string) => http.post<{ cancelled: true }>(`/fx/alerts/${id}/cancel`),
+  quoteConversion: (input: ConversionQuoteInput) => http.post<ConversionQuoteDto>('/fx/conversions/quote', input),
+  convert: (input: { quoteId: string; pin: string }) => http.post<ConversionResultDto>('/fx/conversions', input),
 };
 
 /** Rates change once a day; checked again every half hour while the page is open. */
@@ -51,4 +72,13 @@ export function useCreateFxAlert() {
 export function useCancelFxAlert() {
   const client = useQueryClient();
   return useMutation({ mutationFn: fxApi.cancelAlert, onSuccess: () => void client.invalidateQueries({ queryKey: queryKeys.fxAlerts }) });
+}
+
+/** A rate for a conversion, held for a few seconds. Asked for, not polled: each one is a firm price. */
+export function useConversionQuote() {
+  return useMutation({ mutationFn: fxApi.quoteConversion });
+}
+
+export function useConvert() {
+  return useMutation({ mutationFn: fxApi.convert, onSuccess: () => void invalidateMoney() });
 }

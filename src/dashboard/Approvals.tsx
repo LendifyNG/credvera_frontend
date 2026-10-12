@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, CornerUpLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { Check, CornerUpLeft, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { errorMessage, useApprovals, useApprove, useCancelApproval, useReject, type ApprovalDto, type ApprovalStatus } from '../api';
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
 import { Notice, PinPrompt } from './ui';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -117,7 +118,7 @@ export default function Approvals() {
       </div>
 
       {approvals.isLoading ? (
-        <Loader2 className="mx-auto mt-14 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+        <LoaderMark size={36} className="mx-auto mt-14" />
       ) : approvals.error ? (
         <p className="mt-10 text-center text-[14px] text-[#a3261b]">{errorMessage(approvals.error)}</p>
       ) : a ? (
@@ -159,7 +160,7 @@ export default function Approvals() {
               </div>
               {tab === 'waiting' && chosen.length > 0 && (
                 <button type="button" disabled={approve.isPending} onClick={() => setPinFor(chosen)} className="ml-auto inline-flex h-9 items-center gap-2 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black disabled:opacity-50">
-                  {approve.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />} Approve {chosen.length} selected
+                  {approve.isPending ? <Spinner className="size-4" /> : <Check className="size-4" />} Approve {chosen.length} selected
                 </button>
               )}
             </div>
@@ -342,7 +343,7 @@ function Waiting({
                 className="h-10 flex-1 rounded-lg border border-graphite/15 bg-white px-3.5 text-[14.5px] outline-none focus:border-graphite/50"
               />
               <button type="submit" disabled={note.trim().length < 5 || reject.isPending} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black disabled:opacity-40">
-                {reject.isPending && <Loader2 className="size-4 animate-spin" />} Send back
+                {reject.isPending && <Spinner className="size-4" />} Send back
               </button>
             </div>
             {reject.error && <p className="px-5 pb-3 text-[13px] text-[#a3261b]">{errorMessage(reject.error)}</p>}

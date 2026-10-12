@@ -31,7 +31,7 @@ const PERIODS = [
   ['90', 'Last 90 days'],
   ['all', 'All time'],
 ] as const;
-const TYPES = ['Transfer', 'Transfer in', 'Invoice payment', 'Bill'];
+const TYPES = ['Transfer', 'Transfer in', 'Invoice payment', 'Bill', 'Conversion'];
 
 function Icon({ p, size = 'size-7' }: { p: Payment; size?: string }) {
   return (
@@ -45,6 +45,7 @@ const signed = (p: Payment) => `${p.kind === 'in' ? '+' : '−'}${money(p.amount
 
 /** A payment's story so far, step by step. */
 function steps(p: Payment): { label: string; state: 'done' | 'now' | 'next'; note?: string }[] {
+  if (p.internal) return [{ label: 'Converted between your balances', state: 'done' }];
   if (p.kind === 'in') return [{ label: `Received from ${p.who}`, state: 'done' }];
   if (p.status === 'failed') return [{ label: 'Tried', state: 'done' }, { label: 'Declined', state: 'now', note: p.note }];
   if (p.status === 'pending')
@@ -59,8 +60,8 @@ function steps(p: Payment): { label: string; state: 'done' | 'now' | 'next'; not
   ];
 }
 
-/** One transaction in full, in a panel from the right. */
-function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
+/** One transaction in full, in a panel from the right. Mount inside AnimatePresence. */
+export function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
   const ref = reference(p);
   const rows: [string, string][] = [
@@ -101,7 +102,7 @@ function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
             </div>
           </div>
           <p className={`mt-6 font-ledger text-[34px] font-semibold leading-none tracking-[-0.03em] ${p.kind === 'in' ? 'text-[#1f6b33]' : ''}`}>{signed(p)}</p>          <span className={`mt-4 inline-block rounded-md px-2 py-0.5 text-[12.5px] font-medium ${STATUS[p.status].tone}`}>
-            {STATUS[p.status].label}
+            {p.internal && settled(p) ? 'Done' : STATUS[p.status].label}
           </span>
         </div>
 
@@ -206,7 +207,7 @@ export default function Payments() {
     let inflow = 0;
     let outflow = 0;
     for (const p of shown) {
-      if (!settled(p) || p.currency !== 'NGN') continue;
+      if (!settled(p) || p.internal || p.currency !== 'NGN') continue;
       if (p.kind === 'in') inflow += p.amount;
       else outflow += p.amount;
     }

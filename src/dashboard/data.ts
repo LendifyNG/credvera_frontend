@@ -183,7 +183,7 @@ export function toPayment(tx: TransactionDto): Payment | null {
   if (!isCurrency(tx.currency)) return null;
 
   const m = tx.metadata ?? {};
-  const incoming = tx.type === 'deposit';
+  const incoming = tx.type === 'deposit' || (tx.type === 'conversion' && m.direction === 'in');
   const base = {
     id: tx.id,
     ref: tx.reference,
@@ -215,6 +215,13 @@ export function toPayment(tx: TransactionDto): Payment | null {
       return { ...base, who: 'Data', what: `Bill · data${m.bundleValue ? ` · ${m.bundleValue}` : ''} · ${m.phoneNumber ?? ''}` };
     case 'electricity':
       return { ...base, who: 'Electricity', what: `Bill · electricity${m.meterReference ? ` · ${m.meterReference}` : ''}` };
+    case 'conversion':
+      return {
+        ...base,
+        internal: true,
+        who: incoming ? `From your ${m.from} balance` : `To your ${m.to} balance`,
+        what: `Conversion · ${m.from} ${Number(m.sellAmount).toLocaleString('en-NG', { minimumFractionDigits: 2 })} → ${m.to} ${Number(m.buyAmount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`,
+      };
     case 'deposit':
       return {
         ...base,

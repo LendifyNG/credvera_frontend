@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Copy, Loader2, Minus, Plus, Trash2, X } from 'lucide-react';
+import { Check, Copy, Minus, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -20,6 +20,7 @@ import { useActiveBusiness } from './data';
 import { money, shortDate } from './model';
 import { Modal } from './money';
 import { field, initials, label, NairaInput, nairaFrom, panel } from './pay/shared';
+import { LoaderMark, Spinner } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const secondary = 'inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-3.5 text-[13.5px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
@@ -186,7 +187,7 @@ function MemberRow({ m, you, canManage, say }: { m: MemberDto; you: boolean; can
               }
               className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#a3261b] px-3.5 text-[13.5px] font-semibold text-white hover:bg-[#8f1c13] disabled:opacity-40"
             >
-              {remove.isPending && <Loader2 className="size-4 animate-spin" />} {you ? 'Leave' : 'Remove'}
+              {remove.isPending && <Spinner className="size-4" />} {you ? 'Leave' : 'Remove'}
             </button>
           </div>
         </Modal>
@@ -331,7 +332,7 @@ function InviteDrawer({ open, onClose }: { open: boolean; onClose: () => void })
                 </button>
               ) : (
                 <button type="submit" form="invite" disabled={!valid || invite.isPending} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[15px] font-semibold text-white hover:bg-black disabled:bg-graphite/15 disabled:text-graphite/40">
-                  {invite.isPending && <Loader2 className="size-4 animate-spin" />} Send the invite
+                  {invite.isPending && <Spinner className="size-4" />} Send the invite
                 </button>
               )}
             </div>
@@ -501,7 +502,7 @@ export default function Team() {
       </nav>
       <motion.div key={section ?? 'people'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
         {team.isLoading ? (
-          <Loader2 className="mx-auto mt-8 size-5 animate-spin text-graphite/40" aria-label="Loading" />
+          <LoaderMark size={36} className="mx-auto mt-8" />
         ) : team.error ? (
           <p className="mt-4 text-center text-[14px] text-[#a3261b]">{errorMessage(team.error)}</p>
         ) : t ? (

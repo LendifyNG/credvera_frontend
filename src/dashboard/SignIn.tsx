@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Loader2, ScanLine } from 'lucide-react';
+import { ArrowRight, ScanLine } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { errorMessage, useSignedIn, useSignIn, type SignInInput } from '../api';
 import logo from '../assets/logo.png';
 import ankara from '../assets/signin-ankara.webp';
 import ClothBand from '../components/business/ClothBand';
+import { Spinner } from '../components/ui/Loader';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -168,7 +169,7 @@ export default function SignIn() {
                     disabled={!who || !password || signIn.isPending}
                     className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-graphite text-[15px] font-semibold text-white transition-colors hover:bg-black disabled:bg-graphite/20 disabled:text-graphite/50"
                   >
-                    {signIn.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+                    {signIn.isPending ? <Spinner className="size-4" /> : null}
                     Sign in {!signIn.isPending && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
                   </button>
                 </motion.div>

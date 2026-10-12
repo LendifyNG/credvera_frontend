@@ -1,10 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Check, Copy, Plus, Share2, X } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Plus, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
-import { errorMessage, useOpenWallet, useProvisionVirtualAccount } from '../api';
 import { useBalances, useNairaTotal, usePayInAccount, usePayments, useSession } from './data';
-import { AddMoney, CURRENCIES } from './money';
+import { AddMoney, CopyButton, CURRENCIES, PayInDetails } from './money';
 import { kindOf, money, settled, shortDate, type Currency, type Payment } from './model';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -33,86 +32,6 @@ function NumberHint({ code }: { code: Currency }) {
   );
 }
 
-/**
- * The details to share with a payer, or what stands in the way: no wallet in
- * this currency yet, or a pay-in account the provider hasn't issued.
- */
-function PayInDetails({ code }: { code: Currency }) {
-  const c = CURRENCIES.find((x) => x.code === code)!;
-  const { wallet, account, ready, isLoading } = usePayInAccount(code);
-  const open = useOpenWallet();
-  const provision = useProvisionVirtualAccount();
-  const [shared, setShared] = useState(false);
-
-  if (isLoading) return <p className="mt-4 text-[14px] text-graphite/50">Loading…</p>;
-
-  if (!wallet) {
-    return (
-      <div className="mt-4 text-[14px] text-graphite/60">
-        <p>You don’t have a {c.name.toLowerCase()} account yet. It’s free to open.</p>
-        <button type="button" disabled={open.isPending} onClick={() => open.mutate(code)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg bg-graphite text-[14px] font-semibold text-white hover:bg-black disabled:opacity-50">
-          {open.isPending ? 'Opening…' : `Open a ${c.name} account`}
-        </button>
-        {open.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(open.error)}</p>}
-      </div>
-    );
-  }
-
-  if (!ready || !account) {
-    return (
-      <div className="mt-4 text-[14px] text-graphite/60">
-        <p>{account?.unavailableReason ?? 'The bank details for this account are still being issued.'}</p>
-        <button type="button" disabled={provision.isPending} onClick={() => provision.mutate(wallet.id)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg border border-graphite/15 text-[14px] font-semibold hover:border-graphite/30 disabled:opacity-50">
-          {provision.isPending ? 'Asking the bank…' : 'Try again'}
-        </button>
-        {provision.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(provision.error)}</p>}
-      </div>
-    );
-  }
-
-  const rows: [string, string][] = [
-    ['Account name', account.accountName ?? ''],
-    ['Account number', account.accountNumber ?? ''],
-    ['Bank', account.bankName ?? ''],
-    ...(account.rails?.iban ? ([['IBAN', account.rails.iban]] as [string, string][]) : []),
-    ...(account.rails?.sortCode ? ([['Sort code', account.rails.sortCode]] as [string, string][]) : []),
-    ...(account.rails?.routingNumber ? ([['Routing number', account.rails.routingNumber]] as [string, string][]) : []),
-    ...(account.rails?.swiftBic ? ([['SWIFT / BIC', account.rails.swiftBic]] as [string, string][]) : []),
-    ['Currency', `${c.name} (${code})`],
-  ];
-  const all = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
-
-  const share = async () => {
-    try {
-      if (navigator.share) await navigator.share({ title: `${c.name} account details`, text: all });
-      else throw new Error('no share');
-    } catch {
-      navigator.clipboard?.writeText(all).catch(() => {});
-      setShared(true);
-      window.setTimeout(() => setShared(false), 1600);
-    }
-  };
-
-  return (
-    <>
-      <dl className="mt-4 divide-y divide-graphite/[0.08] text-[14px]">
-        {rows.map(([k, v]) => (
-          <div key={k} className="flex items-center justify-between gap-4 py-2.5">
-            <dt className="text-graphite/55">{k}</dt>
-            <dd className="flex items-center gap-1 text-right font-medium">
-              <span className={k === 'Account number' || k === 'IBAN' ? 'font-ledger tracking-wide' : ''}>{v}</span>
-              {k === 'Account number' && <CopyButton text={v} label="" />}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <button type="button" onClick={share} className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[14px] font-semibold text-white hover:bg-black">
-        {shared ? <Check className="size-4" /> : <Share2 className="size-4" />} {shared ? 'Details copied' : 'Share details'}
-      </button>
-    </>
-  );
-}
-
 const TONE: Record<Currency, string> = { NGN: '#1f6b33', USD: '#0b2350', GBP: '#c8102e', EUR: '#e0a526' };
 
 /** Money in and out of one account over the last 30 days, conversions left out. */
@@ -121,32 +40,13 @@ function month(payments: Payment[], c: Currency) {
   let inflow = 0;
   let outflow = 0;
   for (const p of payments) {
-    if (p.currency !== c || !settled(p) || new Date(p.date).getTime() < since) continue;
+    if (p.currency !== c || !settled(p) || p.internal || new Date(p.date).getTime() < since) continue;
     if (p.kind === 'in') inflow += p.amount;
     else outflow += p.amount;
   }
   return { inflow, outflow };
 }
 
-function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigator.clipboard?.writeText(text).catch(() => {});
-        setDone(true);
-        window.setTimeout(() => setDone(false), 1500);
-      }}
-      aria-label={`${label} ${text}`}
-      className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[12.5px] font-medium text-graphite/55 hover:bg-graphite/5 hover:text-graphite"
-    >
-      {done ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {done ? 'Copied' : label}
-    </button>
-  );
-}
 
 /** One account's details to share, and its latest transactions, in a panel from the right. */
 function Details({ code, onClose }: { code: Currency; onClose: () => void }) {
