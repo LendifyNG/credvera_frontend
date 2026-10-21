@@ -72,7 +72,7 @@ export default function CommandHero() {
         eager
         className="absolute inset-0 -z-20 h-full w-full object-cover"
       />
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,,0.9)_0%,,0.7)_50%,,0.35)_100%),linear-gradient(to_top,,0.8),transparent_50%)]" />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(28,30,33,0.9)_0%,rgba(28,30,33,0.7)_50%,rgba(28,30,33,0.35)_100%),linear-gradient(to_top,rgba(28,30,33,0.8),transparent_50%)]" />
 
       <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-36 lg:px-8 lg:pb-24">
         <motion.h1

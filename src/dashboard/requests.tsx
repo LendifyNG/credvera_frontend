@@ -296,7 +296,7 @@ export function RequestDetail({ link, onClose }: { link: PaymentLinkDto; onClose
         <StatusPill status={link.status} />
         {link.status !== 'cancelled' && <span className="text-[13px] text-graphite/55">{whenText(link)}</span>}
       </div>
-      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_,0.08),0_12px_32px_-16px_,0.25)]">
+      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(28,30,33,0.08),0_12px_32px_-16px_rgba(28,30,33,0.25)]">
         <div className="flex items-start justify-between gap-6">
           <div>
             <img src={logoDark} alt="Credvera" className="h-5 w-auto opacity-80" />

@@ -42,7 +42,7 @@ function Qr() {
 // A bank statement, the old way: pages of lines nobody can check.
 function Statement({ page }: { page: number }) {
   return (
-    <div className="h-full w-full rounded-md bg-white p-4 shadow-[0_20px_40px_-20px_,0.45)] ring-1 ring-ink/10">
+    <div className="h-full w-full rounded-md bg-white p-4 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.45)] ring-1 ring-ink/10">
       <div className="flex items-center justify-between">
         <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-ink/60">Statement of account</span>
         <span className="rounded bg-red-500/90 px-1.5 py-0.5 text-[7px] font-bold text-white">PDF</span>

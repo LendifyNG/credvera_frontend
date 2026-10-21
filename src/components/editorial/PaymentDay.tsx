@@ -115,7 +115,7 @@ export default function PaymentDay() {
             left: `${sunX}%`,
             top: `${sunY}%`,
             background: s.dark ? '#f3f4ef' : '#ffd79a',
-            boxShadow: s.dark ? '0 0 40px 6px rgba(220,241,126,0.25), inset -10px -4px 0 0 #e6e7e2' : '0 0 70px 20px ,0.55)',
+            boxShadow: s.dark ? '0 0 40px 6px rgba(220,241,126,0.25), inset -10px -4px 0 0 #e6e7e2' : '0 0 70px 20px rgba(255,200,120,0.55)',
           }}
         />
       </div>

@@ -42,7 +42,7 @@ export default function OfficialStatement() {
       ) : !s ? (
         <p className="mt-16 text-center text-[14px] text-graphite/60">This statement hasn’t been issued yet.</p>
       ) : (
-        <article className="mx-auto max-w-[860px] bg-white p-10 text-[13px] shadow-[0_1px_2px_,0.08),0_12px_32px_-16px_,0.25)] print:max-w-none print:p-0 print:shadow-none">
+        <article className="mx-auto max-w-[860px] bg-white p-10 text-[13px] shadow-[0_1px_2px_rgba(28,30,33,0.08),0_12px_32px_-16px_rgba(28,30,33,0.25)] print:max-w-none print:p-0 print:shadow-none">
           <header className="flex flex-wrap items-start justify-between gap-6 border-b border-graphite/15 pb-6">
             <div>
               <img src={logoDark} alt="Credvera" className="h-6 w-auto" />

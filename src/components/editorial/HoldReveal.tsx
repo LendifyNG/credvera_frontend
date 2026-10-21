@@ -16,7 +16,7 @@ function Ring({ progress, size = 56 }: { progress: number; size?: number }) {
   const c = 2 * Math.PI * r;
   return (
     <svg width={size} height={size} className="-rotate-90" aria-hidden>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke=",0.12)" strokeWidth="3" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#dcf17e" strokeWidth="3" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - progress)} />
     </svg>
   );
@@ -129,7 +129,7 @@ export default function HoldReveal() {
 
           {/* The card, drawn */}
           <motion.div
-            className="relative aspect-[1.586] overflow-hidden rounded-[1.4rem] p-6 shadow-[0_50px_90px_-40px_,0.8)] sm:p-7"
+            className="relative aspect-[1.586] overflow-hidden rounded-[1.4rem] p-6 shadow-[0_50px_90px_-40px_rgba(0,0,0,0.8)] sm:p-7"
             style={{ background: 'linear-gradient(135deg, #2c2e31 0%, #15171a 45%, #0e0f11 100%)' }}
             animate={{ rotateX: hold * 8, scale: 1 - hold * 0.02 }}
             transition={{ duration: 0.1 }}

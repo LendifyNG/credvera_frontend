@@ -176,7 +176,7 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-16px_,0.35)] ring-1 ring-graphite/10 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[400px]"
+            className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-16px_rgba(28,30,33,0.35)] ring-1 ring-graphite/10 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[400px]"
           >
             <div className="flex items-center justify-between border-b border-graphite/10 px-4 py-3">
               <p className="text-[15px] font-semibold">Notifications</p>

@@ -12,7 +12,7 @@ export function CardFace({ usd, frozen = false, className = '' }: { usd: boolean
   return (
     <div
       className={`relative aspect-[1.586] w-full overflow-hidden rounded-2xl p-6 transition-[filter,opacity] duration-500 ${
-        usd ? 'text-white shadow-[0_40px_80px_-40px_,0.9)] ring-1 ring-white/10' : 'text-graphite shadow-[0_40px_80px_-40px_,0.7)]'
+        usd ? 'text-white shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)] ring-1 ring-white/10' : 'text-graphite shadow-[0_40px_80px_-40px_rgba(0,0,0,0.7)]'
       } ${frozen ? 'opacity-60 grayscale' : ''} ${className}`}
       style={{
         background: usd ? 'linear-gradient(135deg, #1b2520 0%, #1c1e21 55%, #0e1511 100%)' : 'linear-gradient(135deg, #fbfcfa 0%, #eef1ec 60%, #e2e7e0 100%)',

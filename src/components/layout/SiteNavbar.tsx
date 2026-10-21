@@ -55,7 +55,7 @@ export default function SiteNavbar() {
           solid
             ? light
               ? 'bg-paper/85 shadow-[0_8px_30px_rgba(14,15,17,0.08)] ring-1 ring-ink/10 backdrop-blur-xl'
-              : 'bg-secondary/80 shadow-[0_8px_30px_,0.25)] ring-1 ring-white/10 backdrop-blur-xl'
+              : 'bg-secondary/80 shadow-[0_8px_30px_rgba(0,0,0,0.25)] ring-1 ring-white/10 backdrop-blur-xl'
             : 'bg-transparent'
         }`}
       >

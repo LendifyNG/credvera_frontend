@@ -116,7 +116,7 @@ function Statements() {
       </section>
 
       {/* The statement itself, on paper */}
-      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_,0.08),0_12px_32px_-16px_,0.25)]">
+      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(28,30,33,0.08),0_12px_32px_-16px_rgba(28,30,33,0.25)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <img src={logoDark} alt="Credvera" className="h-5 w-auto opacity-80" />

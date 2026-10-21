@@ -174,7 +174,7 @@ export default function GoalJar() {
           </defs>
 
           {/* Glass */}
-          <path d={JAR} fill=",0.7)" />
+          <path d={JAR} fill="rgba(255,255,255,0.7)" />
 
           {/* Liquid, with a moving surface */}
           <g clipPath="url(#jar-clip)">
