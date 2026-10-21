@@ -17,7 +17,7 @@ function Ring({ progress, size = 56 }: { progress: number; size?: number }) {
   return (
     <svg width={size} height={size} className="-rotate-90" aria-hidden>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#7fde80" strokeWidth="3" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - progress)} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#dcf17e" strokeWidth="3" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - progress)} />
     </svg>
   );
 }
@@ -130,14 +130,14 @@ export default function HoldReveal() {
           {/* The card, drawn */}
           <motion.div
             className="relative aspect-[1.586] overflow-hidden rounded-[1.4rem] p-6 shadow-[0_50px_90px_-40px_rgba(0,0,0,0.8)] sm:p-7"
-            style={{ background: 'linear-gradient(135deg, #0d3a1d 0%, #063c1a 45%, #0a1f10 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #2c2e31 0%, #15171a 45%, #0e0f11 100%)' }}
             animate={{ rotateX: hold * 8, scale: 1 - hold * 0.02 }}
             transition={{ duration: 0.1 }}
           >
             {/* Fine guilloché lines, like security print */}
             <svg aria-hidden className="absolute inset-0 h-full w-full opacity-[0.12]" viewBox="0 0 400 252" preserveAspectRatio="none">
               {Array.from({ length: 14 }, (_, i) => (
-                <path key={i} d={`M -20 ${40 + i * 16} C 120 ${-10 + i * 16}, 260 ${110 + i * 16}, 420 ${30 + i * 16}`} fill="none" stroke="#7fde80" strokeWidth="0.8" />
+                <path key={i} d={`M -20 ${40 + i * 16} C 120 ${-10 + i * 16}, 260 ${110 + i * 16}, 420 ${30 + i * 16}`} fill="none" stroke="#dcf17e" strokeWidth="0.8" />
               ))}
             </svg>
             <div className="relative flex h-full flex-col">

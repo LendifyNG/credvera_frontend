@@ -21,7 +21,7 @@ export default function Receipt() {
         whileInView={{ y: '0%' }}
         viewport={{ once: true, margin: '-15% 0px' }}
         transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-9 bg-white px-6 pb-8 pt-7 font-mono text-[13px] text-ink shadow-[0_20px_40px_-20px_rgba(1,21,4,0.3)]"
+        className="mx-9 bg-white px-6 pb-8 pt-7 font-mono text-[13px] text-ink shadow-[0_20px_40px_-20px_rgba(14,15,17,0.3)]"
         style={{ clipPath: 'polygon(0 0,100% 0,100% 100%,94% 97%,88% 100%,82% 97%,76% 100%,70% 97%,64% 100%,58% 97%,52% 100%,46% 97%,40% 100%,34% 97%,28% 100%,22% 97%,16% 100%,10% 97%,4% 100%,0 97%)' }}
       >
         <p className="text-center text-[11px] uppercase tracking-[0.3em] text-ink/50">Credvera</p>

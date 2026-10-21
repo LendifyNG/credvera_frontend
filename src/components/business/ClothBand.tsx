@@ -1,10 +1,10 @@
 import { useId } from 'react';
 
 // Credvera's own colours: deep green ground, a green strand and a light strand.
-const GROUND = '#063c1a';
-const EDGE = '#011504';
-const GREEN = '#7fde80';
-const LIGHT = '#f0f2ef';
+const GROUND = '#15171a';
+const EDGE = '#0e0f11';
+const GREEN = '#dcf17e';
+const LIGHT = '#eeefea';
 
 // One 36 × 48 repeat: two strands twist around each other, crossing twice.
 // Each half is drawn separately so a strand passes over at one crossing and

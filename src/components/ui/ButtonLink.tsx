@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 type Variant = 'primary' | 'outline-light' | 'outline-dark' | 'dark';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary text-secondary hover:bg-[#9aeb9b]',
+  primary: 'bg-primary text-secondary hover:bg-[#e6f59e]',
   'outline-light': 'border border-white/25 text-white hover:bg-white/10',
   'outline-dark': 'border border-ink/15 text-ink hover:bg-ink/5',
   dark: 'bg-secondary text-white hover:bg-background',

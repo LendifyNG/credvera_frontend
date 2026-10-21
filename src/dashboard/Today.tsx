@@ -119,7 +119,7 @@ export default function Today() {
               Move money <ChevronDown className="size-4 text-graphite/50" />
             </button>
             <div className="invisible absolute right-0 top-full z-20 pt-2 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-              <div className="w-60 rounded-xl bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(20,28,23,0.35)] ring-1 ring-graphite/10">
+              <div className="w-60 rounded-xl bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(28,30,33,0.35)] ring-1 ring-graphite/10">
                 {[
                   { label: 'Pay someone', hint: 'To any Nigerian bank', icon: ArrowUpRight, go: () => navigate('/business/app/pay') },
                   { label: 'Convert', hint: 'Between your currencies', icon: ArrowLeftRight, go: convert },
@@ -146,7 +146,7 @@ export default function Today() {
 
       {/* Cash and this week */}
       <section className={`${panel} relative mt-6 overflow-hidden`}>
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(20,28,23,0.07)_1px,transparent_1px)] [background-size:14px_14px]" />
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(28,30,33,0.07)_1px,transparent_1px)] [background-size:14px_14px]" />
         <div className="relative grid xl:grid-cols-[1fr_2fr]">
           <div className="border-b border-graphite/10 p-6 xl:border-b-0 xl:border-r">
             <div className="flex items-center gap-2">
@@ -175,7 +175,7 @@ export default function Today() {
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {[
-                { label: 'Money in', icon: ArrowDownLeft, now: week.inflow, before: lastWeek.inflow, tone: '#7fde80', colour: 'text-[#1f6b33]' },
+                { label: 'Money in', icon: ArrowDownLeft, now: week.inflow, before: lastWeek.inflow, tone: '#dcf17e', colour: 'text-[#1f6b33]' },
                 { label: 'Money out', icon: ArrowUpRight, now: week.outflow, before: lastWeek.outflow, tone: '#e0906b', colour: '' },
               ].map((t) => (
                 <div key={t.label} className={tile}>

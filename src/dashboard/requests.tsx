@@ -218,7 +218,7 @@ export function NewRequest({ existing, to, toEmail, onClose, onDone }: { existin
         </div>
 
         <label className="flex cursor-pointer items-center gap-3 text-[14px]">
-          <input type="checkbox" checked={vat} onChange={(e) => setVat(e.target.checked)} className="size-4 accent-[#141c17]" />
+          <input type="checkbox" checked={vat} onChange={(e) => setVat(e.target.checked)} className="size-4 accent-[#1c1e21]" />
           Add VAT at 7.5%
         </label>
 
@@ -296,7 +296,7 @@ export function RequestDetail({ link, onClose }: { link: PaymentLinkDto; onClose
         <StatusPill status={link.status} />
         {link.status !== 'cancelled' && <span className="text-[13px] text-graphite/55">{whenText(link)}</span>}
       </div>
-      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(20,28,23,0.08),0_12px_32px_-16px_rgba(20,28,23,0.25)]">
+      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(28,30,33,0.08),0_12px_32px_-16px_rgba(28,30,33,0.25)]">
         <div className="flex items-start justify-between gap-6">
           <div>
             <img src={logoDark} alt="Credvera" className="h-5 w-auto opacity-80" />

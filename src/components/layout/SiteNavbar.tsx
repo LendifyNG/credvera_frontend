@@ -54,7 +54,7 @@ export default function SiteNavbar() {
         className={`relative z-10 mx-auto flex h-16 max-w-7xl items-center justify-between rounded-full px-4 transition-all duration-500 sm:px-6 ${
           solid
             ? light
-              ? 'bg-paper/85 shadow-[0_8px_30px_rgba(1,21,4,0.08)] ring-1 ring-ink/10 backdrop-blur-xl'
+              ? 'bg-paper/85 shadow-[0_8px_30px_rgba(14,15,17,0.08)] ring-1 ring-ink/10 backdrop-blur-xl'
               : 'bg-secondary/80 shadow-[0_8px_30px_rgba(0,0,0,0.25)] ring-1 ring-white/10 backdrop-blur-xl'
             : 'bg-transparent'
         }`}

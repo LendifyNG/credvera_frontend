@@ -15,7 +15,7 @@ const naira = (n: number) => `₦${n.toLocaleString('en-NG', { minimumFractionDi
 export default function RateTicket() {
   return (
     <Reveal>
-      <div className="relative mx-auto max-w-xl rounded-[1.75rem] bg-white p-2 shadow-[0_30px_60px_-30px_rgba(1,21,4,0.35)] ring-1 ring-ink/5">
+      <div className="relative mx-auto max-w-xl rounded-[1.75rem] bg-white p-2 shadow-[0_30px_60px_-30px_rgba(14,15,17,0.35)] ring-1 ring-ink/5">
         <div className="rounded-[1.4rem] border border-dashed border-ink/15 px-6 pb-6 pt-5 sm:px-8">
           <div className="flex items-baseline justify-between text-[13px] font-semibold text-ink/45">
             <span>Today’s rates</span>

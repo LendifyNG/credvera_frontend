@@ -23,18 +23,18 @@ function Container({ step }: { step: number }) {
   return (
     <svg viewBox="0 0 560 300" className="w-full" role="img" aria-label={steps[step]!.title}>
       {/* The quay, then the water once it's on board */}
-      <motion.line x1="0" x2="560" y1="236" y2="236" stroke="#141c17" strokeOpacity="0.2" animate={{ opacity: sailing ? 0 : 1 }} />
+      <motion.line x1="0" x2="560" y1="236" y2="236" stroke="#1c1e21" strokeOpacity="0.2" animate={{ opacity: sailing ? 0 : 1 }} />
       <AnimatePresence>
         {sailing && (
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
             {/* Deck and hull */}
-            <path d="M 70 236 L 490 236 L 460 272 L 100 272 Z" fill="none" stroke="#141c17" strokeWidth="1.5" />
+            <path d="M 70 236 L 490 236 L 460 272 L 100 272 Z" fill="none" stroke="#1c1e21" strokeWidth="1.5" />
             {[0, 1, 2].map((w) => (
               <motion.path
                 key={w}
                 d={`M ${-40 + w * 12} ${284 + w * 8} q 20 -6 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0`}
                 fill="none"
-                stroke="#141c17"
+                stroke="#1c1e21"
                 strokeOpacity={0.18 - w * 0.05}
                 animate={{ x: [0, 40] }}
                 transition={{ duration: 3 + w, repeat: Infinity, ease: 'linear' }}
@@ -53,19 +53,19 @@ function Container({ step }: { step: number }) {
           height="134"
           rx="3"
           fill="white"
-          stroke="#141c17"
+          stroke="#1c1e21"
           strokeWidth="1.5"
           strokeDasharray={loaded ? '0' : '6 6'}
           strokeOpacity={loaded ? 1 : 0.45}
         />
         {/* Ribs */}
         {Array.from({ length: 13 }, (_, i) => (
-          <line key={i} x1={110 + i * 20} x2={110 + i * 20} y1="108" y2="226" stroke="#141c17" strokeOpacity={loaded ? 0.14 : 0.07} />
+          <line key={i} x1={110 + i * 20} x2={110 + i * 20} y1="108" y2="226" stroke="#1c1e21" strokeOpacity={loaded ? 0.14 : 0.07} />
         ))}
         {/* Doors and locking bars */}
-        <line x1="380" x2="380" y1="100" y2="234" stroke="#141c17" strokeOpacity={loaded ? 0.5 : 0.25} />
+        <line x1="380" x2="380" y1="100" y2="234" stroke="#1c1e21" strokeOpacity={loaded ? 0.5 : 0.25} />
         {[392, 404].map((x) => (
-          <line key={x} x1={x} x2={x} y1="110" y2="224" stroke="#141c17" strokeOpacity={loaded ? 0.6 : 0.25} strokeWidth="2" />
+          <line key={x} x1={x} x2={x} y1="110" y2="224" stroke="#1c1e21" strokeOpacity={loaded ? 0.6 : 0.25} strokeWidth="2" />
         ))}
         {/* Cargo, visible through the side once it's checked */}
         <AnimatePresence>
@@ -78,7 +78,7 @@ function Container({ step }: { step: number }) {
                 width="70"
                 height="48"
                 rx="2"
-                fill="#7fde80"
+                fill="#dcf17e"
                 fillOpacity="0.22"
                 stroke="#1f6b33"
                 strokeOpacity="0.5"
@@ -90,7 +90,7 @@ function Container({ step }: { step: number }) {
             ))}
         </AnimatePresence>
         {/* The container's own number, stencilled */}
-        <text x="104" y="96" fontSize="12" fill="#141c17" fillOpacity="0.5" fontFamily="Geist Mono, monospace">
+        <text x="104" y="96" fontSize="12" fill="#1c1e21" fillOpacity="0.5" fontFamily="Geist Mono, monospace">
           CRDU 418207 3 · 20FT
         </text>
       </motion.g>
@@ -175,11 +175,11 @@ export function ShipFork() {
   return (
     <div ref={ref} className="grid items-center gap-10 lg:grid-cols-[1fr_1.4fr]">
       <svg viewBox="0 0 420 260" className="w-full max-w-md" aria-hidden>
-        <motion.path d="M 10 130 L 180 130" fill="none" stroke="#141c17" strokeWidth="2" {...draw(0)} />
+        <motion.path d="M 10 130 L 180 130" fill="none" stroke="#1c1e21" strokeWidth="2" {...draw(0)} />
         <motion.path d="M 180 130 C 240 130, 250 50, 330 50 L 410 50" fill="none" stroke="#1f6b33" strokeWidth="2" {...draw(1)} />
         <motion.path d="M 180 130 C 240 130, 250 210, 330 210 L 410 210" fill="none" stroke="#b07a1d" strokeWidth="2" strokeDasharray="6 6" {...draw(1.2)} />
-        <circle cx="180" cy="130" r="7" fill="white" stroke="#141c17" strokeWidth="2" />
-        <text x="180" y="160" textAnchor="middle" fontSize="12" fill="#141c17" fillOpacity="0.55" fontFamily="Geist Mono, monospace">
+        <circle cx="180" cy="130" r="7" fill="white" stroke="#1c1e21" strokeWidth="2" />
+        <text x="180" y="160" textAnchor="middle" fontSize="12" fill="#1c1e21" fillOpacity="0.55" fontFamily="Geist Mono, monospace">
           SHIP-BY DATE
         </text>
       </svg>

@@ -15,7 +15,7 @@ export function CardFace({ usd, frozen = false, className = '' }: { usd: boolean
         usd ? 'text-white shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)] ring-1 ring-white/10' : 'text-graphite shadow-[0_40px_80px_-40px_rgba(0,0,0,0.7)]'
       } ${frozen ? 'opacity-60 grayscale' : ''} ${className}`}
       style={{
-        background: usd ? 'linear-gradient(135deg, #1b2520 0%, #141c17 55%, #0e1511 100%)' : 'linear-gradient(135deg, #fbfcfa 0%, #eef1ec 60%, #e2e7e0 100%)',
+        background: usd ? 'linear-gradient(135deg, #1b2520 0%, #1c1e21 55%, #0e1511 100%)' : 'linear-gradient(135deg, #fbfcfa 0%, #eef1ec 60%, #e2e7e0 100%)',
       }}
     >
       <span aria-hidden className={`pointer-events-none absolute -bottom-12 -right-3 font-ledger text-[13rem] leading-none ${usd ? 'text-white/[0.06]' : 'text-graphite/[0.07]'}`}>
@@ -245,7 +245,7 @@ export function PhysicalOutline() {
         height="310"
         rx="24"
         fill="none"
-        stroke="#141c17"
+        stroke="#1c1e21"
         strokeWidth="1.5"
         strokeDasharray="8 8"
         initial={reduce ? false : { pathLength: 0 }}
@@ -253,16 +253,16 @@ export function PhysicalOutline() {
         transition={{ duration: 1.6, ease }}
       />
       {/* Chip */}
-      <rect x="54" y="120" width="62" height="48" rx="8" fill="none" stroke="#141c17" strokeOpacity="0.45" />
-      <path d="M 54 144 H 116 M 75 120 V 168 M 95 120 V 168" stroke="#141c17" strokeOpacity="0.3" />
+      <rect x="54" y="120" width="62" height="48" rx="8" fill="none" stroke="#1c1e21" strokeOpacity="0.45" />
+      <path d="M 54 144 H 116 M 75 120 V 168 M 95 120 V 168" stroke="#1c1e21" strokeOpacity="0.3" />
       {/* Contactless */}
       {[12, 20, 28].map((r) => (
-        <path key={r} d={`M ${150} ${144 - r} a ${r} ${r} 0 0 1 0 ${r * 2}`} fill="none" stroke="#141c17" strokeOpacity="0.35" />
+        <path key={r} d={`M ${150} ${144 - r} a ${r} ${r} 0 0 1 0 ${r * 2}`} fill="none" stroke="#1c1e21" strokeOpacity="0.35" />
       ))}
-      <text x="54" y="270" fontSize="16" fontWeight="600" letterSpacing="2" fill="#141c17" fillOpacity="0.55">
+      <text x="54" y="270" fontSize="16" fontWeight="600" letterSpacing="2" fill="#1c1e21" fillOpacity="0.55">
         ADEOLA FOODS LTD
       </text>
-      <text x="466" y="62" fontSize="12" textAnchor="end" fill="#141c17" fillOpacity="0.45" fontFamily="Geist Mono, monospace">
+      <text x="466" y="62" fontSize="12" textAnchor="end" fill="#1c1e21" fillOpacity="0.45" fontFamily="Geist Mono, monospace">
         PHYSICAL · ON THE WAY
       </text>
     </svg>

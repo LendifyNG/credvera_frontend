@@ -69,7 +69,7 @@ export default function EarnAnywhere() {
                 whileInView={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
                 viewport={{ once: true, margin: '-15% 0px' }}
                 transition={{ duration: 0.8, ease, delay: 0.3 + i * 0.35 }}
-                className="flex items-start gap-3 rounded-2xl bg-white/75 p-4 shadow-[0_18px_40px_-20px_rgba(1,21,4,0.35)] ring-1 ring-white/60 backdrop-blur-xl"
+                className="flex items-start gap-3 rounded-2xl bg-white/75 p-4 shadow-[0_18px_40px_-20px_rgba(14,15,17,0.35)] ring-1 ring-white/60 backdrop-blur-xl"
                 style={{ marginLeft: `${i * 18}px` }}
               >
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">

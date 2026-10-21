@@ -29,7 +29,7 @@ const tiles: Tile[] = [
 ];
 
 function Media({ tile, className = '' }: { tile: Tile; className?: string }) {
-  const box = `overflow-hidden rounded-[1.25rem] bg-mist shadow-[0_30px_60px_-35px_rgba(1,21,4,0.45)] ${className}`;
+  const box = `overflow-hidden rounded-[1.25rem] bg-mist shadow-[0_30px_60px_-35px_rgba(14,15,17,0.45)] ${className}`;
   if (tile.video)
     return (
       <div className={box} style={{ aspectRatio: tile.ratio }}>

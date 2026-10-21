@@ -151,7 +151,7 @@ export default function FaqPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               aria-label="Search the questions"
-              className="h-[4.5rem] w-full rounded-full bg-white pl-16 pr-16 text-xl shadow-[0_20px_50px_-30px_rgba(1,21,4,0.35)] outline-none ring-1 ring-ink/10 transition-shadow focus:ring-2 focus:ring-background [&::-webkit-search-cancel-button]:hidden"
+              className="h-[4.5rem] w-full rounded-full bg-white pl-16 pr-16 text-xl shadow-[0_20px_50px_-30px_rgba(14,15,17,0.35)] outline-none ring-1 ring-ink/10 transition-shadow focus:ring-2 focus:ring-background [&::-webkit-search-cancel-button]:hidden"
             />
             {/* The example question, cycling while the box is empty */}
             {!query && (
@@ -254,7 +254,7 @@ export default function FaqPage() {
             <p className="mt-2 text-white/60">Ask the team. We reply within one working day.</p>
             <Link
               to="/contact"
-              className="group mt-7 inline-flex items-center gap-3 rounded-full bg-primary py-2 pl-6 pr-2 text-[15px] font-semibold text-secondary transition-colors hover:bg-[#9aeb9b]"
+              className="group mt-7 inline-flex items-center gap-3 rounded-full bg-primary py-2 pl-6 pr-2 text-[15px] font-semibold text-secondary transition-colors hover:bg-[#e6f59e]"
             >
               Ask us instead
               <span className="grid size-9 place-items-center rounded-full bg-secondary text-primary transition-transform duration-500 group-hover:rotate-45">

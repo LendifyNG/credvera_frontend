@@ -188,8 +188,8 @@ export default function PassportMirror() {
                     key={opens}
                     aria-hidden
                     className="absolute right-6 top-6 size-2.5 rounded-full bg-primary"
-                    initial={{ scale: 0.5, opacity: 1, boxShadow: '0 0 0 0 rgba(127,222,128,0.7)' }}
-                    animate={{ scale: 1, boxShadow: '0 0 0 14px rgba(127,222,128,0)' }}
+                    initial={{ scale: 0.5, opacity: 1, boxShadow: '0 0 0 0 rgba(220,241,126,0.7)' }}
+                    animate={{ scale: 1, boxShadow: '0 0 0 14px rgba(220,241,126,0)' }}
                     transition={{ duration: 1 }}
                   />
                 )}

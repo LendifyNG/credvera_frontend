@@ -116,7 +116,7 @@ function Statements() {
       </section>
 
       {/* The statement itself, on paper */}
-      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(20,28,23,0.08),0_12px_32px_-16px_rgba(20,28,23,0.25)]">
+      <article className="rounded-sm bg-white p-8 text-[13.5px] shadow-[0_1px_2px_rgba(28,30,33,0.08),0_12px_32px_-16px_rgba(28,30,33,0.25)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <img src={logoDark} alt="Credvera" className="h-5 w-auto opacity-80" />
@@ -247,7 +247,7 @@ function CashFlow() {
           {weeks.map((w, i) => (
             <div key={i} className="flex h-full flex-1 cursor-default flex-col justify-end gap-1" onMouseEnter={() => setHover(i)}>
               <div className="flex flex-1 items-end justify-center gap-1">
-                <div className="w-1/3 rounded-t-sm bg-[#7fde80] transition-opacity" style={{ height: `${(w.inflow / max) * 100}%`, opacity: hover === null || hover === i ? 1 : 0.4 }} />
+                <div className="w-1/3 rounded-t-sm bg-[#dcf17e] transition-opacity" style={{ height: `${(w.inflow / max) * 100}%`, opacity: hover === null || hover === i ? 1 : 0.4 }} />
                 <div className="w-1/3 rounded-t-sm bg-graphite/70 transition-opacity" style={{ height: `${(w.outflow / max) * 100}%`, opacity: hover === null || hover === i ? 1 : 0.4 }} />
               </div>
               <p className="text-center text-[11px] text-graphite/45">{new Date(w.from + DAY).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
@@ -256,7 +256,7 @@ function CashFlow() {
         </div>
         <div className="mt-3 flex gap-5 text-[12.5px] text-graphite/55">
           <span className="flex items-center gap-2">
-            <span className="size-2.5 rounded-sm bg-[#7fde80]" /> Money in
+            <span className="size-2.5 rounded-sm bg-[#dcf17e]" /> Money in
           </span>
           <span className="flex items-center gap-2">
             <span className="size-2.5 rounded-sm bg-graphite/70" /> Money out

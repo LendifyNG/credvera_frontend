@@ -62,12 +62,12 @@ function RateChart({ r }: { r: FxRateDto }) {
     <div>
       <p className="h-5 text-[12.5px] text-graphite/50">{hover !== null ? `${lagos(data[hover]!.at, false)} · ${naira(data[hover]!.rate, dp)}` : '30 days'}</p>
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-1 w-full" onMouseLeave={() => setHover(null)} role="img" aria-label={`${r.currency} against the naira over 30 days`}>
-        <path d={`${line} L${W} ${H} L0 ${H} Z`} fill={up ? '#7fde80' : '#e0906b'} fillOpacity="0.14" />
+        <path d={`${line} L${W} ${H} L0 ${H} Z`} fill={up ? '#dcf17e' : '#e0906b'} fillOpacity="0.14" />
         <path d={line} fill="none" stroke={up ? '#1f6b33' : '#b5532b'} strokeWidth="1.6" />
         {data.map((_, i) => (
           <rect key={i} x={x(i) - W / data.length / 2} y="0" width={W / data.length} height={H} fill="transparent" onMouseEnter={() => setHover(i)} />
         ))}
-        {hover !== null && <circle cx={x(hover)} cy={y(data[hover]!.rate)} r="3.5" fill="#141c17" />}
+        {hover !== null && <circle cx={x(hover)} cy={y(data[hover]!.rate)} r="3.5" fill="#1c1e21" />}
       </svg>
     </div>
   );

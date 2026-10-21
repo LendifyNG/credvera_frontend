@@ -24,7 +24,7 @@ export default function PassportDoc({ dark = false }: { dark?: boolean }) {
 
   return (
     <div className="relative mx-auto w-full max-w-md">
-      <div className={`relative rounded-[1.75rem] p-7 sm:p-9 ${dark ? 'bg-paper text-ink' : 'bg-white text-ink shadow-[0_40px_80px_-40px_rgba(1,21,4,0.4)] ring-1 ring-ink/5'}`}>
+      <div className={`relative rounded-[1.75rem] p-7 sm:p-9 ${dark ? 'bg-paper text-ink' : 'bg-white text-ink shadow-[0_40px_80px_-40px_rgba(14,15,17,0.4)] ring-1 ring-ink/5'}`}>
         <div className="flex items-center justify-between">
           <img src={logo} alt="Credvera" className="h-6 w-auto" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/40">Ref 7KQ2-M9XP</span>

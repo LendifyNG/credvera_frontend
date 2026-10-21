@@ -22,15 +22,15 @@ export default function InvoiceAnatomy() {
     <div className="grid items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
       <svg viewBox="0 0 600 760" className="w-full max-w-[520px] justify-self-center" role="img" aria-label="An invoice with five numbered parts">
         {/* Paper */}
-        <rect x="20" y="20" width="560" height="720" rx="14" fill="white" stroke="#141c17" strokeOpacity="0.18" />
+        <rect x="20" y="20" width="560" height="720" rx="14" fill="white" stroke="#1c1e21" strokeOpacity="0.18" />
         {/* Header */}
-        <text x="44" y="78" fontSize="20" fontWeight="600" fill="#141c17">Adeola Foods Ltd</text>
-        <text x="44" y="104" fontSize="13" fill="#141c17" fillOpacity="0.5" fontFamily="Geist Mono, monospace">INV-0143 · to Lekki Grill</text>
-        <rect x="400" y="66" width="160" height="40" rx="20" fill="none" stroke="#141c17" strokeOpacity="0.25" />
+        <text x="44" y="78" fontSize="20" fontWeight="600" fill="#1c1e21">Adeola Foods Ltd</text>
+        <text x="44" y="104" fontSize="13" fill="#1c1e21" fillOpacity="0.5" fontFamily="Geist Mono, monospace">INV-0143 · to Lekki Grill</text>
+        <rect x="400" y="66" width="160" height="40" rx="20" fill="none" stroke="#1c1e21" strokeOpacity="0.25" />
         <text x="480" y="91" fontSize="13" textAnchor="middle" fill="#1f6b33" fontFamily="Geist Mono, monospace">PAID</text>
-        <line x1="44" y1="130" x2="556" y2="130" stroke="#141c17" strokeOpacity="0.12" />
-        <text x="44" y="176" fontSize="12" fill="#141c17" fillOpacity="0.45" fontFamily="Geist Mono, monospace">ISSUED 26 SEP</text>
-        <text x="556" y="176" fontSize="12" textAnchor="end" fill="#141c17" fillOpacity="0.7" fontFamily="Geist Mono, monospace">DUE FRI 2 OCT</text>
+        <line x1="44" y1="130" x2="556" y2="130" stroke="#1c1e21" strokeOpacity="0.12" />
+        <text x="44" y="176" fontSize="12" fill="#1c1e21" fillOpacity="0.45" fontFamily="Geist Mono, monospace">ISSUED 26 SEP</text>
+        <text x="556" y="176" fontSize="12" textAnchor="end" fill="#1c1e21" fillOpacity="0.7" fontFamily="Geist Mono, monospace">DUE FRI 2 OCT</text>
         {/* Items */}
         {[
           ['Catering, 60 guests', '360,000.00'],
@@ -38,17 +38,17 @@ export default function InvoiceAnatomy() {
           ['Service staff, 4 hours', '35,000.00'],
         ].map(([k, v], i) => (
           <g key={k}>
-            <text x="56" y={338 + i * 44} fontSize="15" fill="#141c17" fillOpacity="0.8">{k}</text>
-            <text x="544" y={338 + i * 44} fontSize="14" textAnchor="end" fill="#141c17" fontFamily="Geist Mono, monospace">₦{v}</text>
-            <line x1="56" y1={354 + i * 44} x2="544" y2={354 + i * 44} stroke="#141c17" strokeOpacity="0.08" />
+            <text x="56" y={338 + i * 44} fontSize="15" fill="#1c1e21" fillOpacity="0.8">{k}</text>
+            <text x="544" y={338 + i * 44} fontSize="14" textAnchor="end" fill="#1c1e21" fontFamily="Geist Mono, monospace">₦{v}</text>
+            <line x1="56" y1={354 + i * 44} x2="544" y2={354 + i * 44} stroke="#1c1e21" strokeOpacity="0.08" />
           </g>
         ))}
-        <text x="56" y="510" fontSize="14" fill="#141c17" fillOpacity="0.55">Total</text>
-        <text x="544" y="512" fontSize="22" fontWeight="600" textAnchor="end" fill="#141c17" fontFamily="Geist Mono, monospace">₦420,000.00</text>
+        <text x="56" y="510" fontSize="14" fill="#1c1e21" fillOpacity="0.55">Total</text>
+        <text x="544" y="512" fontSize="22" fontWeight="600" textAnchor="end" fill="#1c1e21" fontFamily="Geist Mono, monospace">₦420,000.00</text>
         {/* Pay */}
-        <rect x="40" y="590" width="520" height="64" rx="10" fill="#141c17" fillOpacity="0.04" stroke="#141c17" strokeOpacity="0.15" />
-        <text x="300" y="628" fontSize="15" fontWeight="600" textAnchor="middle" fill="#141c17">Pay ₦420,000 · card or bank transfer</text>
-        <text x="556" y="712" fontSize="12" textAnchor="end" fill="#141c17" fillOpacity="0.45" fontFamily="Geist Mono, monospace">REMINDER · 1 OCT, IF UNPAID</text>
+        <rect x="40" y="590" width="520" height="64" rx="10" fill="#1c1e21" fillOpacity="0.04" stroke="#1c1e21" strokeOpacity="0.15" />
+        <text x="300" y="628" fontSize="15" fontWeight="600" textAnchor="middle" fill="#1c1e21">Pay ₦420,000 · card or bank transfer</text>
+        <text x="556" y="712" fontSize="12" textAnchor="end" fill="#1c1e21" fillOpacity="0.45" fontFamily="Geist Mono, monospace">REMINDER · 1 OCT, IF UNPAID</text>
 
         {/* The part being described */}
         <motion.rect
@@ -56,7 +56,7 @@ export default function InvoiceAnatomy() {
           animate={{ x: a.box[0] - 6, y: a.box[1] - 6, width: a.box[2] + 12, height: a.box[3] + 12 }}
           transition={{ type: 'spring', stiffness: 220, damping: 26 }}
           rx="12"
-          fill="#7fde80"
+          fill="#dcf17e"
           fillOpacity="0.14"
           stroke="#1f6b33"
           strokeWidth="1.5"
@@ -66,8 +66,8 @@ export default function InvoiceAnatomy() {
         {/* Numbered notes on the drawing */}
         {parts.map((p) => (
           <g key={p.n} className="cursor-pointer" onClick={() => setActive(p.n)} onMouseEnter={() => setActive(p.n)}>
-            <circle cx={p.at[0]} cy={p.at[1]} r="15" fill={p.n === active ? '#141c17' : 'white'} stroke="#141c17" strokeWidth="1.2" />
-            <text x={p.at[0]} y={p.at[1] + 5} fontSize="13" textAnchor="middle" fill={p.n === active ? 'white' : '#141c17'} fontFamily="Geist Mono, monospace">
+            <circle cx={p.at[0]} cy={p.at[1]} r="15" fill={p.n === active ? '#1c1e21' : 'white'} stroke="#1c1e21" strokeWidth="1.2" />
+            <text x={p.at[0]} y={p.at[1] + 5} fontSize="13" textAnchor="middle" fill={p.n === active ? 'white' : '#1c1e21'} fontFamily="Geist Mono, monospace">
               {p.n}
             </text>
           </g>

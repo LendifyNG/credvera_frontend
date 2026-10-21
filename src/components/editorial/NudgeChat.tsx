@@ -83,7 +83,7 @@ export default function NudgeChat() {
       </div>
 
       {/* The chat, drawn */}
-      <div ref={ref} className="relative rounded-[1.75rem] bg-white shadow-[0_40px_80px_-40px_rgba(1,21,4,0.4)] ring-1 ring-ink/5">
+      <div ref={ref} className="relative rounded-[1.75rem] bg-white shadow-[0_40px_80px_-40px_rgba(14,15,17,0.4)] ring-1 ring-ink/5">
         <div className="flex items-center gap-3 border-b border-ink/10 px-5 py-4">
           <span className="grid size-9 place-items-center rounded-full bg-[#f3c08f] text-sm font-semibold text-ink">A</span>
           <span>
@@ -108,7 +108,7 @@ export default function NudgeChat() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.6, ease }}
-                className="w-[82%] self-end overflow-hidden rounded-2xl rounded-br-md bg-white shadow-[0_12px_30px_-16px_rgba(1,21,4,0.4)] ring-1 ring-ink/10"
+                className="w-[82%] self-end overflow-hidden rounded-2xl rounded-br-md bg-white shadow-[0_12px_30px_-16px_rgba(14,15,17,0.4)] ring-1 ring-ink/10"
               >
                 <div className="flex items-center justify-between bg-paper px-3.5 py-2">
                   <img src={logo} alt="Credvera" className="h-4 w-auto" />

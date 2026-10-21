@@ -22,15 +22,15 @@ for (let y = 0; y < QR; y++)
 function Qr() {
   const finder = (x: number, y: number) => (
     <g key={`${x}-${y}`}>
-      <rect x={x} y={y} width="7" height="7" fill="#011504" />
+      <rect x={x} y={y} width="7" height="7" fill="#0e0f11" />
       <rect x={x + 1} y={y + 1} width="5" height="5" fill="white" />
-      <rect x={x + 2} y={y + 2} width="3" height="3" fill="#011504" />
+      <rect x={x + 2} y={y + 2} width="3" height="3" fill="#0e0f11" />
     </g>
   );
   return (
     <svg viewBox={`0 0 ${QR} ${QR}`} className="size-full" shapeRendering="crispEdges" aria-hidden>
       {cells.map(([x, y]) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="#011504" />
+        <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="#0e0f11" />
       ))}
       {finder(0, 0)}
       {finder(14, 0)}
@@ -121,7 +121,7 @@ export default function PassportProof() {
           animate={{ opacity: home ? 1 : 0, scale: home ? 1 : 1.08 }}
           transition={{ duration: 1.2, ease }}
         />
-        <motion.div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.55),transparent_45%)]" animate={{ opacity: home ? 1 : 0 }} />
+        <motion.div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,15,17,0.55),transparent_45%)]" animate={{ opacity: home ? 1 : 0 }} />
 
         {/* What the landlord asked for */}
         <AnimatePresence>
@@ -172,7 +172,7 @@ export default function PassportProof() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease }}
             >
-              <div className="relative rounded-2xl bg-white p-4 text-ink shadow-[0_30px_60px_-25px_rgba(1,21,4,0.55)] sm:p-5">
+              <div className="relative rounded-2xl bg-white p-4 text-ink shadow-[0_30px_60px_-25px_rgba(14,15,17,0.55)] sm:p-5">
                 <div className="flex items-center justify-between">
                   <img src={logo} alt="Credvera" className="h-4 w-auto" />
                   <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink/45">Earnings Passport</span>

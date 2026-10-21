@@ -106,15 +106,15 @@ export default function LightsBack() {
           transition={{ duration: 2.2, times: [0, 0.35, 1], delay: on ? 0.5 : 0 }}
         />
         {/* Keeps the words readable in both lights */}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.85),rgba(1,21,4,0.2)_45%,transparent_70%)]" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,15,17,0.85),rgba(14,15,17,0.2)_45%,transparent_70%)]" />
         {/* On phones the words sit over the middle of the lit photo, so shade it there too */}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(1,21,4,0.35)_0%,rgba(1,21,4,0.7)_30%,rgba(1,21,4,0.7)_60%,rgba(1,21,4,0.3)_100%)] lg:hidden" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(14,15,17,0.35)_0%,rgba(14,15,17,0.7)_30%,rgba(14,15,17,0.7)_60%,rgba(14,15,17,0.3)_100%)] lg:hidden" />
 
         {/* Status, top left */}
         <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-black/35 px-4 py-2 text-sm backdrop-blur-md sm:left-10 sm:top-8">
           <motion.span
             className="size-2 rounded-full"
-            animate={{ backgroundColor: on ? '#7fde80' : '#f87171' }}
+            animate={{ backgroundColor: on ? '#dcf17e' : '#f87171' }}
             transition={{ duration: 0.4 }}
           />
           <AnimatePresence mode="wait">
@@ -194,7 +194,7 @@ export default function LightsBack() {
               </div>
               <div
                 className="mt-2.5 rounded-lg px-3 py-2.5 font-mono transition-colors duration-500"
-                style={{ background: on || stage === 'accepted' || stage === 'typing' ? '#a8d9a0' : '#8fa78b', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.25)' }}
+                style={{ background: on || stage === 'accepted' || stage === 'typing' ? '#c9dd72' : '#8fa78b', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.25)' }}
               >
                 <p className="text-[10px] tracking-[0.18em] text-black/55">{lcd[0]}</p>
                 <p className="mt-0.5 truncate text-[17px] font-semibold tabular-nums tracking-wide text-black/80">{lcd[1]}</p>

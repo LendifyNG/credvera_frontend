@@ -311,7 +311,7 @@ function InviteDrawer({ open, onClose }: { open: boolean; onClose: () => void })
                   <div className="space-y-2">
                     {TEAM_ROLES.map((r) => (
                       <label key={r} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-colors ${role === r ? 'border-graphite bg-[#faf9f5]' : 'border-graphite/12 hover:border-graphite/30'}`}>
-                        <input type="radio" name="role" checked={role === r} onChange={() => setRole(r)} className="mt-0.5 accent-[#141c17]" />
+                        <input type="radio" name="role" checked={role === r} onChange={() => setRole(r)} className="mt-0.5 accent-[#1c1e21]" />
                         <span>
                           <span className="block text-[14.5px] font-semibold">{ROLES[r].name}</span>
                           <span className="block text-[13px] text-graphite/55">{ROLES[r].about}</span>
@@ -412,7 +412,7 @@ function Roles({ t, closed }: { t: TeamDto; closed: boolean }) {
         <div className="mt-2 space-y-2">
           {(['owner', 'admin', 'payer'] as BusinessRole[]).map((r) => (
             <label key={r} className="flex items-center gap-3 text-[14.5px]">
-              <input type="checkbox" checked={r !== 'payer'} disabled className="size-4 accent-[#141c17] disabled:opacity-50" />
+              <input type="checkbox" checked={r !== 'payer'} disabled className="size-4 accent-[#1c1e21] disabled:opacity-50" />
               {ROLES[r].name}
               {r !== 'payer' && <span className="text-[12.5px] text-graphite/45">always</span>}
             </label>
