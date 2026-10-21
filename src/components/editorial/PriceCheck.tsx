@@ -208,7 +208,7 @@ export default function PriceCheck({ audience }: { audience: Audience }) {
           step={c.step}
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
-          className="mt-6 w-full accent-[#063c1a]"
+          className="mt-6 w-full accent-[#15171a]"
         />
         <p className="mt-6 max-w-md leading-relaxed text-ink/55">
           This is the same breakdown the app shows before you confirm. If a fee applies, you see it first.
@@ -217,7 +217,7 @@ export default function PriceCheck({ audience }: { audience: Audience }) {
 
       {/* The printer and its receipt */}
       <div className="relative">
-        <div className="relative z-10 h-5 rounded-full bg-secondary shadow-[0_10px_20px_-10px_rgba(1,21,4,0.6)]">
+        <div className="relative z-10 h-5 rounded-full bg-secondary shadow-[0_10px_20px_-10px_rgba(14,15,17,0.6)]">
           <span className="absolute inset-x-6 top-1/2 h-1 -translate-y-1/2 rounded-full bg-black/50" />
         </div>
         <div className="-mt-2.5 overflow-hidden px-4">
@@ -228,7 +228,7 @@ export default function PriceCheck({ audience }: { audience: Audience }) {
               animate={{ y: 0 }}
               exit={{ y: '-100%', transition: { duration: 0.25, ease: 'easeIn' } }}
               transition={{ duration: 0.9, ease }}
-              className="relative bg-[#fbfaf6] px-6 pb-8 pt-8 font-mono text-[13px] text-ink shadow-[0_30px_50px_-30px_rgba(1,21,4,0.5)]"
+              className="relative bg-[#fbfaf6] px-6 pb-8 pt-8 font-mono text-[13px] text-ink shadow-[0_30px_50px_-30px_rgba(14,15,17,0.5)]"
               style={{ mask: TEAR, WebkitMask: TEAR }}
             >
               <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-ink/60">Credvera</p>

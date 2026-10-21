@@ -53,7 +53,7 @@ export default function MoneyRoute() {
         <div
           aria-hidden
           className="absolute inset-0 opacity-[0.18]"
-          style={{ backgroundImage: 'radial-gradient(rgba(127,222,128,0.5) 1px, transparent 1px)', backgroundSize: '26px 26px' }}
+          style={{ backgroundImage: 'radial-gradient(rgba(220,241,126,0.5) 1px, transparent 1px)', backgroundSize: '26px 26px' }}
         />
 
         <div className="relative flex w-full flex-1 flex-col px-6 pb-8 pt-8 sm:px-10 lg:px-14 lg:pt-10">
@@ -86,14 +86,14 @@ export default function MoneyRoute() {
                 ref={pathRef}
                 d="M 110 330 C 300 40, 700 30, 890 300"
                 fill="none"
-                stroke="rgba(255,255,255,0.18)"
+                stroke=",0.18)"
                 strokeWidth="1.5"
                 strokeDasharray="4 8"
               />
               <path
                 d="M 110 330 C 300 40, 700 30, 890 300"
                 fill="none"
-                stroke="#7fde80"
+                stroke="#dcf17e"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeDasharray={len}
@@ -105,26 +105,26 @@ export default function MoneyRoute() {
                 { x: 890, y: 300, name: 'Lagos', code: 'LOS', lit: travel >= 1 },
               ].map((c) => (
                 <g key={c.code}>
-                  <circle cx={c.x} cy={c.y} r={c.lit ? 16 : 10} fill={c.lit ? 'rgba(127,222,128,0.18)' : 'rgba(255,255,255,0.06)'} />
-                  <circle cx={c.x} cy={c.y} r="5" fill={c.lit ? '#7fde80' : 'rgba(255,255,255,0.5)'} />
-                  <text x={c.x} y={c.y + 42} textAnchor="middle" fill="rgba(255,255,255,0.85)" fontSize="18" fontWeight="600">
+                  <circle cx={c.x} cy={c.y} r={c.lit ? 16 : 10} fill={c.lit ? 'rgba(220,241,126,0.18)' : ',0.06)'} />
+                  <circle cx={c.x} cy={c.y} r="5" fill={c.lit ? '#dcf17e' : ',0.5)'} />
+                  <text x={c.x} y={c.y + 42} textAnchor="middle" fill=",0.85)" fontSize="18" fontWeight="600">
                     {c.name}
                   </text>
-                  <text x={c.x} y={c.y + 64} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="13" letterSpacing="3">
+                  <text x={c.x} y={c.y + 64} textAnchor="middle" fill=",0.4)" fontSize="13" letterSpacing="3">
                     {c.code}
                   </text>
                 </g>
               ))}
               {/* The payment itself */}
               <g transform={`translate(${point.x} ${point.y})`}>
-                <circle r="22" fill="rgba(127,222,128,0.25)">
+                <circle r="22" fill="rgba(220,241,126,0.25)">
                   <animate attributeName="r" values="14;26;14" dur="1.8s" repeatCount="indefinite" />
                 </circle>
-                <circle r="7" fill="#7fde80" />
+                <circle r="7" fill="#dcf17e" />
                 <g transform="translate(0 -46)">
                   {/* At Lagos the naira tag grows to the left, so it stays on screen. */}
-                  <rect x={converted ? -196 : -62} y="-22" width={converted ? 236 : 124} height="40" rx="20" fill="#f5f7f2" />
-                  <text x={converted ? -78 : 0} y="5" textAnchor="middle" fill="#011504" fontSize="18" fontWeight="700" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  <rect x={converted ? -196 : -62} y="-22" width={converted ? 236 : 124} height="40" rx="20" fill="#f3f4ef" />
+                  <text x={converted ? -78 : 0} y="5" textAnchor="middle" fill="#0e0f11" fontSize="18" fontWeight="700" style={{ fontVariantNumeric: 'tabular-nums' }}>
                     {converted ? `₦${(USD * RATE).toLocaleString('en-NG')}.00` : `$${USD.toFixed(2)}`}
                   </text>
                 </g>

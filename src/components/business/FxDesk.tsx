@@ -204,7 +204,7 @@ export default function FxDesk() {
             setAmount(Number(e.target.value));
             requote();
           }}
-          className="mt-3 w-full accent-[#141c17]"
+          className="mt-3 w-full accent-[#1c1e21]"
         />
         <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-graphite/10 pt-4">
           <span className="text-sm text-graphite/55">You get</span>

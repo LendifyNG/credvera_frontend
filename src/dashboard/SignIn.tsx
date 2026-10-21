@@ -95,7 +95,7 @@ export default function SignIn() {
       {/* Left: two business owners at work */}
       <aside className="relative isolate flex min-h-[300px] flex-col justify-between overflow-hidden bg-graphite p-8 text-white lg:min-h-0 lg:p-14">
         <img src={ankara} alt="Two business owners in ankara working at a laptop" className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_30%]" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(20,28,23,0.95)_0%,rgba(20,28,23,0.75)_40%,rgba(20,28,23,0.15)_75%,rgba(20,28,23,0.45)_100%)]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,,0.95)_0%,,0.75)_40%,,0.15)_75%,,0.45)_100%)]" />
         <Link to="/business" className="w-fit">
           <img src={logo} alt="Credvera" className="h-7 w-auto" />
         </Link>

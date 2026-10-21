@@ -18,13 +18,13 @@ export default function StatStack({ cards }: { cards: StatCardMedia[] }) {
           className="sticky mx-auto mb-6 max-w-7xl"
           style={{ top: `calc(5.5rem + ${i * 18}px)` }}
         >
-          <div className="relative h-[min(78vh,760px)] min-h-[480px] overflow-hidden rounded-[2rem] bg-secondary text-white shadow-[0_-20px_60px_-30px_rgba(1,21,4,0.6)]">
+          <div className="relative h-[min(78vh,760px)] min-h-[480px] overflow-hidden rounded-[2rem] bg-secondary text-white shadow-[0_-20px_60px_-30px_rgba(14,15,17,0.6)]">
             {video ? (
               <LoopVideo name={video.name} label={video.label} className="absolute inset-0 h-full w-full object-cover" />
             ) : photo ? (
               <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
             ) : null}
-            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.9),rgba(1,21,4,0.35)_50%,rgba(1,21,4,0.15))]" />
+            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,15,17,0.9),rgba(14,15,17,0.35)_50%,rgba(14,15,17,0.15))]" />
 
             <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10 lg:p-14">
               <p className="text-[13px] font-semibold text-primary tabular-nums">

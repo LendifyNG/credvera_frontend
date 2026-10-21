@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand */
-  --color-background: #063c1a;
-  --color-primary: #7fde80;
-  --color-secondary: #011504;
-  --color-accentText: #063c1a;
+  /* Brand: near-black ink, lime accent, warm off-white paper (matches the app). */
+  --color-background: #15171a;
+  --color-primary: #dcf17e;
+  --color-secondary: #0e0f11;
+  --color-accentText: #15171a;
 
   /* Neutrals for light sections */
-  --color-ink: #0b1a10;
-  --color-paper: #f5f7f2;
-  --color-mist: #e6ede3;
+  --color-ink: #161616;
+  --color-paper: #f3f4ef;
+  --color-mist: #e6e7e2;
 
   /* Business: the app's business tone, graphite ink on a greyer paper. */
-  --color-graphite: #141c17;
-  --color-ledger: #f0f2ef;
+  --color-graphite: #1c1e21;
+  --color-ledger: #eeefea;
 
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   /* Editorial accent: italic words inside headlines. */

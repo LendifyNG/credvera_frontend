@@ -11,8 +11,8 @@ const END = WORD.length * STEP + 2;
 
 // Each letter gets its own shade from the account's palette.
 const PALETTE = {
-  personal: ['#7fde80', '#f5f7f2', '#3fcf5f', '#e3f6e3', '#a8ecaa', '#7fde80', '#f5f7f2', '#3fcf5f'],
-  business: ['#f0f2ef', '#7fde80', '#c9d1cc', '#e3f6e3', '#9aa39e', '#f0f2ef', '#7fde80', '#c9d1cc'],
+  personal: ['#dcf17e', '#f3f4ef', '#b9cc5e', '#eef7c8', '#eef7c8', '#dcf17e', '#f3f4ef', '#b9cc5e'],
+  business: ['#eeefea', '#dcf17e', '#c9d1cc', '#eef7c8', '#9aa39e', '#eeefea', '#dcf17e', '#c9d1cc'],
 } as const;
 
 // Where each glyph sits in its line box (the line height is 0.8 of the font

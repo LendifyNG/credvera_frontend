@@ -16,7 +16,7 @@ export default function AppBand({ line = 'All of it, in *one* app.', audience = 
             href={cta.to}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-3 rounded-full bg-primary py-2 pl-6 pr-2 text-[15px] font-semibold text-secondary transition-colors hover:bg-[#9aeb9b]"
+            className="group inline-flex items-center gap-3 rounded-full bg-primary py-2 pl-6 pr-2 text-[15px] font-semibold text-secondary transition-colors hover:bg-[#e6f59e]"
           >
             {cta.label}
             <span className="grid size-9 place-items-center rounded-full bg-secondary text-primary transition-transform duration-500 group-hover:rotate-45">

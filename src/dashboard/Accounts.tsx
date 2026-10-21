@@ -258,7 +258,7 @@ export default function Accounts() {
       {/* The total, and how it splits across currencies */}
       {estimate.priced && estimate.total > 0 && (
         <section className="relative mt-6 overflow-hidden rounded-2xl border border-graphite/10 bg-white p-6">
-          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(rgba(20,28,23,0.06)_1px,transparent_1px)] [background-size:14px_14px]" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(,0.06)_1px,transparent_1px)] [background-size:14px_14px]" />
           <div className="relative">
             <p className="text-[14px] font-medium text-graphite/60">Estimated total in NGN</p>
             <p className="mt-1 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold tracking-[-0.03em] text-[#1f6b33]">{money(estimate.total)}</p>

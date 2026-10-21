@@ -31,13 +31,13 @@ const MINUTES_PER_SECOND = 70; // the whole day in about 15 seconds
 
 // The sky behind the day: [minute, top colour, bottom colour]
 const sky: [number, string, string][] = [
-  [6 * 60, '#f6d7b8', '#f5f7f2'], // dawn
-  [9 * 60, '#dff0dc', '#f5f7f2'], // morning
-  [13 * 60, '#cfeccd', '#eef6ea'], // midday
+  [6 * 60, '#f6d7b8', '#f3f4ef'], // dawn
+  [9 * 60, '#eef4d2', '#f3f4ef'], // morning
+  [13 * 60, '#e4efb8', '#f1f5e1'], // midday
   [17 * 60 + 30, '#f3c08f', '#f7e6d3'], // late afternoon
   [19 * 60, '#b4674a', '#3b3a2a'], // dusk
-  [20 * 60 + 30, '#063c1a', '#011504'], // night
-  [23 * 60, '#042a13', '#011504'],
+  [20 * 60 + 30, '#15171a', '#0e0f11'], // night
+  [23 * 60, '#15171a', '#0e0f11'],
 ];
 
 function skyAt(m: number) {
@@ -102,7 +102,7 @@ export default function PaymentDay() {
       ref={box}
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
-      className={`relative isolate flex h-[560px] w-full flex-col overflow-hidden rounded-[2rem] p-6 shadow-[0_50px_100px_-50px_rgba(1,21,4,0.55)] ring-1 ring-ink/5 sm:p-8 ${ink}`}
+      className={`relative isolate flex h-[560px] w-full flex-col overflow-hidden rounded-[2rem] p-6 shadow-[0_50px_100px_-50px_rgba(14,15,17,0.55)] ring-1 ring-ink/5 sm:p-8 ${ink}`}
       style={{ background: `linear-gradient(to bottom, ${s.top}, ${s.bottom})` }}
       aria-label="An example day of payments in the Credvera app"
       role="img"
@@ -114,8 +114,8 @@ export default function PaymentDay() {
           style={{
             left: `${sunX}%`,
             top: `${sunY}%`,
-            background: s.dark ? '#e9f5e4' : '#ffd79a',
-            boxShadow: s.dark ? '0 0 40px 6px rgba(127,222,128,0.25), inset -10px -4px 0 0 #cfe3c9' : '0 0 70px 20px rgba(255,200,120,0.55)',
+            background: s.dark ? '#f3f4ef' : '#ffd79a',
+            boxShadow: s.dark ? '0 0 40px 6px rgba(220,241,126,0.25), inset -10px -4px 0 0 #e6e7e2' : '0 0 70px 20px ,0.55)',
           }}
         />
       </div>
@@ -143,7 +143,7 @@ export default function PaymentDay() {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
               transition={{ duration: 0.6, ease }}
-              className="rounded-2xl bg-white/80 p-3.5 text-ink shadow-[0_18px_40px_-24px_rgba(1,21,4,0.5)] ring-1 ring-white/60 backdrop-blur-xl"
+              className="rounded-2xl bg-white/80 p-3.5 text-ink shadow-[0_18px_40px_-24px_rgba(14,15,17,0.5)] ring-1 ring-white/60 backdrop-blur-xl"
             >
               <div className="flex items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">

@@ -42,12 +42,12 @@ const left = (iso: string) => {
 function AllClear() {
   return (
     <svg viewBox="0 0 120 80" className="mx-auto h-16 w-auto" aria-hidden>
-      <rect x="22" y="10" width="76" height="60" rx="6" fill="#f5f4ef" stroke="#141c17" strokeOpacity="0.15" />
+      <rect x="22" y="10" width="76" height="60" rx="6" fill="#f5f4ef" stroke="#1c1e21" strokeOpacity="0.15" />
       {[26, 38, 50].map((y) => (
-        <line key={y} x1="34" x2="86" y1={y} y2={y} stroke="#141c17" strokeOpacity="0.12" strokeWidth="2" strokeLinecap="round" />
+        <line key={y} x1="34" x2="86" y1={y} y2={y} stroke="#1c1e21" strokeOpacity="0.12" strokeWidth="2" strokeLinecap="round" />
       ))}
-      <circle cx="92" cy="58" r="14" fill="#7fde80" />
-      <path d="M85 58 l5 5 l9 -10" fill="none" stroke="#141c17" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="92" cy="58" r="14" fill="#dcf17e" />
+      <path d="M85 58 l5 5 l9 -10" fill="none" stroke="#1c1e21" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -262,7 +262,7 @@ function Waiting({
   return (
     <motion.li layout exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.35, ease }} className="overflow-hidden border-b border-graphite/[0.07] last:border-0">
       <div className="flex flex-wrap items-center gap-4 px-5 py-4">
-        <input type="checkbox" checked={picked} disabled={!p.canDecide} onChange={onPick} aria-label={`Select ${payee(p)}`} className="size-4 accent-[#141c17] disabled:opacity-30" />
+        <input type="checkbox" checked={picked} disabled={!p.canDecide} onChange={onPick} aria-label={`Select ${payee(p)}`} className="size-4 accent-[#1c1e21] disabled:opacity-30" />
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#efeee7] text-[11.5px] font-semibold" title={`Asked by ${p.requestedBy}`}>
           {initials(p.requestedBy)}
         </span>

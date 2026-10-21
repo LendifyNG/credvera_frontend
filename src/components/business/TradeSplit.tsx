@@ -54,7 +54,7 @@ export default function TradeSplit() {
           {/* Home */}
           <motion.div className="relative h-full overflow-hidden" animate={{ width: `${split}%` }} transition={{ type: 'spring', stiffness: 260, damping: 32 }}>
             <LoopVideo name="trade-lagos" label="A Lagos business district from above, then a busy Nigerian market" className="absolute inset-0 h-full w-full object-cover" />
-            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,28,23,0.75),transparent_45%)]" />
+            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,,0.75),transparent_45%)]" />
             <div className="absolute bottom-6 left-6 text-white">
               <p className="font-medium text-[13px] text-white/60">At home · Nigeria</p>
               <p className="mt-1 font-ledger text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium tabular-nums leading-none">{home}</p>
@@ -65,7 +65,7 @@ export default function TradeSplit() {
           {/* Abroad */}
           <div className="relative h-full flex-1 overflow-hidden">
             <LoopVideo name="trade-abroad" label="Goods being loaded for export, then a supplier's warehouse" className="absolute inset-0 h-full w-full object-cover" />
-            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(20,28,23,0.75),transparent_45%)]" />
+            <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,,0.75),transparent_45%)]" />
             <div className="absolute bottom-6 right-6 text-right text-white">
               <p className="font-medium text-[13px] text-white/60">Abroad · your supplier</p>
               <p className="mt-1 font-ledger text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium tabular-nums leading-none">{abroad}</p>
@@ -96,7 +96,7 @@ export default function TradeSplit() {
                 if (e.key === 'ArrowLeft') setSplit((s) => Math.max(18, s - 5));
                 if (e.key === 'ArrowRight') setSplit((s) => Math.min(82, s + 5));
               }}
-              className="absolute left-1/2 top-1/2 grid h-14 w-9 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize place-items-center rounded-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+              className="absolute left-1/2 top-1/2 grid h-14 w-9 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize place-items-center rounded-full bg-white shadow-[0_10px_30px_,0.35)]"
             >
               <span className="flex gap-1">
                 <span className="h-4 w-0.5 rounded-full bg-graphite/40" />

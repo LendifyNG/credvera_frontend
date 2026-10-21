@@ -100,21 +100,21 @@ export default function LightsBack() {
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse at 30% 20%, rgba(255,214,150,0.35), transparent 60%)' }}
+          style={{ background: 'radial-gradient(ellipse at 30% 20%, ,0.35), transparent 60%)' }}
           initial={false}
           animate={{ opacity: on ? [0, 1, 0.35] : 0 }}
           transition={{ duration: 2.2, times: [0, 0.35, 1], delay: on ? 0.5 : 0 }}
         />
         {/* Keeps the words readable in both lights */}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.85),rgba(1,21,4,0.2)_45%,transparent_70%)]" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,15,17,0.85),rgba(14,15,17,0.2)_45%,transparent_70%)]" />
         {/* On phones the words sit over the middle of the lit photo, so shade it there too */}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(1,21,4,0.35)_0%,rgba(1,21,4,0.7)_30%,rgba(1,21,4,0.7)_60%,rgba(1,21,4,0.3)_100%)] lg:hidden" />
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(14,15,17,0.35)_0%,rgba(14,15,17,0.7)_30%,rgba(14,15,17,0.7)_60%,rgba(14,15,17,0.3)_100%)] lg:hidden" />
 
         {/* Status, top left */}
         <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-black/35 px-4 py-2 text-sm backdrop-blur-md sm:left-10 sm:top-8">
           <motion.span
             className="size-2 rounded-full"
-            animate={{ backgroundColor: on ? '#7fde80' : '#f87171' }}
+            animate={{ backgroundColor: on ? '#dcf17e' : '#f87171' }}
             transition={{ duration: 0.4 }}
           />
           <AnimatePresence mode="wait">
@@ -156,7 +156,7 @@ export default function LightsBack() {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.6, ease }}
-                  className="mb-3 rounded-2xl bg-white/85 p-3.5 text-ink shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+                  className="mb-3 rounded-2xl bg-white/85 p-3.5 text-ink shadow-[0_18px_40px_-20px_,0.6)] backdrop-blur-xl"
                 >
                   <div className="flex items-center gap-3">
                     <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
@@ -184,7 +184,7 @@ export default function LightsBack() {
             </AnimatePresence>
 
             {/* A prepaid meter, drawn */}
-            <div className="rounded-[1.4rem] bg-[#dcd7cb] p-4 text-[#1e2420] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
+            <div className="rounded-[1.4rem] bg-[#dcd7cb] p-4 text-[#1e2420] shadow-[0_30px_60px_-25px_,0.8),inset_0_1px_0_,0.6)]">
               <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-black/45">
                 <span>Prepaid meter</span>
                 <span className="flex gap-1.5">
@@ -194,7 +194,7 @@ export default function LightsBack() {
               </div>
               <div
                 className="mt-2.5 rounded-lg px-3 py-2.5 font-mono transition-colors duration-500"
-                style={{ background: on || stage === 'accepted' || stage === 'typing' ? '#a8d9a0' : '#8fa78b', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.25)' }}
+                style={{ background: on || stage === 'accepted' || stage === 'typing' ? '#c9dd72' : '#8fa78b', boxShadow: 'inset 0 2px 6px ,0.25)' }}
               >
                 <p className="text-[10px] tracking-[0.18em] text-black/55">{lcd[0]}</p>
                 <p className="mt-0.5 truncate text-[17px] font-semibold tabular-nums tracking-wide text-black/80">{lcd[1]}</p>

@@ -134,7 +134,7 @@ export default function NameCheck() {
         </div>
 
         {/* The transfer, drawn */}
-        <div className="rounded-[1.75rem] bg-white p-6 shadow-[0_40px_80px_-40px_rgba(1,21,4,0.4)] ring-1 ring-ink/5 sm:p-7">
+        <div className="rounded-[1.75rem] bg-white p-6 shadow-[0_40px_80px_-40px_rgba(14,15,17,0.4)] ring-1 ring-ink/5 sm:p-7">
           <p className="text-sm font-semibold">Send to a bank</p>
 
           <div className="mt-5 flex items-center justify-between rounded-2xl bg-paper px-4 py-3">

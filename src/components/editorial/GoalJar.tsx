@@ -134,7 +134,7 @@ export default function GoalJar() {
                 step={step}
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className="mt-4 w-full accent-[#063c1a]"
+                className="mt-4 w-full accent-[#15171a]"
               />
             </div>
 
@@ -168,13 +168,13 @@ export default function GoalJar() {
               <path d={JAR} />
             </clipPath>
             <linearGradient id="jar-liquid" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7fde80" />
-              <stop offset="100%" stopColor="#2f9e4f" />
+              <stop offset="0%" stopColor="#dcf17e" />
+              <stop offset="100%" stopColor="#b9cc5e" />
             </linearGradient>
           </defs>
 
           {/* Glass */}
-          <path d={JAR} fill="rgba(255,255,255,0.7)" />
+          <path d={JAR} fill=",0.7)" />
 
           {/* Liquid, with a moving surface */}
           <g clipPath="url(#jar-clip)">
@@ -188,23 +188,23 @@ export default function GoalJar() {
               <g className={reduce ? '' : 'jar-wave-slow'} opacity="0.35">
                 <path
                   d={`M -300 ${TOP + 4} q 37.5 10 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 t 75 0 V 460 H -300 Z`}
-                  fill="#063c1a"
+                  fill="#15171a"
                 />
               </g>
             </motion.g>
           </g>
 
           {/* Glass edge and shine */}
-          <path d={JAR} fill="none" stroke="rgba(1,21,4,0.18)" strokeWidth="2.5" />
+          <path d={JAR} fill="none" stroke="rgba(14,15,17,0.18)" strokeWidth="2.5" />
           <path d="M 52 160 Q 50 260 56 380" fill="none" stroke="white" strokeOpacity="0.75" strokeWidth="7" strokeLinecap="round" />
           {/* Lid */}
-          <rect x="62" y="22" width="176" height="24" rx="8" fill={full ? '#7fde80' : '#011504'} className="transition-colors duration-500" />
+          <rect x="62" y="22" width="176" height="24" rx="8" fill={full ? '#dcf17e' : '#0e0f11'} className="transition-colors duration-500" />
 
           {/* What's inside, in the middle of the jar */}
-          <text x="150" y="275" textAnchor="middle" fontSize="30" fontWeight="700" fill="#011504" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          <text x="150" y="275" textAnchor="middle" fontSize="30" fontWeight="700" fill="#0e0f11" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {naira(saved)}
           </text>
-          <text x="150" y="302" textAnchor="middle" fontSize="14" fill="rgba(1,21,4,0.6)">
+          <text x="150" y="302" textAnchor="middle" fontSize="14" fill="rgba(14,15,17,0.6)">
             of {naira(goal.target)} · {Math.round(fill * 100)}%
           </text>
         </svg>

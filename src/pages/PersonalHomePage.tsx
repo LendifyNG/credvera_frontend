@@ -35,7 +35,7 @@ function GetTheApp({ light = false }: { light?: boolean }) {
       target="_blank"
       rel="noopener noreferrer"
       className={`group inline-flex items-center gap-3 rounded-full py-2 pl-6 pr-2 text-[15px] font-semibold transition-colors ${
-        light ? 'bg-primary text-secondary hover:bg-[#9aeb9b]' : 'bg-secondary text-white hover:bg-background'
+        light ? 'bg-primary text-secondary hover:bg-[#e6f59e]' : 'bg-secondary text-white hover:bg-background'
       }`}
     >
       {cta.label}

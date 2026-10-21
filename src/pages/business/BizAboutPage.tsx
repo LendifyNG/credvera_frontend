@@ -155,7 +155,7 @@ export default function BizAboutPage() {
               animate={{ opacity: 1, scale: 1, x: pos.x + 40, y: pos.y - 140 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ opacity: { duration: 0.25 }, scale: { duration: 0.35, ease }, x: { type: 'spring', stiffness: 200, damping: 25 }, y: { type: 'spring', stiffness: 200, damping: 25 } }}
-              className="pointer-events-none absolute left-0 top-0 hidden w-[300px] rounded-lg shadow-[0_30px_60px_-25px_rgba(20,28,23,0.5)] lg:block"
+              className="pointer-events-none absolute left-0 top-0 hidden w-[300px] rounded-lg shadow-[0_30px_60px_-25px_,0.5)] lg:block"
               style={{ aspectRatio: `${trades[hover]!.w} / ${trades[hover]!.h}` }}
             />
           )}

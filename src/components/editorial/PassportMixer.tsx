@@ -143,7 +143,7 @@ export default function PassportMixer() {
         {/* What they'll get, live */}
         <div className="relative">
           <p className="mb-3 text-center text-[13px] font-semibold text-ink/40">What they’ll see</p>
-          <div className="rounded-[1.75rem] bg-white p-7 shadow-[0_40px_80px_-40px_rgba(1,21,4,0.4)] ring-1 ring-ink/5 sm:p-8">
+          <div className="rounded-[1.75rem] bg-white p-7 shadow-[0_40px_80px_-40px_rgba(14,15,17,0.4)] ring-1 ring-ink/5 sm:p-8">
             <div className="flex items-center justify-between">
               <img src={logo} alt="Credvera" className="h-5 w-auto" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/40">Earnings Passport</span>

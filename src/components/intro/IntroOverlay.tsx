@@ -18,23 +18,23 @@ const FADE_OUT = 0.5;
 // Each account's four panels, in its own colours, and the line left on screen after them.
 const looks = {
   personal: {
-    bg: '#011504',
+    bg: '#0e0f11',
     statement: 'Your money, home and abroad.',
     panels: [
-      { word: 'Get paid', bg: '#7fde80', fg: '#011504' },
-      { word: 'Pay bills', bg: '#063c1a', fg: '#7fde80' },
-      { word: 'Save', bg: '#f5f7f2', fg: '#063c1a' },
-      { word: 'Prove it', bg: '#011504', fg: '#7fde80' },
+      { word: 'Get paid', bg: '#dcf17e', fg: '#0e0f11' },
+      { word: 'Pay bills', bg: '#15171a', fg: '#dcf17e' },
+      { word: 'Save', bg: '#f3f4ef', fg: '#15171a' },
+      { word: 'Prove it', bg: '#0e0f11', fg: '#dcf17e' },
     ],
   },
   business: {
-    bg: '#141c17',
+    bg: '#1c1e21',
     statement: 'Business money, in plain words.',
     panels: [
-      { word: 'Collect', bg: '#141c17', fg: '#f0f2ef' },
-      { word: 'Pay out', bg: '#f0f2ef', fg: '#141c17' },
-      { word: 'Convert', bg: '#e4e8e2', fg: '#141c17' },
-      { word: 'Trade', bg: '#26302a', fg: '#7fde80' },
+      { word: 'Collect', bg: '#1c1e21', fg: '#eeefea' },
+      { word: 'Pay out', bg: '#eeefea', fg: '#1c1e21' },
+      { word: 'Convert', bg: '#e4e8e2', fg: '#1c1e21' },
+      { word: 'Trade', bg: '#26302a', fg: '#dcf17e' },
     ],
   },
 };

@@ -29,7 +29,7 @@ export default function PayPage() {
             <p className="mt-2 text-[14.5px] text-graphite/60">{invoice.error ? errorMessage(invoice.error) : 'Check the link with whoever sent it.'}</p>
           </div>
         ) : (
-          <article className="mt-8 overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_-18px_rgba(20,28,23,0.35)] ring-1 ring-graphite/10">
+          <article className="mt-8 overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_-18px_,0.35)] ring-1 ring-graphite/10">
             <header className="border-b border-graphite/10 px-7 py-6">
               <p className="text-[13px] text-graphite/55">{inv.from ? `${inv.from} is asking you to pay` : 'Payment request'}</p>
               <p className="mt-1 font-ledger text-[32px] font-semibold tracking-[-0.03em]">{amount(inv.amount, inv.currency)}</p>

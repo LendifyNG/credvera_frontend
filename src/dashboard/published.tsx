@@ -76,7 +76,7 @@ export function PromoCard() {
   if (!promo) return null;
 
   return (
-    <section className="mt-6 flex flex-wrap items-center gap-5 rounded-2xl bg-[#141c17] px-6 py-5 text-white">
+    <section className="mt-6 flex flex-wrap items-center gap-5 rounded-2xl bg-[#1c1e21] px-6 py-5 text-white">
       <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-[16px] text-graphite">✦</span>
       <div className="min-w-0 flex-1">
         <p className="text-[16px] font-semibold leading-snug">{promo.title}</p>

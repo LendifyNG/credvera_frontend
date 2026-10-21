@@ -31,7 +31,7 @@ type Stage = 'photo' | 'bill' | 'split' | 'shares' | 'settled';
 function Receipt({ clip }: { clip?: string }) {
   return (
     <div
-      className="absolute inset-0 rounded-2xl bg-[#fbfaf6] p-4 font-mono text-[11px] text-ink shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] sm:p-5 sm:text-[12px]"
+      className="absolute inset-0 rounded-2xl bg-[#fbfaf6] p-4 font-mono text-[11px] text-ink shadow-[0_30px_60px_-20px_,0.55)] sm:p-5 sm:text-[12px]"
       style={clip ? { clipPath: clip } : undefined}
     >
       <p className="text-center text-[10px] font-bold uppercase tracking-[0.25em] text-ink/60">Dinner · Victoria Island</p>

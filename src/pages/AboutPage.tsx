@@ -79,7 +79,7 @@ export default function AboutPage() {
                   decoding="async"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                 />
-                <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(1,21,4,0.88),transparent_55%)]" />
+                <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,15,17,0.88),transparent_55%)]" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 p-7 sm:p-9">
                   <div>
                     <p className="text-[13px] font-semibold text-primary">{d.label}</p>

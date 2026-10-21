@@ -161,7 +161,7 @@ function NavRow({ item, onConvert, inDrawer }: { item: Item; onConvert: () => vo
       </NavLink>
       {/* The hover menu, bridged by padding so the pointer can cross to it */}
       <div style={pos} className="invisible fixed z-50 pl-3 opacity-0 transition-opacity duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-        <div className="w-64 rounded-xl bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(20,28,23,0.35)] ring-1 ring-graphite/10">
+        <div className="w-64 rounded-xl bg-white p-1.5 shadow-[0_20px_40px_-16px_,0.35)] ring-1 ring-graphite/10">
           <p className="px-3 pb-1 pt-2 text-[12.5px] font-medium text-graphite/45">{item.label}</p>
           {item.menu.map(subLink)}
         </div>
