@@ -22,6 +22,7 @@ import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
 import PayPage from './pages/PayPage';
 import VerifyPage from './pages/VerifyPage';
+import CelebrationPage from './pages/CelebrationPage';
 import Accounts from './dashboard/Accounts';
 import AppShell from './dashboard/AppShell';
 import Approvals from './dashboard/Approvals';
@@ -120,8 +121,8 @@ export default function App() {
   const lenisRef = useRef<Lenis | null>(null);
   const { pathname } = useLocation();
   // The business dashboard has its own frame, without the website's menu and footer.
-  // The dashboard, the public pay page and the staff card check stand alone, without the site's chrome.
-  const inApp = pathname.startsWith('/business/app') || pathname.startsWith('/pay/') || pathname === '/verify' || pathname.startsWith('/verify/');
+  // The dashboard and the public pay page stand alone, without the site's chrome.
+  const inApp = pathname.startsWith('/business/app') || pathname.startsWith('/pay/');
   const [introActive, setIntroActive] = useState(() => shouldPlayIntro(pathname));
   const [introDone, setIntroDone] = useState(!introActive);
 
@@ -161,7 +162,7 @@ export default function App() {
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app/join/') ? 'Join a team | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : pathname === '/verify' || pathname.startsWith('/verify/') ? 'Staff card check | Credvera' : 'Page not found | Credvera');
+    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app/join/') ? 'Join a team | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : pathname === '/verify' || pathname.startsWith('/verify/') ? 'Staff card check | Credvera' : pathname.startsWith('/c/') ? 'Send a gift | Credvera' : 'Page not found | Credvera');
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
@@ -189,6 +190,9 @@ export default function App() {
           {/* Where the QR code on a staff card lands */}
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/verify/:id" element={<VerifyPage />} />
+
+          {/* A celebration's page, where guests send gifts */}
+          <Route path="/c/:slug" element={<CelebrationPage />} />
 
           {/* The business dashboard */}
           <Route path="/business/app/sign-in" element={<SignIn />} />
