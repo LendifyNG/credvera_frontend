@@ -66,6 +66,20 @@ export {
   type StatementRequestInput,
 } from './serviceRequests';
 export {
+  supportApi,
+  useContactSupport,
+  useOpenTicket,
+  useReplyToTicket,
+  useSolveTicket,
+  useSupportTicket,
+  useSupportTickets,
+  type ContactInput,
+  type OpenTicketInput,
+  type SupportMessageDto,
+  type SupportStatus,
+  type SupportTicketDto,
+} from './support';
+export {
   suppliersApi,
   useArchiveSupplier,
   useChangeSupplierBank,
