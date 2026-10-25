@@ -41,8 +41,9 @@ const MATRIX: { can: string; roles: BusinessRole[] }[] = [
   { can: 'Pay someone and pay bills', roles: ['owner', 'admin', 'payer'] },
   { can: 'Send invoices and payment links', roles: ['owner', 'admin', 'payer'] },
   { can: 'Add and pay suppliers', roles: ['owner', 'admin', 'payer'] },
-  { can: 'Invite people and change roles', roles: ['owner', 'admin'] },
-  { can: 'Set the approval limit', roles: ['owner', 'admin'] },
+  { can: 'Invite payers and viewers', roles: ['owner', 'admin'] },
+  { can: 'Make, unmake or remove admins', roles: ['owner'] },
+  { can: 'Set the approval limit', roles: ['owner'] },
   { can: 'Close the account', roles: ['owner'] },
 ];
 
@@ -351,7 +352,8 @@ function Roles({ t, closed }: { t: TeamDto; closed: boolean }) {
   const [own, setOwn] = useState('');
   const custom = nairaFrom(own);
   const [saved, setSaved] = useState(false);
-  const canSet = t.you.canManage && !closed && t.approvers >= 2;
+  // The owner's alone: otherwise one admin could switch the two-person rule off.
+  const canSet = t.you.role === 'owner' && !closed && t.approvers >= 2;
   const save = (value: number | null) =>
     set.mutate(value === null ? null : String(value), {
       onSuccess: () => {

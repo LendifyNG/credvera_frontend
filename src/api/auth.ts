@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { http } from './client';
+import { deviceHeaders } from './device';
 import { session } from './session';
 import type { SignInResponse } from './types';
 
@@ -10,8 +11,8 @@ export type SignInInput =
 export const authApi = {
   signIn: (input: SignInInput) =>
     input.method === 'password'
-      ? http.post<SignInResponse>('/auth/login', { emailOrPhone: input.emailOrPhone, password: input.password }, { skipAuth: true })
-      : http.post<SignInResponse>('/auth/login/pin', { emailOrPhone: input.emailOrPhone, pin: input.pin }, { skipAuth: true }),
+      ? http.post<SignInResponse>('/auth/login', { emailOrPhone: input.emailOrPhone, password: input.password }, { skipAuth: true, headers: deviceHeaders() })
+      : http.post<SignInResponse>('/auth/login/pin', { emailOrPhone: input.emailOrPhone, pin: input.pin }, { skipAuth: true, headers: deviceHeaders() }),
 
   signOut: () => http.post<{ message: string }>('/auth/logout'),
 };
