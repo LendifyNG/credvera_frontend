@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight, Check } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import { errorMessage, useContactSupport } from '../../api';
 import { company } from '../../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -26,25 +27,27 @@ const label = 'font-medium text-[13px] text-graphite/50';
 export default function BizContactPage() {
   const reduce = useReducedMotion();
   const [reason, setReason] = useState(0);
-  const [sent, setSent] = useState(false);
+  const contact = useContactSupport();
   const r = reasons[reason]!;
 
-  // No backend yet: compose the message in the visitor's own email app.
+  // Straight to the support team, with the business details on top; the reply comes to the email given.
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const d = new FormData(e.currentTarget);
-    const subject = `[Business] ${r.name} · ${d.get('business')}`;
-    const body = [
-      `Business: ${d.get('business')}`,
-      `RC number: ${d.get('rc') || '—'}`,
-      `Name: ${d.get('name')} (${d.get('role')})`,
-      `Email: ${d.get('email')}`,
-      `Phone: ${d.get('phone') || '—'}`,
+    const form = e.currentTarget;
+    const d = new FormData(form);
+    const text = (k: string) => String(d.get(k) ?? '').trim();
+    const message = [
+      `Business: ${text('business')}`,
+      `RC number: ${text('rc') || '—'}`,
+      `Role: ${text('role')}`,
+      `Phone: ${text('phone') || '—'}`,
       '',
-      String(d.get('message') ?? ''),
+      text('message'),
     ].join('\n');
-    window.location.href = `mailto:${company.supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    contact.mutate(
+      { name: text('name'), email: text('email'), subject: `[Business] ${r.name} · ${text('business')}`.slice(0, 200), message },
+      { onSuccess: () => form.reset() },
+    );
   };
 
   return (
@@ -153,12 +156,24 @@ export default function BizContactPage() {
             </label>
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-6">
-            <button type="submit" className="group inline-flex h-12 items-center gap-2 rounded-md bg-graphite px-6 text-[15px] font-semibold text-white transition-colors hover:bg-black">
-              Send to support
+            <button type="submit" disabled={contact.isPending} className="group inline-flex h-12 items-center gap-2 rounded-md bg-graphite px-6 text-[15px] font-semibold text-white transition-colors hover:bg-black disabled:opacity-50">
+              {contact.isPending ? 'Sending…' : 'Send to support'}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
-            <p className="text-[14px] text-graphite/50" aria-live="polite">
-              {sent ? 'Your email app should have opened with your message.' : 'Opens your email app. We reply within one working day.'}
+            <p className={`text-[14px] ${contact.error ? 'text-[#a3261b]' : 'text-graphite/50'}`} aria-live="polite">
+              {contact.data ? (
+                <>Sent. Your reference is {contact.data.reference}; our reply will come to your email within one working day.</>
+              ) : contact.error ? (
+                <>
+                  {errorMessage(contact.error)} You can also email{' '}
+                  <a href={`mailto:${company.supportEmail}`} className="font-semibold underline underline-offset-4">
+                    {company.supportEmail}
+                  </a>
+                  .
+                </>
+              ) : (
+                'Goes straight to our support team. We reply to your email within one working day.'
+              )}
             </p>
           </div>
         </form>

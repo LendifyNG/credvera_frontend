@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { type FormEvent } from 'react';
+import { errorMessage, useContactSupport } from '../api';
 import { Link, Navigate } from 'react-router-dom';
 import PageHeader from '../components/editorial/PageHeader';
 import Reveal from '../components/ui/Reveal';
@@ -43,18 +44,24 @@ const blank =
 
 /** Contact: when we're around, how to reach us, and a message written as a sentence. */
 export default function ContactPage() {
-  const [sent, setSent] = useState(false);
+  const contact = useContactSupport();
   const { audience } = useAudience();
   const status = openNow();
 
-  // No backend yet: compose the message in the visitor's own email app.
+  // Straight to the support team; the reply comes to the email they give.
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const subject = `${data.get('topic')} enquiry from ${data.get('name')}`;
-    const body = [`Name: ${data.get('name')}`, `Email: ${data.get('email')}`, '', String(data.get('message') ?? '')].join('\n');
-    window.location.href = `mailto:${company.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    contact.mutate(
+      {
+        name: String(data.get('name') ?? '').trim(),
+        email: String(data.get('email') ?? '').trim(),
+        subject: `${data.get('topic')} enquiry`,
+        message: String(data.get('message') ?? '').trim(),
+      },
+      { onSuccess: () => form.reset() },
+    );
   };
 
   // Business has its own contact page.
@@ -147,15 +154,28 @@ export default function ContactPage() {
           <div className="mt-6 flex flex-wrap items-center gap-5">
             <button
               type="submit"
+              disabled={contact.isPending}
               className="group inline-flex items-center gap-3 rounded-full bg-secondary py-2 pl-6 pr-2 text-[15px] font-semibold text-white transition-colors hover:bg-background"
             >
-              Send message
+              {contact.isPending ? 'Sending…' : 'Send message'}
               <span className="grid size-9 place-items-center rounded-full bg-primary text-secondary transition-transform duration-500 group-hover:rotate-45">
                 <ArrowUpRight className="size-4" />
               </span>
             </button>
-            <p className="text-sm text-ink/50" aria-live="polite">
-              {sent ? 'Your email app should have opened with your message.' : 'Opens your email app to send. We reply within one working day.'}
+            <p className={`text-sm ${contact.error ? 'text-[#a3261b]' : 'text-ink/50'}`} aria-live="polite">
+              {contact.data ? (
+                <>Sent. Your reference is {contact.data.reference}; our reply will come to your email within one working day.</>
+              ) : contact.error ? (
+                <>
+                  {errorMessage(contact.error)} You can also email{' '}
+                  <a href={`mailto:${company.email}`} className="font-semibold underline underline-offset-4">
+                    {company.email}
+                  </a>
+                  .
+                </>
+              ) : (
+                'Goes straight to our support team. We reply to your email within one working day.'
+              )}
             </p>
           </div>
         </form>
