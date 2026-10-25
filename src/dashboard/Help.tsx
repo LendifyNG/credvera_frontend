@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, ChevronDown, FileText, Mail, MessageCircleQuestion, Search, Send, ShieldCheck } from 'lucide-react';
+import { Building2, Check, ChevronDown, FileText, Loader2, Mail, MessageCircleQuestion, Search, Send, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useBusinessContent, useProfile } from '../api';
+import { errorMessage, useBusinessContent, useOpenTicket, useProfile, useReplyToTicket, useSolveTicket, useSupportTicket, useSupportTickets, type SupportTicketDto } from '../api';
 import { company } from '../lib/site';
 import { usePayments } from './data';
-import { money, reference, shortDate } from './model';
+import { money, shortDate } from './model';
 
 const panel = 'rounded-2xl border border-graphite/10 bg-white';
 const field = 'h-11 w-full rounded-lg border border-graphite/15 bg-white px-3.5 text-[15px] outline-none transition-colors placeholder:text-graphite/35 focus:border-graphite/50';
@@ -68,6 +68,10 @@ export default function Help() {
   const [subject, setSubject] = useState('');
   const [about, setAbout] = useState('');
   const [detail, setDetail] = useState('');
+  const [sentRef, setSentRef] = useState<string | null>(null);
+  const [openCase, setOpenCase] = useState<string | null>(null);
+  const report = useOpenTicket();
+  const tickets = useSupportTickets();
 
   // Answers the Credvera team publishes from the company dashboard, after the built-in ones.
   const content = useBusinessContent();
@@ -84,15 +88,21 @@ export default function Help() {
   const current = topics.find((t) => t.key === topic) ?? topics[0]!;
   const recent = payments.slice(0, 12);
 
-  // The report goes to a person by email, written for them: what, which payment, and who's asking.
-  const mail = () => {
-    const lines = [detail.trim(), ''];
-    if (about) lines.push(`About: ${about}`);
-    if (profile.data) lines.push(`From: ${profile.data.firstName} ${profile.data.lastName}, ${profile.data.email}`);
-    const body = lines.join('\n');
-    return `mailto:${company.supportEmail}?subject=${encodeURIComponent(subject.trim())}&body=${encodeURIComponent(body)}`;
-  };
-  const ready = subject.trim().length >= 3 && detail.trim().length >= 5;
+  // The report goes to the support team, with the payment it's about; their reply comes back here and by email.
+  const send = () =>
+    report.mutate(
+      { subject: subject.trim(), message: detail.trim(), ...(about ? { transactionId: about } : {}) },
+      {
+        onSuccess: (t) => {
+          setSentRef(t.reference);
+          setOpenCase(t.id);
+          setSubject('');
+          setAbout('');
+          setDetail('');
+        },
+      },
+    );
+  const ready = subject.trim().length >= 3 && detail.trim().length >= 5 && !report.isPending;
 
   const QA = ({ qa, id }: { qa: [string, string]; id: string }) => (
     <li className="border-b border-graphite/[0.07] last:border-0">
@@ -161,28 +171,57 @@ export default function Help() {
         <div className="space-y-6">
           <section className={`${panel} p-6`}>
             <h2 className="text-[17px] font-semibold tracking-[-0.02em]">Report a problem</h2>
-            <p className="mt-1 text-[13.5px] text-graphite/55">It opens an email to our support team, ready to send. We reply to {profile.data?.email ?? 'your email'}.</p>
+            <p className="mt-1 text-[13.5px] text-graphite/55">It goes straight to our support team. We reply here and by email to {profile.data?.email ?? 'your email'}.</p>
             <div className="mt-4 space-y-3">
               <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="What’s wrong, in a few words" className={field} aria-label="Subject" />
               <select value={about} onChange={(e) => setAbout(e.target.value)} className={field} aria-label="Which transaction">
                 <option value="">It’s not about one transaction</option>
                 {recent.map((p) => (
-                  <option key={p.id} value={`${p.who} · ${p.kind === 'in' ? '+' : '−'}${money(p.amount, p.currency)} · ${shortDate(p.date)} · ref ${reference(p)}`}>
+                  <option key={p.id} value={p.id}>
                     {p.who} · {p.kind === 'in' ? '+' : '−'}
                     {money(p.amount, p.currency)} · {shortDate(p.date)}
                   </option>
                 ))}
               </select>
               <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={4} placeholder="Tell us what happened" className="w-full resize-none rounded-lg border border-graphite/15 bg-white px-3.5 py-2.5 text-[15px] outline-none placeholder:text-graphite/35 focus:border-graphite/50" aria-label="What happened" />
-              <a
-                href={ready ? mail() : undefined}
-                aria-disabled={!ready}
-                className={`inline-flex h-10 items-center gap-2 rounded-lg px-4 text-[14px] font-semibold ${ready ? 'bg-graphite text-white hover:bg-black' : 'pointer-events-none bg-graphite/15 text-graphite/40'}`}
+              {report.error && <p className="text-[13.5px] text-[#a3261b]">{errorMessage(report.error)}</p>}
+              {sentRef && !report.error && (
+                <p className="flex items-center gap-1.5 text-[13.5px] text-graphite/75">
+                  <Check className="size-4" /> Sent. Your reference is {sentRef}; follow it below.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={send}
+                disabled={!ready}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-graphite px-4 text-[14px] font-semibold text-white hover:bg-black disabled:bg-graphite/15 disabled:text-graphite/40"
               >
-                <Mail className="size-4" /> Write the email
-              </a>
+                {report.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Send to support
+              </button>
             </div>
           </section>
+
+          {(tickets.data?.length ?? 0) > 0 && (
+            <section className={`${panel} p-6`}>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em]">Your questions</h2>
+              <ul className="mt-3 divide-y divide-graphite/[0.07]">
+                {tickets.data!.map((t) => (
+                  <li key={t.id}>
+                    <button type="button" onClick={() => setOpenCase(openCase === t.id ? null : t.id)} aria-expanded={openCase === t.id} className="flex w-full items-start justify-between gap-3 py-3 text-left">
+                      <span className="min-w-0">
+                        <span className="block truncate text-[14.5px] font-medium">{t.subject}</span>
+                        <span className="block text-[12.5px] text-graphite/50">
+                          {t.reference} · {shortDate(t.updatedAt)}
+                        </span>
+                      </span>
+                      <StatusTag t={t} />
+                    </button>
+                    {openCase === t.id && <Conversation id={t.id} />}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="rounded-2xl bg-graphite p-6 text-white">
             <p className="text-[15px] font-semibold">Talk to a person</p>
@@ -192,6 +231,64 @@ export default function Help() {
             </a>
           </section>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Where a question stands, in the customer's words. */
+function StatusTag({ t }: { t: SupportTicketDto }) {
+  const [label, tone] = t.status === 'solved' ? ['Solved', 'bg-graphite/[0.06] text-graphite/55'] : t.needsYou ? ['We replied', 'bg-primary/25 text-graphite'] : ['With our team', 'bg-graphite/[0.06] text-graphite/70'];
+  return <span className={`shrink-0 rounded-md px-2 py-0.5 text-[12px] font-semibold ${tone}`}>{label}</span>;
+}
+
+/** One question's conversation, with a box to write back and a way to say it's sorted. */
+function Conversation({ id }: { id: string }) {
+  const ticket = useSupportTicket(id);
+  const reply = useReplyToTicket(id);
+  const solve = useSolveTicket(id);
+  const [text, setText] = useState('');
+  const t = ticket.data;
+
+  if (ticket.isLoading) return <p className="pb-4 text-[13.5px] text-graphite/50">Loading…</p>;
+  if (!t) return <p className="pb-4 text-[13.5px] text-[#a3261b]">{errorMessage(ticket.error)}</p>;
+
+  return (
+    <div className="pb-4">
+      {t.linked && <p className="mb-3 rounded-md bg-graphite/[0.04] px-3 py-2 text-[12.5px] text-graphite/65">About {t.linked.label}</p>}
+      <ul className="space-y-2.5">
+        {t.messages?.map((m) => (
+          <li key={m.id} className={`rounded-xl px-3.5 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap ${m.from === 'you' ? 'bg-graphite/[0.05]' : 'bg-primary/15'}`}>
+            <p className="mb-0.5 text-[12px] font-semibold text-graphite/55">
+              {m.from === 'you' ? 'You' : `${m.by ?? 'Credvera'} · Credvera support`} · {shortDate(m.at)}
+            </p>
+            {m.body}
+          </li>
+        ))}
+      </ul>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={2}
+        placeholder={t.status === 'solved' ? 'Write here to open it again' : 'Write back'}
+        aria-label="Write back"
+        className="mt-3 w-full resize-none rounded-lg border border-graphite/15 bg-white px-3.5 py-2.5 text-[14.5px] outline-none placeholder:text-graphite/35 focus:border-graphite/50"
+      />
+      {(reply.error || solve.error) && <p className="mt-1 text-[13px] text-[#a3261b]">{errorMessage(reply.error ?? solve.error)}</p>}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={!text.trim() || reply.isPending}
+          onClick={() => reply.mutate(text.trim(), { onSuccess: () => setText('') })}
+          className="inline-flex h-9 items-center gap-2 rounded-lg bg-graphite px-3.5 text-[13.5px] font-semibold text-white hover:bg-black disabled:bg-graphite/15 disabled:text-graphite/40"
+        >
+          {reply.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Send
+        </button>
+        {t.status !== 'solved' && (
+          <button type="button" disabled={solve.isPending} onClick={() => solve.mutate()} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-graphite/15 px-3.5 text-[13.5px] font-semibold hover:border-graphite/35">
+            <Check className="size-4" /> It’s sorted
+          </button>
+        )}
       </div>
     </div>
   );
