@@ -14,13 +14,32 @@ const TEMPLATE = 'Name,Bank,Account number,Amount\n';
 /** "GTBank", "gtbank plc" or a bank code all find Guaranty Trust. */
 const squash = (s: string) => s.toLowerCase().replace(/\b(plc|limited|ltd|bank|nigeria)\b/g, '').replace(/[^a-z0-9]/g, '');
 
+/** One CSV line's cells, with quoted cells kept whole: Excel writes "65,000" for 65000. */
+function cells(line: string): string[] {
+  const out: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') (cell += '"'), i++;
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ',') out.push(cell.trim()), (cell = '');
+    else cell += ch;
+  }
+  out.push(cell.trim());
+  return out;
+}
+
 /** Reads a spreadsheet saved as CSV: name, bank, account number, amount. */
 function parse(text: string, banks: BankDto[]): Row[] {
   const byName = new Map(banks.flatMap((b) => [[squash(b.name), b.code] as const, [b.code, b.code] as const]));
   return text
     .split(/\r?\n/)
     .slice(1)
-    .map((l) => l.split(',').map((c) => c.trim().replace(/^"|"$/g, '')))
+    .map(cells)
     .filter((c) => c.some(Boolean))
     .map(([name = '', bank = '', account = '', amount = '']) => {
       const n = Number(amount.replace(/[^\d.]/g, '')) || 0;
@@ -44,7 +63,8 @@ export default function Bulk() {
   const good = useMemo(() => rows?.filter((r) => !r.problem) ?? [], [rows]);
   const bad = rows?.filter((r) => r.problem) ?? [];
   const total = good.reduce((a, r) => a + r.amount, 0);
-  const quote = useTransferQuote(good.length ? String(good[0]!.amount) : '');
+  // The fee is the same on every payment; the largest row is the one most sure to be in range.
+  const quote = useTransferQuote(good.length ? String(Math.max(...good.map((r) => r.amount))) : '');
   const fee = quote.data?.fee ?? null;
 
   const template = () => {
