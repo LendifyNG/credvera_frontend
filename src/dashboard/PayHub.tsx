@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { NavLink, useParams } from 'react-router-dom';
+import { useCapabilities } from '../api';
 import { useSession } from './data';
 import Bills from './pay/Bills';
 import Bulk from './pay/Bulk';
 import PaySomeone from './pay/PaySomeone';
 import Scheduled from './pay/Scheduled';
+import { ComingSoon } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -16,6 +18,15 @@ const SECTIONS = [
 ];
 
 function Section({ name }: { name: string | undefined }) {
+  // Switched off while the bank partner isn't connected: said plainly here rather than after a failed payment.
+  const caps = useCapabilities().data;
+  if (name === 'bills' && caps && !caps.bills) {
+    return <ComingSoon title="Bills">Airtime, data and electricity from your Credvera account open soon.</ComingSoon>;
+  }
+  if (name !== 'bills' && caps && !caps.sending) {
+    return <ComingSoon title="Sending money">Paying people from your Credvera account opens soon. We’ll let you know as soon as it’s ready.</ComingSoon>;
+  }
+
   switch (name) {
     case 'bulk':
       return <Bulk />;
