@@ -59,6 +59,10 @@ instance.interceptors.request.use(async (config) => {
   const businessId = activeBusiness.get();
   if (businessId) config.headers['X-Business-Id'] = businessId;
 
+  // Payments refuse a POST without one, so a retried click can't pay twice.
+  // Set once per request: a replay after a token refresh keeps the same key.
+  if (config.method?.toLowerCase() === 'post' && !config.headers['Idempotency-Key']) config.headers['Idempotency-Key'] = crypto.randomUUID();
+
   return config;
 });
 
@@ -118,6 +122,7 @@ export const http = {
   post: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.post(url, body, config)),
   patch: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.patch(url, body, config)),
   put: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) => unwrap<T>(instance.put(url, body, config)),
+  delete: <T>(url: string, config?: AxiosRequestConfig) => unwrap<T>(instance.delete(url, config)),
 };
 
 // ── Refresh ──────────────────────────────────────────────────────────────────

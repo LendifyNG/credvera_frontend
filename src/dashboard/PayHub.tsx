@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { NavLink, useParams } from 'react-router-dom';
 import { useSession } from './data';
 import Bills from './pay/Bills';
+import Bulk from './pay/Bulk';
 import PaySomeone from './pay/PaySomeone';
-import { ComingSoon } from './ui';
+import Scheduled from './pay/Scheduled';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -17,17 +18,9 @@ const SECTIONS = [
 function Section({ name }: { name: string | undefined }) {
   switch (name) {
     case 'bulk':
-      return (
-        <ComingSoon title="Bulk payments">
-          Pay many people at once from one spreadsheet, like salaries, with every row checked before anything goes.
-        </ComingSoon>
-      );
+      return <Bulk />;
     case 'scheduled':
-      return (
-        <ComingSoon title="Scheduled payments">
-          Rent, salaries and suppliers paid on the day, every week or month, without you having to remember.
-        </ComingSoon>
-      );
+      return <Scheduled />;
     case 'bills':
       return <Bills />;
     default:
@@ -45,7 +38,7 @@ export default function PayHub() {
       <div>
         <p className="text-[13px] font-medium text-graphite/50">{session?.business}</p>
         <h1 className="mt-1 text-[clamp(1.8rem,3vw,2.3rem)] font-semibold tracking-[-0.035em]">Payments</h1>
-        <p className="mt-1 text-[15px] text-graphite/55">Pay one person, or a bill.</p>
+        <p className="mt-1 text-[15px] text-graphite/55">Pay one person, many at once, on a schedule, or a bill.</p>
       </div>
 
       <nav className="mt-6 flex gap-1 overflow-x-auto border-b border-graphite/10" aria-label="Payments">

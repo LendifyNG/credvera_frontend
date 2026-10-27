@@ -96,6 +96,9 @@ export type TransactionMetadata = {
   accountName?: string;
   amount?: number;
   fee?: number;
+  /** Money set aside for a protected order, until it's released or called off. */
+  held?: boolean;
+  protectedOrderId?: string;
   // Bills
   phoneNumber?: string;
   network?: string;

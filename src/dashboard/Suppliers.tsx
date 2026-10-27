@@ -22,7 +22,10 @@ import {
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
 import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary, useDebounced } from './pay/shared';
-import { ComingSoon, Notice, PinPrompt } from './ui';
+import { Drawer } from './suppliers/Drawer';
+import Checks from './suppliers/Checks';
+import Orders from './suppliers/Orders';
+import { Notice, PinPrompt } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
@@ -33,36 +36,6 @@ const ago = (iso: string) => {
 };
 
 /** A panel from the right, for adding a supplier or working with one. */
-function Drawer({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div className="fixed inset-0 z-50 bg-graphite/30 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-          <motion.aside
-            role="dialog"
-            aria-modal="true"
-            aria-label={title}
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.4, ease }}
-            onClick={(e) => e.stopPropagation()}
-            className="ml-auto flex h-full w-full max-w-lg flex-col bg-white shadow-2xl"
-          >
-            <div className="flex items-center justify-between border-b border-graphite/10 px-6 py-4">
-              <p className="text-[15px] font-semibold">{title}</p>
-              <button type="button" onClick={onClose} aria-label="Close" className="text-graphite/45 hover:text-graphite">
-                <X className="size-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
-          </motion.aside>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 /* ---------- Your suppliers ---------- */
 
 /**
@@ -177,13 +150,9 @@ export default function Suppliers() {
       </nav>
       <motion.div key={section ?? 'directory'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
         {section === 'orders' ? (
-          <ComingSoon title="Protected orders">
-            Pay a supplier without paying blind. A deposit goes now if you agree one; the rest is held until their shipping documents are checked, then released to them.
-          </ComingSoon>
+          <Orders closed={closed} />
         ) : section === 'checks' ? (
-          <ComingSoon title="Invoice checks">
-            Check a supplier’s invoice before you pay it, with a warning when the bank details on it don’t match the ones you’ve paid before. Changed bank details are already flagged on each supplier.
-          </ComingSoon>
+          <Checks />
         ) : (
           <Directory closed={closed} />
         )}

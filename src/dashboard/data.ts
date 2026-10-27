@@ -183,6 +183,9 @@ export function toPayment(tx: TransactionDto): Payment | null {
   if (!isCurrency(tx.currency)) return null;
 
   const m = tx.metadata ?? {};
+  // Set aside for a protected order, then released (its own payment row) or
+  // called off (back in the balance): not a payment of its own any more.
+  if (m.held && tx.status === 'reversed') return null;
   const incoming = tx.type === 'deposit';
   const base = {
     id: tx.id,

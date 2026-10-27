@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Check, Loader2, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { errorMessage, useAccountName, useBanks, useSendMoney, useTransferQuote } from '../../api';
+import { errorMessage, useAccountName, useBanks, useCreateSchedule, useSendMoney, useTransferQuote } from '../../api';
 import { recentRecipients, useActiveBusiness, useBalances, usePayments } from '../data';
 import { money, shortDate, type Recipient } from '../model';
 import { Notice, PinPrompt } from '../ui';
@@ -25,11 +25,14 @@ export default function PaySomeone() {
   const threshold = business?.approvalThreshold ? Number(business.approvalThreshold) : null;
   const banks = useBanks();
   const send = useSendMoney();
+  const schedule = useCreateSchedule();
 
   const [bankCode, setBankCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [text, setText] = useState(params.get('amount') ?? '');
   const [reason, setReason] = useState('');
+  const [when, setWhen] = useState<'now' | 'repeat'>('now');
+  const [every, setEvery] = useState<'week' | 'month'>('month');
   const [confirming, setConfirming] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
 
@@ -57,20 +60,40 @@ export default function PaySomeone() {
   const payee = name.data?.accountName;
   const total = quote.data && quote.data.amount === amount ? quote.data.total : null;
   const short = total !== null && total > balances.NGN;
-  const ready = !!payee && amount > 0 && total !== null && !short && reason.trim().length > 1 && !send.isPending;
+  const busy = send.isPending || schedule.isPending;
+  // A repeat takes nothing today, so today's balance doesn't hold it up.
+  const ready = !!payee && amount > 0 && total !== null && (when === 'repeat' || !short) && reason.trim().length > 1 && !busy;
   const recent = payments.filter((p) => p.recipient && p.status !== 'failed').slice(0, 4);
+
+  const reset = () => {
+    setText('');
+    setReason('');
+    setAccountNumber('');
+    setBankCode('');
+  };
 
   const pay = (pin: string) => {
     setConfirming(false);
+    if (when === 'repeat') {
+      schedule.mutate(
+        { bankCode, accountNumber, amount: String(amount), every, narration: reason.trim().slice(0, 100), pin },
+        {
+          onSuccess: (s) => {
+            setOutcome({ tone: 'good', text: `${money(amount)} to ${s.accountName} every ${every}, starting ${shortDate(s.nextRunAt)}.` });
+            reset();
+            setWhen('now');
+          },
+          onError: (error) => setOutcome({ tone: 'bad', text: errorMessage(error) }),
+        },
+      );
+      return;
+    }
     send.mutate(
       { bankCode, accountNumber, amount: String(amount), narration: reason.trim().slice(0, 100), pin },
       {
         onSuccess: (result) => {
           setOutcome({ tone: 'good', text: paidText(result, amount) });
-          setText('');
-          setReason('');
-          setAccountNumber('');
-          setBankCode('');
+          reset();
         },
         onError: (error) => setOutcome({ tone: 'bad', text: errorMessage(error) }),
       },
@@ -166,6 +189,25 @@ export default function PaySomeone() {
               <input value={reason} maxLength={100} onChange={(e) => setReason(e.target.value)} placeholder="Deliveries, September" className={field} />
             </label>
           </div>
+
+          <div>
+            <span className={label}>When</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex rounded-lg bg-[#efeee7] p-1 text-[13.5px] font-medium">
+                {(['now', 'repeat'] as const).map((w) => (
+                  <button key={w} type="button" onClick={() => setWhen(w)} className={`rounded-md px-3 py-1 ${when === w ? 'bg-white shadow-sm' : 'text-graphite/55'}`}>
+                    {w === 'now' ? 'Pay now' : 'Repeat it'}
+                  </button>
+                ))}
+              </div>
+              {when === 'repeat' && (
+                <select value={every} onChange={(e) => setEvery(e.target.value as 'week' | 'month')} className="h-9 rounded-lg border border-graphite/15 bg-white px-2.5 text-[13.5px] font-medium outline-none">
+                  <option value="week">Every week</option>
+                  <option value="month">Every month</option>
+                </select>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-graphite/10 pt-5">
@@ -175,7 +217,7 @@ export default function PaySomeone() {
             ) : total !== null ? (
               <>
                 Fee {money(quote.data!.fee)} · total <span className="font-semibold text-graphite">{money(total)}</span>
-                {short && <span className="mt-1 block text-[#9a3a17]">More than the {money(balances.NGN)} in your naira account.</span>}
+                {short && when === 'now' && <span className="mt-1 block text-[#9a3a17]">More than the {money(balances.NGN)} in your naira account.</span>}
                 {threshold !== null && amount >= threshold && <span className="mt-1 block text-graphite/70">Over {money(threshold)}: it waits for someone else on the team to approve it before it goes.</span>}
               </>
             ) : (
@@ -183,8 +225,8 @@ export default function PaySomeone() {
             )}
           </p>
           <button type="button" disabled={!ready} onClick={() => setConfirming(true)} className={primary}>
-            {send.isPending && <Loader2 className="size-4 animate-spin" />}
-            {send.isPending ? 'Sending…' : `Pay ${amount ? money(amount) : ''}`}
+            {busy && <Loader2 className="size-4 animate-spin" />}
+            {busy ? (when === 'repeat' ? 'Setting it up…' : 'Sending…') : when === 'repeat' ? 'Set it up' : `Pay ${amount ? money(amount) : ''}`}
           </button>
         </div>
       </section>
@@ -209,7 +251,7 @@ export default function PaySomeone() {
         </Link>
       </section>
 
-      <PinPrompt open={confirming} title={`Pay ${money(amount)}`} detail={`To ${payee ?? ''} · ${reason.trim()}`} onClose={() => setConfirming(false)} onConfirm={pay} />
+      <PinPrompt open={confirming} title={when === 'repeat' ? `${money(amount)} every ${every}` : `Pay ${money(amount)}`} detail={`To ${payee ?? ''} · ${reason.trim()}`} onClose={() => setConfirming(false)} onConfirm={pay} />
     </div>
   );
 }
