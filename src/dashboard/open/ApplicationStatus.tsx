@@ -22,7 +22,7 @@ function timeline(business: BusinessDto): [string, string, Mark][] {
   return [
     ['Application sent', sent, 'done'],
     ['Under review', business.status === 'second_review' ? 'With a second reviewer' : 'Usually one or two working days', 'now'],
-    ['Fully open', 'We’ll tell you by email and in the app', 'next'],
+    ['Fully open', 'Your dashboard opens, and we tell you by email', 'next'],
   ];
 }
 
@@ -66,7 +66,7 @@ export default function ApplicationStatus({ business, onStartAnother }: { busine
       <p className="mt-12 max-w-lg text-lg leading-relaxed text-graphite/70">
         {open
           ? 'Your business account is open. Pay suppliers, staff and bills from your dashboard.'
-          : 'Your naira account is already open, so customers can pay you while we review. Sending money opens once we’ve approved the business.'}
+          : 'Your business dashboard opens as soon as we’ve approved the business. We’ll tell you by email.'}
       </p>
 
       <div className="mt-10 rounded-xl bg-white p-6 ring-1 ring-graphite/10">
@@ -75,9 +75,11 @@ export default function ApplicationStatus({ business, onStartAnother }: { busine
         <StoreButtons className="mt-5" />
       </div>
 
-      <Link to="/business/app" className={`${primary} mt-8`}>
-        Go to your dashboard <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-      </Link>
+      {open && (
+        <Link to="/business/app" className={`${primary} mt-8`}>
+          Go to your dashboard <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+        </Link>
+      )}
     </motion.div>
   );
 }
