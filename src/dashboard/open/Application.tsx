@@ -3,6 +3,8 @@ import { AlertTriangle, ArrowRight, Check, FileUp, Loader2 } from 'lucide-react'
 import { useState } from 'react';
 import {
   errorMessage,
+  useProfile,
+  useSignedIn,
   useStartBusiness,
   useSubmitBusiness,
   useUpdateBusiness,
@@ -13,6 +15,7 @@ import {
   type BusinessPersonDto,
   type UpdateBusinessInput,
 } from '../../api';
+import CreateLogin from './CreateLogin';
 import { ease, field, label, primary, Problem, secondary, Step, toE164 } from './parts';
 
 /** The same bands the API accepts, in words. */
@@ -34,10 +37,13 @@ const DOCUMENTS: { type: BusinessDocumentType; label: string; required: boolean 
 const DETAIL_FIELDS = ['industry', 'purpose', 'annualTurnover', 'sourceOfFunds', 'contactEmail', 'contactPhone'] as const;
 
 /**
- * The business application, step by step. Everything is saved as it goes, so
- * the applicant can leave and come back to the same place.
+ * The business application on one page that fills itself in as you go: you
+ * (a login, the same as the app's), then the company, its people, what it
+ * does and its documents. Everything is saved as it goes, so the applicant
+ * can leave and come back to the same place.
  */
 export default function Application({ business, onStarted }: { business: BusinessDto | null; onStarted: (id: string) => void }) {
+  const signedIn = useSignedIn();
   const peopleDone = !!business && business.people.filter((p) => p.requiresVerification).every((p) => p.status === 'verified');
   const detailsDone = !!business && DETAIL_FIELDS.every((key) => !!business[key]);
   const docsDone = !!business && DOCUMENTS.filter((d) => d.required).every((d) => business.documents.some((x) => x.type === d.type));
@@ -54,24 +60,45 @@ export default function Application({ business, onStarted }: { business: Busines
         </div>
       )}
 
-      <Step n={1} title="Your company" done={!!business} active={!business}>
-        {business ? <CompanyCard business={business} /> : <Lookup onStarted={onStarted} />}
+      <Step n={1} title="You" done={signedIn} active={!signedIn}>
+        {signedIn ? <Me /> : <CreateLogin />}
       </Step>
 
-      <Step n={2} title="Directors and owners" done={peopleDone} active={!!business && !peopleDone}>
+      <Step n={2} title="Your company" done={!!business} active={signedIn && !business}>
+        {business ? <CompanyCard business={business} /> : signedIn && <Lookup onStarted={onStarted} />}
+      </Step>
+
+      <Step n={3} title="Directors and owners" done={peopleDone} active={!!business && !peopleDone}>
         {business && <People business={business} />}
       </Step>
 
-      <Step n={3} title="About the business" done={detailsDone} active={peopleDone && !detailsDone}>
+      <Step n={4} title="How we reach you" done={detailsDone} active={peopleDone && !detailsDone}>
         {business && <Details business={business} />}
       </Step>
 
-      <Step n={4} title="Your documents" done={docsDone} active={peopleDone && detailsDone && !docsDone}>
+      <Step n={5} title="Your documents" done={docsDone} active={peopleDone && detailsDone && !docsDone}>
         {business && <Documents business={business} />}
       </Step>
 
       {business && <Submit business={business} />}
     </div>
+  );
+}
+
+/** Who's applying, once they're signed in. */
+function Me() {
+  const me = useProfile().data;
+  return (
+    <p className="flex items-center gap-2 text-[15px] text-graphite/70">
+      <Check className="size-4 text-[#1f6b33]" />
+      {me ? (
+        <span>
+          Signed in as <span className="font-semibold text-graphite">{`${me.firstName} ${me.lastName}`}</span> · {me.email}
+        </span>
+      ) : (
+        'Signed in'
+      )}
+    </p>
   );
 }
 
@@ -189,6 +216,7 @@ function Person({ business, person }: { business: BusinessDto; person: BusinessP
 
 function Details({ business }: { business: BusinessDto }) {
   const update = useUpdateBusiness();
+  const me = useProfile().data;
   const initial = {
     industry: business.industry ?? '',
     purpose: business.purpose ?? '',
@@ -199,7 +227,8 @@ function Details({ business }: { business: BusinessDto }) {
     staffSize: business.staffSize ?? '',
     website: business.website ?? '',
   };
-  const [form, setForm] = useState(initial);
+  // How to reach the business starts as how to reach you, as on the original form.
+  const [form, setForm] = useState({ ...initial, contactEmail: initial.contactEmail || me?.email || '', contactPhone: initial.contactPhone || me?.phoneNumber || '' });
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [key]: e.target.value });
 
   // Only what changed is sent, and blank optional fields are left alone.
