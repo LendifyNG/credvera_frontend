@@ -235,6 +235,12 @@ export type BusinessPersonDto = {
   failureReason: string | null;
 };
 
+/** Starting an application: the RC number, plus the company's details while they're typed in by hand. */
+export type StartBusinessInput = { rcNumber: string; name?: string; companyType?: string; registeredOn?: string; registeredAddress?: string };
+
+/** A director or owner typed in by the applicant. */
+export type NewBusinessPerson = { name: string; isDirector: boolean; sharePercent?: number; bvn?: string };
+
 export type BusinessDto = {
   id: string;
   rcNumber: string;
@@ -243,6 +249,8 @@ export type BusinessDto = {
   registeredOn: string | null;
   registeredAddress: string | null;
   cacStatus: string | null;
+  /** `manual`: typed in by the applicant and checked by our team; `register`: read from CAC. */
+  entry: 'manual' | 'register';
   industry: string | null;
   description: string | null;
   staffSize: string | null;

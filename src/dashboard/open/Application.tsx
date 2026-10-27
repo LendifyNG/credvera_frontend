@@ -1,9 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, ArrowRight, Check, FileUp, Loader2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, FileUp, Loader2, X } from 'lucide-react';
 import { useState } from 'react';
 import {
   errorMessage,
+  useAddPerson,
+  useBusinessOptions,
   useProfile,
+  useRemovePerson,
   useSignedIn,
   useStartBusiness,
   useSubmitBusiness,
@@ -34,6 +37,9 @@ const DOCUMENTS: { type: BusinessDocumentType; label: string; required: boolean 
   { type: 'memart', label: 'Memorandum and articles of association', required: false },
 ];
 
+/** Company types as on a CAC certificate. */
+const COMPANY_TYPES = ['Private limited company', 'Public limited company', 'Business name', 'Incorporated trustees', 'Limited by guarantee'];
+
 const DETAIL_FIELDS = ['industry', 'purpose', 'annualTurnover', 'sourceOfFunds', 'contactEmail', 'contactPhone'] as const;
 
 /**
@@ -44,7 +50,12 @@ const DETAIL_FIELDS = ['industry', 'purpose', 'annualTurnover', 'sourceOfFunds',
  */
 export default function Application({ business, onStarted }: { business: BusinessDto | null; onStarted: (id: string) => void }) {
   const signedIn = useSignedIn();
-  const peopleDone = !!business && business.people.filter((p) => p.requiresVerification).every((p) => p.status === 'verified');
+  // Typed in by hand, a director and each needed BVN are enough: our team does the checking.
+  const peopleDone =
+    !!business &&
+    (business.entry === 'manual'
+      ? business.people.some((p) => p.isDirector) && business.people.every((p) => !p.requiresVerification || !!p.bvn)
+      : business.people.filter((p) => p.requiresVerification).every((p) => p.status === 'verified'));
   const detailsDone = !!business && DETAIL_FIELDS.every((key) => !!business[key]);
   const docsDone = !!business && DOCUMENTS.filter((d) => d.required).every((d) => business.documents.some((x) => x.type === d.type));
 
@@ -65,11 +76,11 @@ export default function Application({ business, onStarted }: { business: Busines
       </Step>
 
       <Step n={2} title="Your company" done={!!business} active={signedIn && !business}>
-        {business ? <CompanyCard business={business} /> : signedIn && <Lookup onStarted={onStarted} />}
+        {business ? <CompanyCard business={business} /> : signedIn && <StartCompany onStarted={onStarted} />}
       </Step>
 
       <Step n={3} title="Directors and owners" done={peopleDone} active={!!business && !peopleDone}>
-        {business && <People business={business} />}
+        {business && (business.entry === 'manual' ? <PeopleByHand business={business} /> : <People business={business} />)}
       </Step>
 
       <Step n={4} title="How we reach you" done={detailsDone} active={peopleDone && !detailsDone}>
@@ -102,6 +113,73 @@ function Me() {
   );
 }
 
+/** A CAC lookup when it's connected; otherwise the applicant types the company in from the certificate. */
+function StartCompany({ onStarted }: { onStarted: (id: string) => void }) {
+  const options = useBusinessOptions();
+  if (options.isLoading) return <Loader2 className="size-5 animate-spin text-graphite/45" />;
+  return options.data?.lookups ? <Lookup onStarted={onStarted} /> : <CompanyByHand onStarted={onStarted} />;
+}
+
+function CompanyByHand({ onStarted }: { onStarted: (id: string) => void }) {
+  const start = useStartBusiness();
+  const [form, setForm] = useState({ name: '', rcNumber: '', companyType: '', registeredOn: '', registeredAddress: '' });
+  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [key]: e.target.value });
+  const ready = form.name.trim().length > 1 && form.rcNumber.length >= 4;
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!ready) return;
+        const input = {
+          rcNumber: form.rcNumber,
+          name: form.name.trim(),
+          ...(form.companyType ? { companyType: form.companyType } : {}),
+          ...(form.registeredOn ? { registeredOn: form.registeredOn } : {}),
+          ...(form.registeredAddress.trim() ? { registeredAddress: form.registeredAddress.trim() } : {}),
+        };
+        start.mutate(input, { onSuccess: (started) => onStarted(started.id) });
+      }}
+    >
+      <p className="mb-6 text-[15px] text-graphite/60">As it is on your CAC certificate. Our team checks it against the documents you upload.</p>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <label className="block sm:col-span-2">
+          <span className={label}>Company name</span>
+          <input autoFocus maxLength={200} value={form.name} onChange={set('name')} placeholder="Okafor Studios Limited" className={field} />
+        </label>
+        <label className="block">
+          <span className={label}>CAC registration number</span>
+          <div className="flex items-end gap-3">
+            <span className="pb-2.5 text-[17px] font-medium text-graphite/45">RC</span>
+            <input value={form.rcNumber} onChange={(e) => setForm({ ...form, rcNumber: e.target.value.replace(/\D/g, '').slice(0, 8) })} inputMode="numeric" placeholder="1234567" className={field} />
+          </div>
+        </label>
+        <label className="block">
+          <span className={label}>Type of company</span>
+          <select value={form.companyType} onChange={set('companyType')} className={field}>
+            <option value="">Choose one</option>
+            {COMPANY_TYPES.map((t) => (
+              <option key={t}>{t}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className={label}>Date of incorporation</span>
+          <input type="date" max={new Date().toISOString().slice(0, 10)} value={form.registeredOn} onChange={set('registeredOn')} className={field} />
+        </label>
+        <label className="block">
+          <span className={label}>Registered address</span>
+          <input maxLength={500} value={form.registeredAddress} onChange={set('registeredAddress')} placeholder="14 Adeola Odeku Street, Lagos" className={field} />
+        </label>
+      </div>
+      <Problem>{start.error && errorMessage(start.error)}</Problem>
+      <button type="submit" disabled={!ready || start.isPending} className={`${secondary} mt-8`}>
+        {start.isPending && <Loader2 className="size-4 animate-spin" />} Save and continue
+      </button>
+    </form>
+  );
+}
+
 function Lookup({ onStarted }: { onStarted: (id: string) => void }) {
   const start = useStartBusiness();
   const [rc, setRc] = useState('');
@@ -111,7 +189,7 @@ function Lookup({ onStarted }: { onStarted: (id: string) => void }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (ready) start.mutate(rc, { onSuccess: (started) => onStarted(started.id) });
+        if (ready) start.mutate({ rcNumber: rc }, { onSuccess: (started) => onStarted(started.id) });
       }}
     >
       <label className="block">
@@ -138,10 +216,16 @@ function CompanyCard({ business }: { business: BusinessDto }) {
         {business.companyType ? ` · ${business.companyType}` : ''}
       </p>
       {business.registeredAddress && <p className="mt-2 text-[14px] text-graphite/60">{business.registeredAddress}</p>}
-      <p className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#1f6b33]">
-        <Check className="size-4" /> Found on the CAC register
-        {business.registeredOn ? ` · Incorporated ${new Date(business.registeredOn).getFullYear()}` : ''}
-      </p>
+      {business.entry === 'manual' ? (
+        <p className="mt-3 text-[13px] text-graphite/55">
+          {business.registeredOn ? `Incorporated ${new Date(business.registeredOn).getFullYear()} · ` : ''}Our team checks this against your CAC documents.
+        </p>
+      ) : (
+        <p className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#1f6b33]">
+          <Check className="size-4" /> Found on the CAC register
+          {business.registeredOn ? ` · Incorporated ${new Date(business.registeredOn).getFullYear()}` : ''}
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -155,6 +239,86 @@ function People({ business }: { business: BusinessDto }) {
           <Person key={p.id} business={business} person={p} />
         ))}
       </div>
+    </>
+  );
+}
+
+/** Directors and owners typed in by the applicant; their BVNs are kept for our team to check by hand. */
+function PeopleByHand({ business }: { business: BusinessDto }) {
+  const add = useAddPerson();
+  const remove = useRemovePerson();
+  const [form, setForm] = useState({ name: '', isDirector: true, share: '', bvn: '' });
+  const share = form.share === '' ? undefined : Number(form.share);
+  const needsBvn = form.isDirector || (share ?? 0) >= 25;
+  const ready = form.name.trim().length > 1 && (share === undefined || (share >= 0 && share <= 100)) && (needsBvn ? form.bvn.length === 11 : form.bvn.length === 0 || form.bvn.length === 11);
+
+  return (
+    <>
+      <p className="mb-5 text-[15px] text-graphite/60">
+        Add every director, and anyone who owns 25% or more. We need their BVN; our team checks each one against your CAC documents.
+      </p>
+
+      {business.people.length > 0 && (
+        <div className="mb-6 grid gap-3 sm:grid-cols-2">
+          {business.people.map((p) => (
+            <div key={p.id} className="flex items-start justify-between gap-3 rounded-xl bg-white p-5 ring-1 ring-graphite/10">
+              <div>
+                <p className="font-semibold">{p.name}</p>
+                <p className="text-[13px] text-graphite/55">{[p.isDirector ? 'Director' : 'Shareholder', p.sharePercent !== null ? `${p.sharePercent}%` : null].filter(Boolean).join(' · ')}</p>
+                <p className="mt-3 text-[13px] text-graphite/55">
+                  {p.bvn ? `BVN ${p.bvn} · our team will check it` : p.requiresVerification ? 'BVN needed' : 'No BVN needed: under 25% and not a director.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label={`Remove ${p.name}`}
+                disabled={remove.isPending}
+                onClick={() => remove.mutate({ id: business.id, personId: p.id })}
+                className="grid size-8 shrink-0 place-items-center rounded-md text-graphite/40 hover:bg-graphite/5 hover:text-graphite"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <form
+        className="rounded-xl bg-white/60 p-5 ring-1 ring-graphite/10"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!ready) return;
+          const person = { name: form.name.trim(), isDirector: form.isDirector, ...(share !== undefined ? { sharePercent: share } : {}), ...(form.bvn ? { bvn: form.bvn } : {}) };
+          add.mutate({ id: business.id, person }, { onSuccess: () => setForm({ name: '', isDirector: true, share: '', bvn: '' }) });
+        }}
+      >
+        <p className="text-[14px] font-semibold">{business.people.length ? 'Add another person' : 'Add a director or owner'}</p>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <label className="block sm:col-span-2">
+            <span className={label}>Full name, as on the CAC record</span>
+            <input maxLength={200} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={field} />
+          </label>
+          <label className="block">
+            <span className={label}>Share of the company (optional)</span>
+            <div className="flex items-end gap-2">
+              <input inputMode="decimal" value={form.share} onChange={(e) => setForm({ ...form, share: e.target.value.replace(/[^\d.]/g, '').slice(0, 6) })} placeholder="0" className={field} />
+              <span className="pb-2.5 text-[17px] font-medium text-graphite/45">%</span>
+            </div>
+          </label>
+          <label className="block">
+            <span className={label}>BVN{needsBvn ? '' : ' (not needed)'}</span>
+            <input inputMode="numeric" value={form.bvn} onChange={(e) => setForm({ ...form, bvn: e.target.value.replace(/\D/g, '').slice(0, 11) })} placeholder="11 digits" className={`${field} font-ledger tracking-wide`} />
+          </label>
+        </div>
+        <label className="mt-5 flex cursor-pointer items-center gap-2.5 text-[14px]">
+          <input type="checkbox" checked={form.isDirector} onChange={(e) => setForm({ ...form, isDirector: e.target.checked })} className="size-4 accent-graphite" />
+          This person is a director
+        </label>
+        <Problem>{(add.error && errorMessage(add.error)) || (remove.error && errorMessage(remove.error))}</Problem>
+        <button type="submit" disabled={!ready || add.isPending} className={`${secondary} mt-5`}>
+          {add.isPending && <Loader2 className="size-4 animate-spin" />} Add
+        </button>
+      </form>
     </>
   );
 }

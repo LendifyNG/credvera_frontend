@@ -19,6 +19,7 @@ export const queryKeys = {
   dataBundles: (network: string) => ['bills', 'data-bundles', network] as const,
   electricityProviders: ['bills', 'electricity-providers'] as const,
   businesses: ['businesses'] as const,
+  businessOptions: ['business-options'] as const,
   business: (id: string) => ['businesses', id] as const,
   paymentLinks: ['payment-links'] as const,
   paymentLinkCurrencies: ['payment-links', 'currencies'] as const,

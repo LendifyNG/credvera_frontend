@@ -28,7 +28,10 @@ export type * from './types';
 export { activeBusiness, useActiveBusinessId } from './activeBusiness';
 export {
   businessesApi,
+  useAddPerson,
   useBusinesses,
+  useBusinessOptions,
+  useRemovePerson,
   useStartBusiness,
   useSubmitBusiness,
   useUpdateBusiness,

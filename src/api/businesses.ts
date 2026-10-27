@@ -2,12 +2,15 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { http } from './client';
 import { queryClient, queryKeys } from './queryClient';
 import { useSignedIn } from './session';
-import type { BusinessDocumentType, BusinessDto, UpdateBusinessInput } from './types';
+import type { BusinessDocumentType, BusinessDto, NewBusinessPerson, StartBusinessInput, UpdateBusinessInput } from './types';
 
 export const businessesApi = {
   list: () => http.get<BusinessDto[]>('/businesses'),
   get: (id: string) => http.get<BusinessDto>(`/businesses/${id}`),
-  start: (rcNumber: string) => http.post<BusinessDto>('/businesses', { rcNumber }),
+  options: () => http.get<{ lookups: boolean }>('/businesses/options'),
+  start: (input: StartBusinessInput) => http.post<BusinessDto>('/businesses', input),
+  addPerson: (id: string, person: NewBusinessPerson) => http.post<BusinessDto>(`/businesses/${id}/people`, person),
+  removePerson: (id: string, personId: string) => http.delete<BusinessDto>(`/businesses/${id}/people/${personId}`),
   update: (id: string, input: UpdateBusinessInput) => http.patch<BusinessDto>(`/businesses/${id}`, input),
   verifyPerson: (id: string, personId: string, bvn: string) => http.post<BusinessDto>(`/businesses/${id}/people/${personId}/bvn`, { bvn }),
   uploadDocument: (id: string, type: BusinessDocumentType, file: File) => {
@@ -25,6 +28,12 @@ export function useBusinesses() {
   return useQuery({ queryKey: queryKeys.businesses, queryFn: businessesApi.list, enabled: signedIn });
 }
 
+/** Whether an application starts with a CAC lookup, or is typed in by hand and checked by our team. */
+export function useBusinessOptions() {
+  const signedIn = useSignedIn();
+  return useQuery({ queryKey: queryKeys.businessOptions, queryFn: businessesApi.options, enabled: signedIn, staleTime: 5 * 60_000 });
+}
+
 /**
  * Every change answers with the whole application, so the cache is updated
  * from the response instead of being refetched.
@@ -40,6 +49,12 @@ export const useStartBusiness = () => useMutation({ mutationFn: businessesApi.st
 
 export const useUpdateBusiness = () =>
   useMutation({ mutationFn: ({ id, input }: { id: string; input: UpdateBusinessInput }) => businessesApi.update(id, input), onSuccess: remember });
+
+export const useAddPerson = () =>
+  useMutation({ mutationFn: ({ id, person }: { id: string; person: NewBusinessPerson }) => businessesApi.addPerson(id, person), onSuccess: remember });
+
+export const useRemovePerson = () =>
+  useMutation({ mutationFn: ({ id, personId }: { id: string; personId: string }) => businessesApi.removePerson(id, personId), onSuccess: remember });
 
 export const useVerifyPerson = () =>
   useMutation({
