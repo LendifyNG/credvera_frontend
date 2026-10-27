@@ -48,8 +48,8 @@ export function useActiveBusiness(): BusinessDto | undefined {
 }
 
 /** Businesses with an account to act on: sent for review, or open. */
-export const usableBusinesses = (businesses: BusinessDto[] | undefined) =>
-  (businesses ?? []).filter((b) => b.status !== 'draft' && b.status !== 'rejected');
+/** Businesses the dashboard opens for: approved ones only. Until then the application is their only page. */
+export const usableBusinesses = (businesses: BusinessDto[] | undefined) => (businesses ?? []).filter((b) => b.status === 'approved');
 
 /** BVN records hold names in capitals: "ADA OKONKWO" -> "Ada Okonkwo". */
 export const nameCase = (name: string) => name.toLowerCase().replace(/(^|[\s'-])\p{L}/gu, (letter) => letter.toUpperCase());

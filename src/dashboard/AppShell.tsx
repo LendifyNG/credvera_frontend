@@ -219,7 +219,7 @@ export default function AppShell() {
 
   if (!signedIn) return <Navigate to="/business/app/sign-in" replace />;
 
-  // No business sent for review yet: the application is the only place to go.
+  // No approved business yet: the application, and where its review stands, is the only place to go.
   if (businesses.data && usable.length === 0) return <Navigate to="/business/app/open" replace />;
 
   // Signed in, but the profile or the business isn't here yet (or couldn't be
@@ -342,7 +342,7 @@ export default function AppShell() {
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-[13px] font-bold text-graphite">{initials}</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-semibold">{session.business}</span>
-            <span className="block text-[12px] text-white/50">{active.status !== 'approved' ? 'Under review' : active.role === 'owner' ? 'Business account' : ROLE_NAME[active.role]}</span>
+            <span className="block text-[12px] text-white/50">{active.role === 'owner' ? 'Business account' : ROLE_NAME[active.role]}</span>
           </span>
           <ChevronsUpDown className="size-4 text-white/45" />
         </button>
@@ -477,10 +477,7 @@ export default function AppShell() {
   );
 }
 
-/**
- * While a business is being reviewed: what works already, and what doesn't
- * yet. Gone once it's approved.
- */
+/** A line across the top for a business the person can only view, or one that's closed. */
 function ReviewBanner({ business }: { business: BusinessDto }) {
   if (business.role === 'viewer' && !business.closedAt) {
     return (
@@ -502,30 +499,6 @@ function ReviewBanner({ business }: { business: BusinessDto }) {
       </div>
     );
   }
-  if (business.status === 'approved') return null;
-
-  const asked = business.status === 'more_info';
-
-  return (
-    <div className={`mx-auto mb-6 flex max-w-6xl flex-wrap items-center gap-3 rounded-xl border px-4 py-3 text-[14px] ${asked ? 'border-[#f0d3c5] bg-[#fcf1ec]' : 'border-[#ecdcae] bg-[#fbf5e6]'}`}>
-      <span className={`size-1.5 rounded-full ${asked ? 'bg-[#c4542a]' : 'bg-[#e0a526]'}`} />
-      <p className="flex-1">
-        {asked ? (
-          <>
-            <span className="font-semibold">We need something from you</span> <span className="text-graphite/60">to finish reviewing {business.name}.</span>
-          </>
-        ) : (
-          <>
-            <span className="font-semibold">We’re reviewing {business.name}.</span>{' '}
-            <span className="text-graphite/60">Customers can pay you now; sending money opens once it’s approved.</span>
-          </>
-        )}
-      </p>
-      {asked && (
-        <Link to="/business/app/open" className="font-semibold text-graphite underline-offset-4 hover:underline">
-          See what we need
-        </Link>
-      )}
-    </div>
-  );
+  // Only approved businesses reach the dashboard; the review itself is shown on the application page.
+  return null;
 }
