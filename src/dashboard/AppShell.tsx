@@ -280,8 +280,8 @@ export default function AppShell() {
           icon: Send,
           menu: [
             { label: 'Pay someone', hint: 'In naira, to any Nigerian bank', to: '/business/app/pay' },
-            { label: 'Bulk payments', hint: 'Coming soon · many people from one file', to: '/business/app/pay/bulk' },
-            { label: 'Scheduled payments', hint: 'Coming soon · payments that repeat', to: '/business/app/pay/scheduled' },
+            { label: 'Bulk payments', hint: 'Many people from one file', to: '/business/app/pay/bulk' },
+            { label: 'Scheduled payments', hint: 'Payments that repeat', to: '/business/app/pay/scheduled' },
             { label: 'Bills', hint: 'Electricity, airtime and data', to: '/business/app/pay/bills' },
           ],
         },
