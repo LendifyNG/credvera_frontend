@@ -4,7 +4,7 @@ export { ApiError, errorMessage, isApiError } from './errors';
 export { session, useSignedIn } from './session';
 export { invalidateMoney, queryClient, queryKeys } from './queryClient';
 
-export { authApi, useSignIn, useSignOut, type SignInInput } from './auth';
+export { authApi, useCodeSignIn, useSignIn, useSignOut, type SignInInput } from './auth';
 export { profileApi, useProfile } from './profile';
 export { useOpenWallet, useProvisionVirtualAccount, useVirtualAccount, useWallets, walletsApi } from './wallets';
 export { transactionsApi, useTransactions } from './transactions';
