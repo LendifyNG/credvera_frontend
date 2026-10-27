@@ -50,7 +50,7 @@ export {
 } from './paymentLinks';
 export { contentApi, useBusinessContent, type PublishedContent, type PublishedItem } from './content';
 export { securityApi, useChangePassword, useChangePin, useSignOutEverywhere, type ChangePasswordInput, type ChangePinInput } from './security';
-export { onboardingApi, useFinishSignUp, useRegister, useResendCode, useVerifyCode, type AddressInput, type RegisterInput } from './onboarding';
+export { onboardingApi, useFinishSignUp, type FinishProgress, useRegister, useResendCode, useVerifyCode, type AddressInput, type RegisterInput } from './onboarding';
 export {
   serviceRequestsApi,
   useCancelServiceRequest,
