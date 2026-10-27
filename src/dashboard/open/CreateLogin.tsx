@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { errorMessage, useFinishSignUp, useRegister, useResendCode, useSignIn, useVerifyCode } from '../../api';
+import { errorMessage, type FinishProgress, useFinishSignUp, useRegister, useResendCode, useSignIn, useVerifyCode } from '../../api';
 import { ease, field, label, primary, Problem, toE164 } from './parts';
 
 type Stage = { name: 'details' } | { name: 'code'; token: string; sentTo: string } | { name: 'secure'; token: string };
@@ -14,7 +14,17 @@ const passwordRules = (value: string) => [
   { ok: /\d/.test(value), text: 'A number' },
 ];
 
-const guessablePin = (pin: string) => /^(\d)\1{3}$/.test(pin) || '0123456789'.includes(pin) || '9876543210'.includes(pin);
+/** PINs the API refuses as too easy to guess; the same list and rules, so it's caught before anything is sent. */
+const COMMON_PINS = new Set([
+  '1212', '1122', '1313', '2000', '2001', '2580', '0852', '1004', '1010', '2020',
+  '2121', '6969', '4545', '5683', '1478', '7410', '1369', '9630', '1590', '0007',
+  '0101', '2222', '1221', '0110', '1001', '4321', '1100', '0011', '2525', '5252',
+]);
+
+const guessablePin = (pin: string) => {
+  const year = Number(pin) >= 1940 && Number(pin) <= 2029;
+  return /^(\d)\1{3}$/.test(pin) || '0123456789'.includes(pin) || '9876543210'.includes(pin) || pin.slice(0, 2) === pin.slice(2) || year || COMMON_PINS.has(pin);
+};
 
 /**
  * Creating the login a business account hangs off: who you are, your phone
@@ -70,15 +80,15 @@ function Details({ onDone }: { onDone: (token: string, sentTo: string, email: st
       <div className="grid gap-6 sm:grid-cols-2">
         <label className="block">
           <span className={label}>First name</span>
-          <input autoComplete="given-name" value={form.firstName} onChange={set('firstName')} className={field} />
+          <input autoComplete="given-name" maxLength={100} value={form.firstName} onChange={set('firstName')} className={field} />
         </label>
         <label className="block">
           <span className={label}>Last name</span>
-          <input autoComplete="family-name" value={form.lastName} onChange={set('lastName')} className={field} />
+          <input autoComplete="family-name" maxLength={100} value={form.lastName} onChange={set('lastName')} className={field} />
         </label>
         <label className="block">
           <span className={label}>Email</span>
-          <input type="email" autoComplete="email" value={form.email} onChange={set('email')} placeholder="you@business.com" className={field} />
+          <input type="email" autoComplete="email" maxLength={254} value={form.email} onChange={set('email')} placeholder="you@business.com" className={field} />
         </label>
         <label className="block">
           <span className={label}>Phone</span>
@@ -129,7 +139,8 @@ function Code({ token, sentTo, onDone, onRetarget }: { token: string; sentTo: st
 }
 
 function Secure({ token, email }: { token: string; email: string }) {
-  const finish = useFinishSignUp();
+  const progress = useRef<FinishProgress>({ done: 'none', token });
+  const finish = useFinishSignUp(progress);
   const signIn = useSignIn();
   const [password, setPassword] = useState('');
   const [pin, setPin] = useState('');
@@ -137,7 +148,10 @@ function Secure({ token, email }: { token: string; email: string }) {
   const setAddr = (key: keyof typeof address) => (e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, [key]: e.target.value });
 
   const rules = passwordRules(password);
-  const pinProblem = pin.length === 4 && guessablePin(pin) ? 'Choose a less predictable PIN.' : null;
+  const pinProblem = pin.length === 4 && guessablePin(pin) ? 'Too easy to guess. Avoid repeats, runs like 1234, and years.' : null;
+  // Once the API has a step, its fields are kept as sent, so the password signed in with is the one saved.
+  const passwordSaved = progress.current.done !== 'none';
+  const addressSaved = ['address', 'pin', 'finished'].includes(progress.current.done);
   const ready = rules.every((r) => r.ok) && pin.length === 4 && !pinProblem && Object.values(address).every((v) => v.trim());
   const busy = finish.isPending || signIn.isPending;
 
@@ -147,7 +161,7 @@ function Secure({ token, email }: { token: string; email: string }) {
         e.preventDefault();
         if (!ready) return;
         finish.mutate(
-          { token, password, pin, address: { ...address, nearestLandmark: address.nearestLandmark.trim() } },
+          { password, pin, address: { ...address, nearestLandmark: address.nearestLandmark.trim() } },
           // Signing in flips the page over to the business application.
           { onSuccess: () => signIn.mutate({ method: 'password', emailOrPhone: email, password }) },
         );
@@ -156,7 +170,7 @@ function Secure({ token, email }: { token: string; email: string }) {
       <div className="grid gap-6 sm:grid-cols-2">
         <label className="block">
           <span className={label}>Password</span>
-          <input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={field} />
+          <input type="password" autoComplete="new-password" readOnly={passwordSaved} value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} read-only:opacity-60`} />
           <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]">
             {rules.map((r) => (
               <li key={r.text} className={r.ok ? 'text-[#1f6b33]' : 'text-graphite/45'}>
@@ -176,19 +190,19 @@ function Secure({ token, email }: { token: string; email: string }) {
       <div className="mt-2 grid gap-6 sm:grid-cols-2">
         <label className="block">
           <span className={label}>Street and number</span>
-          <input autoComplete="street-address" value={address.street} onChange={setAddr('street')} className={field} />
+          <input autoComplete="street-address" readOnly={addressSaved} value={address.street} onChange={setAddr('street')} className={`${field} read-only:opacity-60`} />
         </label>
         <label className="block">
           <span className={label}>Nearest landmark</span>
-          <input value={address.nearestLandmark} onChange={setAddr('nearestLandmark')} className={field} />
+          <input readOnly={addressSaved} value={address.nearestLandmark} onChange={setAddr('nearestLandmark')} className={`${field} read-only:opacity-60`} />
         </label>
         <label className="block">
           <span className={label}>City</span>
-          <input autoComplete="address-level2" value={address.city} onChange={setAddr('city')} className={field} />
+          <input autoComplete="address-level2" readOnly={addressSaved} value={address.city} onChange={setAddr('city')} className={`${field} read-only:opacity-60`} />
         </label>
         <label className="block">
           <span className={label}>State</span>
-          <input autoComplete="address-level1" value={address.state} onChange={setAddr('state')} className={field} />
+          <input autoComplete="address-level1" readOnly={addressSaved} value={address.state} onChange={setAddr('state')} className={`${field} read-only:opacity-60`} />
         </label>
       </div>
 
