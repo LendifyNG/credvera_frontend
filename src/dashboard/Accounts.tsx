@@ -62,10 +62,16 @@ function PayInDetails({ code }: { code: Currency }) {
     return (
       <div className="mt-4 text-[14px] text-graphite/60">
         <p>{account?.unavailableReason ?? 'The bank details for this account are still being issued.'}</p>
-        <button type="button" disabled={provision.isPending} onClick={() => provision.mutate(wallet.id)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg border border-graphite/15 text-[14px] font-semibold hover:border-graphite/30 disabled:opacity-50">
-          {provision.isPending ? 'Asking the bank…' : 'Try again'}
-        </button>
-        {provision.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(provision.error)}</p>}
+        {account?.onItsWay ? (
+          <p className="mt-2 text-graphite/45">We’ll show it here as soon as it’s ready. Nothing for you to do.</p>
+        ) : (
+          <>
+            <button type="button" disabled={provision.isPending} onClick={() => provision.mutate(wallet.id)} className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-lg border border-graphite/15 text-[14px] font-semibold hover:border-graphite/30 disabled:opacity-50">
+              {provision.isPending ? 'Asking the bank…' : 'Try again'}
+            </button>
+            {provision.error && <p className="mt-3 text-[#9a3a17]">{errorMessage(provision.error)}</p>}
+          </>
+        )}
       </div>
     );
   }

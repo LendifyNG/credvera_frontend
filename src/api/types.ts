@@ -74,6 +74,8 @@ export type VirtualAccountDto = {
   provisionedAt: IsoDate | null;
   /** Why it isn't usable yet, in words for the customer. */
   unavailableReason: string | null;
+  /** True while the bank partner isn't connected: the number is on its way and there's nothing to retry. */
+  onItsWay?: boolean;
 };
 
 export type CreateWalletResponse = {
