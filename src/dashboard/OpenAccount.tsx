@@ -4,7 +4,6 @@ import { errorMessage, useBusinesses, useSignedIn, type BusinessDto } from '../a
 import logoDark from '../assets/logo-dark.png';
 import Application from './open/Application';
 import ApplicationStatus from './open/ApplicationStatus';
-import CreateLogin from './open/CreateLogin';
 import { Loading } from './ui';
 
 /**
@@ -16,9 +15,10 @@ function current(businesses: BusinessDto[]): BusinessDto | null {
 }
 
 /**
- * Opening a business account, end to end on one page: a login for the person
- * applying (if they don't have one), then the company from CAC, its directors
- * and owners checked by BVN, what it does, its documents, and review.
+ * Opening a business account, end to end on one page that fills itself in as
+ * you go: you (a login, unless you're signed in), the company from CAC, its
+ * directors and owners checked by BVN, how to reach it and what it does, its
+ * documents, then where the review stands.
  */
 export default function OpenAccount() {
   const signedIn = useSignedIn();
@@ -37,7 +37,7 @@ export default function OpenAccount() {
   };
 
   let body: React.ReactNode;
-  if (!signedIn) body = <CreateLogin />;
+  if (!signedIn) body = <Application business={null} onStarted={setAnotherId} />;
   else if (businesses.isLoading) body = <Loading />;
   else if (businesses.error) body = <p className="mt-14 text-[15px] text-[#b42318]">{errorMessage(businesses.error)}</p>;
   else if (!business || business.editable) body = <Application business={business} onStarted={setAnotherId} />;

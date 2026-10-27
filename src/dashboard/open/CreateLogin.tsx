@@ -26,16 +26,16 @@ export default function CreateLogin() {
   const [email, setEmail] = useState('');
 
   return (
-    <div className="mt-14 border-t border-graphite/15 pt-8">
+    <div>
       <p className="text-[15px] text-graphite/60">
-        First, a login for you. It’s the same one the Credvera app uses.{' '}
+        A login for you, the same one the Credvera app uses.{' '}
         <Link to="/business/app/sign-in?next=/business/app/open" className="font-semibold text-graphite underline-offset-4 hover:underline">
           Already have one? Sign in
         </Link>
       </p>
 
       <AnimatePresence mode="wait">
-        <motion.div key={stage.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease }} className="mt-8">
+        <motion.div key={stage.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
           {stage.name === 'details' && (
             <Details
               onDone={(token, sentTo, typedEmail) => {
