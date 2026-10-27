@@ -18,6 +18,7 @@ import {
   type SupplierContact,
   type SupplierDetail,
   type SupplierDto,
+  useCapabilities,
 } from '../api';
 import { useActiveBusiness, useBalances } from './data';
 import { money, shortDate } from './model';
@@ -25,7 +26,7 @@ import { field, initials, label, NairaInput, nairaFrom, paidText, panel, primary
 import { Drawer } from './suppliers/Drawer';
 import Checks from './suppliers/Checks';
 import Orders from './suppliers/Orders';
-import { Notice, PinPrompt } from './ui';
+import { ComingSoon, Notice, PinPrompt } from './ui';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const secondary = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-graphite/15 bg-white px-4 text-[14px] font-semibold transition-colors hover:border-graphite/35 disabled:opacity-40';
@@ -130,6 +131,8 @@ export default function Suppliers() {
   const { section } = useParams();
   const business = useActiveBusiness();
   const closed = !!business?.closedAt || business?.status === 'rejected';
+  // Every part of this page checks or pays bank accounts, which waits for the bank partner.
+  const caps = useCapabilities().data;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -149,7 +152,9 @@ export default function Suppliers() {
         ))}
       </nav>
       <motion.div key={section ?? 'directory'} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
-        {section === 'orders' ? (
+        {caps && !caps.sending ? (
+          <ComingSoon title="Suppliers">Saving suppliers, checking invoices and paying them opens soon: each one is checked with the bank, and that check isn’t connected yet.</ComingSoon>
+        ) : section === 'orders' ? (
           <Orders closed={closed} />
         ) : section === 'checks' ? (
           <Checks />

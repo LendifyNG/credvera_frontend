@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { errorMessage, usePaymentLinks, type PaymentLinkDto } from '../api';
+import { errorMessage, useCapabilities, usePaymentLinks, type PaymentLinkDto } from '../api';
 import { useSession } from './data';
 import { amount, byCurrency, CopyLink, Made, NewRequest, RequestDetail, StatusPill, valueOf, whenText } from './requests';
 import { Loading } from './ui';
@@ -24,6 +24,8 @@ export default function Links() {
   const live = all.filter((l) => l.status === 'pending');
   const paid30 = all.filter((l) => l.status === 'paid' && l.paidAt && Date.now() - new Date(l.paidAt).getTime() < 30 * DAY);
   const current = all.find((l) => l.reference === open);
+  const caps = useCapabilities().data;
+  const payable = !caps || caps.paymentLinks.naira || caps.paymentLinks.cards || caps.paymentLinks.paypal;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -37,6 +39,11 @@ export default function Links() {
           <Plus className="size-4" /> New link
         </button>
       </div>
+      {!payable && (
+        <p className="mt-5 rounded-xl border border-graphite/10 bg-[#efeee7]/60 px-4 py-3 text-[14px] text-graphite/70">
+          Paying online opens soon. You can make links now; until then, anyone who opens one is asked to pay you another way.
+        </p>
+      )}
 
       <section className="mt-6 grid overflow-hidden rounded-2xl border border-graphite/10 bg-white sm:grid-cols-3 sm:divide-x sm:divide-graphite/10">
         {[
