@@ -428,7 +428,13 @@ function SupplierView({ s, done, clearDone, canPay, setMode }: { s: SupplierDeta
               </span>
             </p>
           ) : (
-            <p className="mt-1 text-graphite/65">{s.cac.status === 'not_found' ? `RC ${s.cac.rcNumber} isn’t on the CAC register.` : `RC ${s.cac.rcNumber} couldn’t be checked just now. Save again later to retry.`}</p>
+            <p className="mt-1 text-graphite/65">
+              {s.cac.available === false
+                ? `RC ${s.cac.rcNumber} is saved. Checking it on the CAC register isn’t available yet.`
+                : s.cac.status === 'not_found'
+                  ? `RC ${s.cac.rcNumber} isn’t on the CAC register.`
+                  : `RC ${s.cac.rcNumber} couldn’t be checked just now. Save again later to retry.`}
+            </p>
           )}
         </section>
       )}

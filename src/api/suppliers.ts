@@ -30,7 +30,8 @@ export type SupplierDto = {
     /** Nothing paid to these details yet: the next payment asks for confirmation. */
     unconfirmed: boolean;
   };
-  cac: { rcNumber: string; name: string | null; status: string | null; checkedAt: string | null; matchesAccount: boolean | null } | null;
+  /** `available` is false while CAC lookups aren't connected: the number is kept but couldn't be checked. */
+  cac: { rcNumber: string; name: string | null; status: string | null; checkedAt: string | null; available?: boolean; matchesAccount: boolean | null } | null;
   archivedAt: string | null;
   createdAt: string;
   stats: { payments: number; paid: string; lastPaidAt: string | null };
