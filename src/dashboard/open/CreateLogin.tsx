@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { errorMessage, type FinishProgress, useFinishSignUp, useRegister, useResendCode, useVerifyCode } from '../../api';
+import { errorMessage, type FinishProgress, isApiError, useFinishSignUp, useRegister, useResendCode, useVerifyCode } from '../../api';
 import { ease, field, label, primary, Problem, toE164 } from './parts';
 
 type Channel = 'sms' | 'email';
@@ -79,6 +79,11 @@ function Details({ onDone }: { onDone: (token: string, sentTo: string, login: { 
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' });
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [key]: e.target.value });
   const rules = passwordRules(form.password);
+  // Details that already have a finished account: said here, with a way to sign in.
+  const fields = isApiError(register.error) && !register.error.details?.inProgress ? (register.error.details?.fields as string[] | undefined) : undefined;
+  const taken = fields?.length
+    ? `${fields.length > 1 ? 'This email and phone number already have' : fields[0] === 'email' ? 'This email already has' : 'This phone number already has'} a Credvera account.`
+    : null;
   const ready = form.firstName.trim() && form.lastName.trim() && /\S+@\S+\.\S+/.test(form.email) && form.phone.replace(/\D/g, '').length >= 10 && rules.every((r) => r.ok);
 
   return (
@@ -119,7 +124,15 @@ function Details({ onDone }: { onDone: (token: string, sentTo: string, login: { 
           </ul>
         </label>
       </div>
-      <Problem>{register.error && errorMessage(register.error)}</Problem>
+      <Problem>{register.error && !taken && errorMessage(register.error)}</Problem>
+      {taken && (
+        <p className="mt-4 text-[14px] text-[#b42318]">
+          {taken}{' '}
+          <Link to="/business/app/sign-in?next=/business/app/open" className="font-semibold underline underline-offset-4">
+            Sign in instead
+          </Link>
+        </p>
+      )}
       <button type="submit" disabled={!ready || register.isPending} className={`${primary} mt-8`}>
         {register.isPending && <Loader2 className="size-4 animate-spin" />} Text me a code <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </button>
@@ -173,18 +186,6 @@ function Code({
           {resend.isSuccess ? 'Sent again' : 'Send a new code'}
         </button>
       </div>
-      {/* Shown to everyone at the phone step, because the server answers the
-          same either way: telling only existing accounts would let anyone test
-          whose details are registered. The real owner gets an email saying so. */}
-      {channel === 'sms' && (
-      <div className={`mt-8 max-w-md rounded-xl border px-4 py-3 text-[14px] leading-relaxed transition-colors ${resend.isSuccess ? 'border-graphite/25 bg-graphite/[0.04] text-graphite' : 'border-graphite/10 text-graphite/60'}`}>
-        <span className="font-semibold text-graphite">No code yet?</span> If this email or phone number already has a Credvera account, we don’t send one. We email the account instead.{' '}
-        <Link to="/business/app/sign-in?next=/business/app/open" className="font-semibold text-graphite underline underline-offset-4">
-          Sign in with it instead
-        </Link>
-        .
-      </div>
-      )}
     </form>
   );
 }
