@@ -6,20 +6,20 @@ import type { BusinessDocumentType, BusinessDto, NewBusinessPerson, StartBusines
 
 export const businessesApi = {
   list: () => http.get<BusinessDto[]>('/businesses'),
-  get: (id: string) => http.get<BusinessDto>(`/businesses/${id}`),
+  get: (id: string) => http.get<BusinessDto>(`/businesses/${encodeURIComponent(id)}`),
   options: () => http.get<{ lookups: boolean }>('/businesses/options'),
   start: (input: StartBusinessInput) => http.post<BusinessDto>('/businesses', input),
-  addPerson: (id: string, person: NewBusinessPerson) => http.post<BusinessDto>(`/businesses/${id}/people`, person),
-  removePerson: (id: string, personId: string) => http.delete<BusinessDto>(`/businesses/${id}/people/${personId}`),
-  update: (id: string, input: UpdateBusinessInput) => http.patch<BusinessDto>(`/businesses/${id}`, input),
-  verifyPerson: (id: string, personId: string, bvn: string) => http.post<BusinessDto>(`/businesses/${id}/people/${personId}/bvn`, { bvn }),
+  addPerson: (id: string, person: NewBusinessPerson) => http.post<BusinessDto>(`/businesses/${encodeURIComponent(id)}/people`, person),
+  removePerson: (id: string, personId: string) => http.delete<BusinessDto>(`/businesses/${encodeURIComponent(id)}/people/${encodeURIComponent(personId)}`),
+  update: (id: string, input: UpdateBusinessInput) => http.patch<BusinessDto>(`/businesses/${encodeURIComponent(id)}`, input),
+  verifyPerson: (id: string, personId: string, bvn: string) => http.post<BusinessDto>(`/businesses/${encodeURIComponent(id)}/people/${encodeURIComponent(personId)}/bvn`, { bvn }),
   uploadDocument: (id: string, type: BusinessDocumentType, file: File) => {
     const form = new FormData();
     form.append('type', type);
     form.append('file', file);
-    return http.post<BusinessDto>(`/businesses/${id}/documents`, form);
+    return http.post<BusinessDto>(`/businesses/${encodeURIComponent(id)}/documents`, form);
   },
-  submit: (id: string) => http.post<BusinessDto>(`/businesses/${id}/submit`),
+  submit: (id: string) => http.post<BusinessDto>(`/businesses/${encodeURIComponent(id)}/submit`),
 };
 
 /** The businesses this person runs, with where each application stands. */

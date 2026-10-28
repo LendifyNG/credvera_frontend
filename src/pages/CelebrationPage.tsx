@@ -306,6 +306,13 @@ function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft; onAgain
  * header, then the invitation beside the gift form. Guests pay with a
  * one-time account number by bank transfer, or by card.
  */
+/**
+ * Off until the API issues a real account per gift and confirms payment by
+ * webhook. Until then nothing here may show an account number to pay into or
+ * claim a gift arrived: the transfer and card steps below are not wired up.
+ */
+const GIFTS_OPEN = false;
+
 export default function CelebrationPage() {
   const { slug = '' } = useParams();
   const e = findCelebration(slug);
@@ -342,7 +349,14 @@ export default function CelebrationPage() {
             <Invitation e={e} />
           </div>
 
-          {e.closed ? null : (
+          {e.closed ? null : !GIFTS_OPEN ? (
+            <div className="max-w-lg rounded-2xl bg-white p-6 ring-1 ring-ink/10">
+              <p className="text-[18px] font-semibold tracking-[-0.02em]">Gifts open soon</p>
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/60">
+                Sending a gift through this page isn’t available yet. Please don’t send money to any account for this celebration until it opens here.
+              </p>
+            </div>
+          ) : (
             <div className="max-w-lg">
               {back[step] && (
                 <button

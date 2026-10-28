@@ -46,10 +46,10 @@ export type StatementRequestInput = { currency: string; from: string; to: string
 
 export const serviceRequestsApi = {
   list: () => http.get<ServiceRequestDto[]>('/service-requests'),
-  get: (id: string) => http.get<ServiceRequestDto>(`/service-requests/${id}`),
+  get: (id: string) => http.get<ServiceRequestDto>(`/service-requests/${encodeURIComponent(id)}`),
   statement: (input: StatementRequestInput) => http.post<ServiceRequestDto>('/service-requests/statement', input),
   closure: (reason: string) => http.post<ServiceRequestDto>('/service-requests/closure', { reason }),
-  cancel: (id: string) => http.post<ServiceRequestDto>(`/service-requests/${id}/cancel`),
+  cancel: (id: string) => http.post<ServiceRequestDto>(`/service-requests/${encodeURIComponent(id)}/cancel`),
 };
 
 /** This account's requests, newest first. Checked again every minute while one is open. */

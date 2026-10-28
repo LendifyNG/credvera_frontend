@@ -11,6 +11,8 @@ import { useSyncExternalStore } from 'react';
  */
 
 const REFRESH_KEY = 'credvera.session.refresh';
+/** When the dashboard was last used; read by useIdleSignOut. A fresh sign-in counts as use. */
+export const LAST_ACTIVE_KEY = 'credvera.business.lastActive';
 
 export type Tokens = { accessToken: string; refreshToken: string };
 
@@ -41,6 +43,7 @@ export const session = {
     refreshToken = tokens.refreshToken;
     try {
       localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
+      if (!wasSignedIn) localStorage.setItem(LAST_ACTIVE_KEY, String(Date.now()));
     } catch {
       // Private browsing: signed in for this tab only.
     }
@@ -54,6 +57,7 @@ export const session = {
     refreshToken = null;
     try {
       localStorage.removeItem(REFRESH_KEY);
+      localStorage.removeItem(LAST_ACTIVE_KEY);
     } catch {
       // Nothing stored to remove.
     }

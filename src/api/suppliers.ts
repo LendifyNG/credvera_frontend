@@ -58,12 +58,12 @@ export type PaySupplierInput = { amount: string; narration?: string; pin: string
 
 export const suppliersApi = {
   list: (archived: boolean) => http.get<SupplierDto[]>('/suppliers', { params: archived ? { archived: true } : {} }),
-  get: (id: string) => http.get<SupplierDetail>(`/suppliers/${id}`),
+  get: (id: string) => http.get<SupplierDetail>(`/suppliers/${encodeURIComponent(id)}`),
   create: (input: NewSupplier) => http.post<SupplierDetail>('/suppliers', input),
-  update: (id: string, input: SupplierContact) => http.patch<SupplierDetail>(`/suppliers/${id}`, input),
-  changeBank: (id: string, input: { bankCode: string; accountNumber: string; pin: string }) => http.put<SupplierDetail>(`/suppliers/${id}/bank`, input),
-  archive: (id: string, archive: boolean) => http.post<SupplierDetail>(`/suppliers/${id}/${archive ? 'archive' : 'restore'}`),
-  pay: (id: string, input: PaySupplierInput) => http.post<TransferResultDto | AwaitingApprovalDto>(`/suppliers/${id}/pay`, input),
+  update: (id: string, input: SupplierContact) => http.patch<SupplierDetail>(`/suppliers/${encodeURIComponent(id)}`, input),
+  changeBank: (id: string, input: { bankCode: string; accountNumber: string; pin: string }) => http.put<SupplierDetail>(`/suppliers/${encodeURIComponent(id)}/bank`, input),
+  archive: (id: string, archive: boolean) => http.post<SupplierDetail>(`/suppliers/${encodeURIComponent(id)}/${archive ? 'archive' : 'restore'}`),
+  pay: (id: string, input: PaySupplierInput) => http.post<TransferResultDto | AwaitingApprovalDto>(`/suppliers/${encodeURIComponent(id)}/pay`, input),
 };
 
 export function useSuppliers(archived = false) {

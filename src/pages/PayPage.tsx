@@ -10,6 +10,20 @@ const amount = (n: string | number, currency: string) => money(Number(n), curren
  * Where a payment link lands: the invoice, who it's from, and a button that
  * opens the provider's checkout. No sign-in; the link itself is the key.
  */
+/** The payment partners' own checkout sites; a payer is never sent anywhere else. */
+const CHECKOUT_HOSTS = ['squadco.com', 'stripe.com', 'paypal.com'];
+
+function goToCheckout(url: string) {
+  let target: URL;
+  try {
+    target = new URL(url);
+  } catch {
+    return;
+  }
+  const allowed = target.protocol === 'https:' && CHECKOUT_HOSTS.some((h) => target.hostname === h || target.hostname.endsWith(`.${h}`));
+  if (allowed) window.location.assign(target.href);
+}
+
 export default function PayPage() {
   const { slug = '' } = useParams();
   const invoice = usePublicInvoice(slug);
@@ -68,7 +82,7 @@ export default function PayPage() {
                     type="button"
                     disabled={checkout.isPending}
                     // The provider's page takes the payment; it comes back here when done.
-                    onClick={() => checkout.mutate(undefined, { onSuccess: ({ url }) => window.location.assign(url) })}
+                    onClick={() => checkout.mutate(undefined, { onSuccess: ({ url }) => goToCheckout(url) })}
                     className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-graphite text-[15px] font-semibold text-white hover:bg-black disabled:opacity-60"
                   >
                     {checkout.isPending ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />} Pay {amount(inv.amount, inv.currency)}

@@ -15,6 +15,8 @@ declare module 'axios' {
     skipAuth?: boolean;
     /** Marks the single retry after a token refresh, so a request never loops. */
     _retried?: boolean;
+    /** Which user action this request is, for reusing its Idempotency-Key on a retry. */
+    _action?: string;
   }
 }
 
@@ -60,8 +62,15 @@ instance.interceptors.request.use(async (config) => {
   if (businessId) config.headers['X-Business-Id'] = businessId;
 
   // Payments refuse a POST without one, so a retried click can't pay twice.
-  // Set once per request: a replay after a token refresh keeps the same key.
-  if (config.method?.toLowerCase() === 'post' && !config.headers['Idempotency-Key']) config.headers['Idempotency-Key'] = crypto.randomUUID();
+  // The same action sent again (a retry after a timeout or a dropped
+  // connection) reuses its key until it gets a definite answer, so the API
+  // sees one payment, not two. A replay after a token refresh keeps it too.
+  const method = config.method?.toLowerCase();
+  if ((method === 'post' || method === 'put' || method === 'patch') && !config.headers['Idempotency-Key']) {
+    const action = actionOf(config.method!, config.url, businessId, config.data);
+    config._action = action ?? undefined;
+    config.headers['Idempotency-Key'] = action ? keyFor(action) : crypto.randomUUID();
+  }
 
   return config;
 });
@@ -69,10 +78,17 @@ instance.interceptors.request.use(async (config) => {
 // ── Incoming: one error shape, one refresh, one sign-out rule ────────────────
 
 instance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    settle(response.config._action);
+    return response;
+  },
   async (error: unknown) => {
     const apiError = toApiError(error);
     const config = axios.isAxiosError(error) ? error.config : undefined;
+
+    // A definite refusal frees the key, so a corrected retry is a new action.
+    // No answer, or a server fault, keeps it: the payment may have gone.
+    if (apiError.status >= 400 && apiError.status < 500 && apiError.code !== 'TOKEN_EXPIRED') settle(config?._action);
 
     // An expired access token is refreshed once and the request replayed, so
     // no caller ever deals with token lifetimes.
@@ -86,6 +102,31 @@ instance.interceptors.response.use(
     throw apiError;
   },
 );
+
+// ── Idempotency keys per action ──────────────────────────────────────────────
+
+const KEY_LIFETIME_MS = 15 * 60_000;
+const actionKeys = new Map<string, { key: string; at: number }>();
+
+/** The same method, address, business and body is the same action. Uploads aren't keyed. */
+function actionOf(method: string, url: string | undefined, businessId: string | null, data: unknown): string | null {
+  if (typeof FormData !== 'undefined' && data instanceof FormData) return null;
+  return [method.toLowerCase(), url ?? '', businessId ?? '', typeof data === 'string' ? data : JSON.stringify(data ?? null)].join('\u0000');
+}
+
+function keyFor(action: string): string {
+  const now = Date.now();
+  for (const [a, k] of actionKeys) if (now - k.at > KEY_LIFETIME_MS) actionKeys.delete(a);
+  const existing = actionKeys.get(action);
+  if (existing) return existing.key;
+  const key = crypto.randomUUID();
+  actionKeys.set(action, { key, at: now });
+  return key;
+}
+
+function settle(action: string | undefined) {
+  if (action) actionKeys.delete(action);
+}
 
 function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;

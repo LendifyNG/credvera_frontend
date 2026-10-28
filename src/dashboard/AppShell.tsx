@@ -26,8 +26,9 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useIdleSignOut } from './useIdleSignOut';
 import { activeBusiness, errorMessage, useApprovals, useBusinesses, usePaymentLinks, useProfile, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import CommandBar from './CommandBar';
@@ -176,6 +177,8 @@ export default function AppShell() {
   const session = useSession();
   const profile = useProfile();
   const signOut = useSignOut();
+  const expire = useCallback(() => signOut.mutate(), [signOut.mutate]);
+  useIdleSignOut(signedIn, expire);
   const businesses = useBusinesses();
   const active = useActiveBusiness();
   // Payments waiting on this person, for the badge beside Approvals.

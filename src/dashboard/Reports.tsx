@@ -7,6 +7,7 @@ import { CURRENCIES } from './money';
 import { usePaymentLinks } from '../api';
 import { kindOf, money, reference, settled, shortDate, type Currency, type Payment } from './model';
 import { useBalances, usePayInAccount, usePayments, useSession } from './data';
+import { csvCell } from '../lib/csv';
 import { OfficialStatements } from './service';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -20,7 +21,7 @@ const secondary = 'inline-flex h-10 items-center gap-2 rounded-lg border border-
 const signedIn = (p: Payment, c: Currency) => (p.currency !== c ? 0 : p.kind === 'in' ? p.amount : -p.amount);
 
 function download(name: string, rows: (string | number)[][]) {
-  const q = (v: string | number) => (typeof v === 'number' ? v.toFixed(2) : `"${v.replace(/"/g, '""')}"`);
+  const q = (v: string | number) => (typeof v === 'number' ? v.toFixed(2) : csvCell(v));
   const url = URL.createObjectURL(new Blob([rows.map((r) => r.map(q).join(',')).join('\n')], { type: 'text/csv' }));
   const a = document.createElement('a');
   a.href = url;
