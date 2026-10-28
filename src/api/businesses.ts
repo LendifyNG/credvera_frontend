@@ -38,7 +38,10 @@ export function useBusinessOptions() {
  * Every change answers with the whole application, so the cache is updated
  * from the response instead of being refetched.
  */
-function remember(business: BusinessDto) {
+function remember(answer: BusinessDto) {
+  // Only the list says the caller's role; changes are made by the applicant, who owns it.
+  const known = queryClient.getQueryData<BusinessDto[]>(queryKeys.businesses)?.find((b) => b.id === answer.id);
+  const business = { ...answer, role: answer.role ?? known?.role ?? 'owner' };
   queryClient.setQueryData(queryKeys.business(business.id), business);
   queryClient.setQueryData<BusinessDto[]>(queryKeys.businesses, (list) =>
     list ? [business, ...list.filter((b) => b.id !== business.id)] : [business],
