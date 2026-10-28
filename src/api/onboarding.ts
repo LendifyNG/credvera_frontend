@@ -26,7 +26,9 @@ export const onboardingApi = {
   password: (token: string, password: string) => step('password', token, { password }),
   address: (token: string, address: AddressInput) => step('address', token, address),
   pin: (token: string, pin: string) => step('pin', token, { pin }),
-  finish: (token: string) => step<{ message: string }>('biometrics', token, { enabled: false }),
+  // Logins made here are for a business application, so the server holds back
+  // its "welcome" email: the applicant hears from us once the application is in.
+  finish: (token: string) => step<{ message: string }>('biometrics', token, { enabled: false, forBusiness: true }),
 };
 
 export const useRegister = () => useMutation({ mutationFn: onboardingApi.register });
