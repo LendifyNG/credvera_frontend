@@ -5,7 +5,7 @@ export { session, useSignedIn } from './session';
 export { invalidateMoney, queryClient, queryKeys } from './queryClient';
 
 export { authApi, useCodeSignIn, useSignIn, useSignOut, type SignInInput } from './auth';
-export { capabilitiesApi, useCapabilities, type CapabilitiesDto } from './capabilities';
+export { capabilitiesApi, useCapabilities, useCodeChannels, type CapabilitiesDto, type CodeChannel, type CodeChannelsDto } from './capabilities';
 export { profileApi, useProfile } from './profile';
 export { useOpenWallet, useProvisionVirtualAccount, useVirtualAccount, useWallets, walletsApi } from './wallets';
 export { transactionsApi, useTransactions } from './transactions';

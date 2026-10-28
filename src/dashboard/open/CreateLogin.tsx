@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { errorMessage, type FinishProgress, isApiError, useFinishSignUp, useRegister, useResendCode, useVerifyCode } from '../../api';
+import { errorMessage, type FinishProgress, isApiError, useFinishSignUp, useRegister, useResendCode, useVerifyCode, useCodeChannels, type CodeChannel } from '../../api';
 import { ease, field, label, primary, Problem, toE164 } from './parts';
 
 type Channel = 'sms' | 'email';
@@ -205,7 +205,12 @@ function Code({
 }) {
   const verify = useVerifyCode();
   const resend = useResendCode();
+  const channels = useCodeChannels().data;
   const [code, setCode] = useState('');
+  // Besides another text: WhatsApp or a call, where texts aren't getting through.
+  const others: { via: CodeChannel; label: string }[] =
+    channel === 'sms' ? [...(channels?.whatsapp ? [{ via: 'whatsapp' as const, label: 'Send by WhatsApp' }] : []), ...(channels?.call ? [{ via: 'call' as const, label: 'Call me' }] : [])] : [];
+  const sentBy = resend.isSuccess ? resend.variables?.via : undefined;
 
   return (
     <form
@@ -217,7 +222,7 @@ function Code({
     >
       <label className="block max-w-xs">
         <span className={label}>
-          The 6-digit code we {channel === 'sms' ? 'texted' : 'emailed'} to {sentTo}
+          The 6-digit code we {channel === 'sms' ? (sentBy === 'whatsapp' ? 'sent by WhatsApp' : sentBy === 'call' ? 'are calling you with' : 'texted') : 'emailed'} to {sentTo}
         </span>
         <input autoFocus inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className={`${field} font-ledger tracking-[0.4em]`} />
       </label>
@@ -233,8 +238,19 @@ function Code({
           onClick={() => resend.mutate({ token }, { onSuccess: (r) => onRetarget(r.onboardingToken) })}
           className="text-[14px] font-semibold text-graphite/60 hover:text-graphite disabled:opacity-50"
         >
-          {resend.isSuccess ? 'Sent again' : 'Send a new code'}
+          {resend.isSuccess && !sentBy ? 'Sent again' : 'Send a new code'}
         </button>
+        {others.map(({ via, label }) => (
+          <button
+            key={via}
+            type="button"
+            disabled={resend.isPending}
+            onClick={() => resend.mutate({ token, via }, { onSuccess: (r) => onRetarget(r.onboardingToken) })}
+            className="text-[14px] font-semibold text-graphite/60 hover:text-graphite disabled:opacity-50"
+          >
+            {sentBy === via ? 'Sent' : label}
+          </button>
+        ))}
         <button type="button" onClick={onChangeDetails} className="text-[14px] font-semibold text-graphite/60 hover:text-graphite">
           Wrong {channel === 'sms' ? 'number' : 'email'}? Change it
         </button>

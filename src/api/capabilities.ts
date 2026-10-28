@@ -13,7 +13,19 @@ export type CapabilitiesDto = {
   identityChecks: boolean;
 };
 
-export const capabilitiesApi = { get: () => http.get<CapabilitiesDto>('/capabilities') };
+/** Ways a code can reach a phone; a text always, WhatsApp and a call once the server has them. */
+export type CodeChannel = 'sms' | 'whatsapp' | 'call';
+export type CodeChannelsDto = Record<CodeChannel, boolean>;
+
+export const capabilitiesApi = {
+  get: () => http.get<CapabilitiesDto>('/capabilities'),
+  codeChannels: () => http.get<CodeChannelsDto>('/capabilities/code-channels'),
+};
+
+/** For the code screens, before anyone is signed in. */
+export function useCodeChannels() {
+  return useQuery({ queryKey: ['capabilities', 'code-channels'], queryFn: capabilitiesApi.codeChannels, staleTime: 5 * 60_000 });
+}
 
 /** Undefined until known: screens show nothing switched off until the answer is in. */
 export function useCapabilities() {

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from './auth';
 import { http } from './client';
+import type { CodeChannel } from './capabilities';
 import { session } from './session';
 
 /**
@@ -29,7 +30,8 @@ export const onboardingApi = {
   register: (input: RegisterInput, token?: string) =>
     http.post<CodeSent>('/onboarding/register', { ...input, country: 'NG' }, { skipAuth: true, headers: token ? { [ONBOARDING_HEADER]: token } : {} }),
   // The step decides the channel: texted until the phone is confirmed, then emailed.
-  resend: (token: string) => step<CodeSent>('resend', token, {}),
+  // The phone's code can be asked for by WhatsApp or a call when texts aren't arriving.
+  resend: (token: string, via?: CodeChannel) => step<CodeSent>('resend', token, via && via !== 'sms' ? { via } : {}),
   // Confirming the phone emails the next code and answers with its token; confirming the email answers with the PIN step's.
   verify: (token: string, code: string) => step<Step | CodeSent>('verify', token, { code }),
   pin: (token: string, pin: string) => step('pin', token, { pin }),
@@ -39,7 +41,7 @@ export const onboardingApi = {
 };
 
 export const useRegister = () => useMutation({ mutationFn: ({ input, token }: { input: RegisterInput; token?: string }) => onboardingApi.register(input, token) });
-export const useResendCode = () => useMutation({ mutationFn: ({ token }: { token: string }) => onboardingApi.resend(token) });
+export const useResendCode = () => useMutation({ mutationFn: ({ token, via }: { token: string; via?: CodeChannel }) => onboardingApi.resend(token, via) });
 export const useVerifyCode = () => useMutation({ mutationFn: ({ token, code }: { token: string; code: string }) => onboardingApi.verify(token, code) });
 
 /** How far the last steps got, so a retry carries on instead of starting over. */
