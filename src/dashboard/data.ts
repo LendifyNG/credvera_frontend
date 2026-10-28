@@ -24,11 +24,10 @@ const isCurrency = (code: string): code is Currency => (CURRENCY_CODES as string
 
 // ── Session ──────────────────────────────────────────────────────────────────
 
-/**
- * Who is signed in, and for which business. The person applied for the
- * business, so they are its owner.
- * TODO(credvera): roles for team members once the API has them.
- */
+/** What each role is called where the signed-in person is shown. */
+const ROLE_NAME: Record<BusinessDto['role'], string> = { owner: 'Owner', admin: 'Admin', payer: 'Can pay', viewer: 'View only' };
+
+/** Who is signed in, for which business, and their role on it: the owner, or their place on its team. */
 export function useSession(): Session | undefined {
   const { data } = useProfile();
   const business = useActiveBusiness();
@@ -36,7 +35,7 @@ export function useSession(): Session | undefined {
   return useMemo(() => {
     if (!data) return undefined;
     const first = nameCase(data.firstName);
-    return { business: business?.name ?? `${first} ${nameCase(data.lastName)}`, person: first, role: 'Owner' as const };
+    return { business: business?.name ?? `${first} ${nameCase(data.lastName)}`, person: first, role: business?.role ? ROLE_NAME[business.role] : 'Owner' };
   }, [data, business]);
 }
 
@@ -221,7 +220,7 @@ export function toPayment(tx: TransactionDto): Payment | null {
     case 'deposit':
       return {
         ...base,
-        who: m.payerName ?? m.senderName ?? (m.source === 'dev-tooling' ? 'Test credit' : 'Bank transfer'),
+        who: m.payerName ?? m.senderName ?? (m.source === 'dev-tooling' ? 'Money added' : 'Bank transfer'),
         what: m.source === 'payment-link' ? 'Payment link' : 'Money in',
       };
     default:

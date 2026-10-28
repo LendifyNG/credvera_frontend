@@ -25,7 +25,9 @@ const step = <T = Step>(path: string, token: string, body: unknown) =>
   http.post<T>(`/onboarding/${path}`, body, { skipAuth: true, headers: { [ONBOARDING_HEADER]: token } });
 
 export const onboardingApi = {
-  register: (input: RegisterInput) => http.post<CodeSent>('/onboarding/register', { ...input, country: 'NG' }, { skipAuth: true }),
+  // With the sign-up's own token, correcting the phone or email starts the same sign-up over.
+  register: (input: RegisterInput, token?: string) =>
+    http.post<CodeSent>('/onboarding/register', { ...input, country: 'NG' }, { skipAuth: true, headers: token ? { [ONBOARDING_HEADER]: token } : {} }),
   // The step decides the channel: texted until the phone is confirmed, then emailed.
   resend: (token: string) => step<CodeSent>('resend', token, {}),
   // Confirming the phone emails the next code and answers with its token; confirming the email answers with the PIN step's.
@@ -36,7 +38,7 @@ export const onboardingApi = {
   finish: (token: string) => step<{ message: string }>('biometrics', token, { enabled: false, forBusiness: true }),
 };
 
-export const useRegister = () => useMutation({ mutationFn: onboardingApi.register });
+export const useRegister = () => useMutation({ mutationFn: ({ input, token }: { input: RegisterInput; token?: string }) => onboardingApi.register(input, token) });
 export const useResendCode = () => useMutation({ mutationFn: ({ token }: { token: string }) => onboardingApi.resend(token) });
 export const useVerifyCode = () => useMutation({ mutationFn: ({ token, code }: { token: string; code: string }) => onboardingApi.verify(token, code) });
 

@@ -16,6 +16,7 @@ import {
 import { Loading } from './ui';
 import { csvCell } from '../lib/csv';
 import { usePayments, useSession } from './data';
+import { errorMessage } from '../api';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const DAY = 86400000;
@@ -170,7 +171,7 @@ const PAGE = 25;
 
 /** Every transaction, filtered and searchable, each one a click from its full story. */
 export default function Payments() {
-  const { payments, isLoading, hasMore, loadMore, loadingMore } = usePayments();
+  const { payments, isLoading, error, hasMore, loadMore, loadingMore } = usePayments();
   const session = useSession();
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
@@ -337,6 +338,8 @@ export default function Payments() {
           </table>
           {isLoading ? (
             <Loading label="Loading your transactions…" />
+          ) : error && !payments.length ? (
+            <p className="py-14 text-center text-[14px] text-[#b42318]">{errorMessage(error)}</p>
           ) : (
             shown.length === 0 && (
               <div className="py-14 text-center">

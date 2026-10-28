@@ -31,7 +31,7 @@ const initials = (name: string) =>
     .toUpperCase();
 
 /** Payers the bank told us nothing about can't be put to a customer. */
-const UNNAMED = new Set(['Bank transfer', 'Test credit']);
+const UNNAMED = new Set(['Bank transfer', 'Money added']);
 
 const paidOf = (c: Customer) => [
   ...c.requests.filter((l) => l.status === 'paid').map((l) => ({ currency: l.currency, value: valueOf(l) })),

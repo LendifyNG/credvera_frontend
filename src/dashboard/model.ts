@@ -27,7 +27,7 @@ export type Payment = {
 /** A bank account someone has been paid at before. */
 export type Recipient = { name: string; bankCode: string; bankName: string; accountNumber: string };
 
-export type Session = { business: string; person: string; role: 'Owner' };
+export type Session = { business: string; person: string; role: string };
 
 /** What kind of transaction it is, read from its description. */
 export function kindOf(p: Payment) {

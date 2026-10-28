@@ -35,6 +35,8 @@ const DOCUMENTS: { type: BusinessDocumentType; label: string; required: boolean 
   { type: 'certificate_of_incorporation', label: 'Certificate of incorporation', required: true },
   { type: 'status_report', label: 'CAC status report, from the last 3 months', required: true },
   { type: 'memart', label: 'Memorandum and articles of association', required: false },
+  // Not needed to apply, but our team may ask for it.
+  { type: 'proof_of_address', label: 'Proof of business address', required: false },
 ];
 
 /** Company types as on a CAC certificate. */

@@ -1,7 +1,7 @@
 import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, ChevronDown, Info, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
-import { usePaymentLinks } from '../api';
+import { errorMessage, usePaymentLinks } from '../api';
 import { AddMoney, CURRENCIES } from './money';
 import { PromoCard } from './published';
 import { byCurrency, valueOf } from './requests';
@@ -86,8 +86,8 @@ export default function Today() {
   const navigate = useNavigate();
   const { convert } = useOutletContext<{ convert: () => void }>();
   const session = useSession();
-  const { balances } = useBalances();
-  const { payments } = usePayments();
+  const { balances, isLoading: loadingBalances, error: balancesError } = useBalances();
+  const { payments, isLoading: loadingPayments, error: paymentsError } = usePayments();
   const links = usePaymentLinks();
   const [adding, setAdding] = useState(false);
   const [tab, setTab] = useState<'posted' | 'pending'>('posted');
@@ -155,11 +155,13 @@ export default function Today() {
             </div>
             <div className={`${tile} mt-5`}>
               <p className="text-[14px] font-medium text-graphite/70">{allIn ? 'Estimated total in NGN' : 'Naira balance'}</p>
-              <p className="mt-2 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold leading-none tracking-[-0.03em] text-[#1f6b33]">{money(allIn ? estimate.total : balances.NGN)}</p>
+              <p className="mt-2 font-ledger text-[clamp(1.9rem,3vw,2.4rem)] font-semibold leading-none tracking-[-0.03em] text-[#1f6b33]">{loadingBalances || balancesError ? '—' : money(allIn ? estimate.total : balances.NGN)}</p>
               <p className="mt-5 flex gap-2 text-[13px] leading-relaxed text-graphite/55">
                 <Info className="mt-0.5 size-4 shrink-0" />
                 <span>
-                  {allIn
+                  {balancesError
+                    ? `We couldn’t load your balances. ${errorMessage(balancesError)}`
+                    : allIn
                     ? `Your balances in naira at today’s reference rate: ${money(balances.NGN)} plus ${others.map((c) => money(balances[c.code], c.code)).join(', ')}.`
                     : others.length
                       ? `Plus ${others.map((c) => money(balances[c.code], c.code)).join(', ')}, kept in their own currencies.`
@@ -359,7 +361,7 @@ export default function Today() {
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-graphite/50">
-                    Nothing {tab} right now.
+                    {paymentsError ? errorMessage(paymentsError) : loadingPayments ? 'Loading…' : `Nothing ${tab} right now.`}
                   </td>
                 </tr>
               )}
