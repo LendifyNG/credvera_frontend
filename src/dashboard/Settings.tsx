@@ -312,18 +312,22 @@ function Documents({ business }: { business: BusinessDto }) {
             </span>
           </li>
         ))}
-        {people.map((p) => (
+        {people.map((p) => {
+          // Typed in by hand, a BVN is checked by our team rather than looked up, so approval is the check.
+          const ok = p.status === 'verified' || checked;
+          return (
           <li key={p.id} className="flex items-center gap-3 py-3.5">
-            <span className={`grid size-9 place-items-center rounded-full ${p.status === 'verified' ? 'bg-[#e3f1e0] text-[#1f6b33]' : 'bg-[#f6e7e0] text-[#9a3a17]'}`}>
+            <span className={`grid size-9 place-items-center rounded-full ${ok ? 'bg-[#e3f1e0] text-[#1f6b33]' : 'bg-[#f6e7e0] text-[#9a3a17]'}`}>
               <UserCheck className="size-4" />
             </span>
             <span className="flex-1">
               <span className="block text-[14.5px] font-medium">{p.name}’s BVN</span>
               <span className="block text-[12.5px] text-graphite/50">{p.isDirector ? 'Director' : 'Owner'}{p.sharePercent != null ? ` · ${p.sharePercent}%` : ''}</span>
             </span>
-            <span className={`text-[13px] font-medium ${p.status === 'verified' ? 'text-[#1f6b33]' : 'text-[#9a3a17]'}`}>{p.status === 'verified' ? 'Checked' : 'Not checked'}</span>
+            <span className={`text-[13px] font-medium ${ok ? 'text-[#1f6b33]' : 'text-[#9a3a17]'}`}>{ok ? 'Checked' : 'Not checked'}</span>
           </li>
-        ))}
+          );
+        })}
         {business.documents.length === 0 && people.length === 0 && <li className="py-5 text-[14px] text-graphite/50">Nothing uploaded yet.</li>}
       </ul>
     </section>
