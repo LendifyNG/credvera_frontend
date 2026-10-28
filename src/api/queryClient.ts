@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { isApiError } from './errors';
 import { activeBusiness } from './activeBusiness';
 import { session } from './session';
@@ -44,7 +44,20 @@ export const queryKeys = {
   invoiceChecks: ['suppliers', 'invoice-checks'] as const,
 };
 
+/**
+ * The business being acted for is no longer ours to act for: removed from its
+ * team, or its account turned down. The list is fetched again, so the
+ * dashboard moves to a business that is, or back to the application page,
+ * instead of every page showing the same refusal until a reload.
+ */
+const BUSINESS_GONE = new Set(['BUSINESS_NOT_FOUND', 'BUSINESS_NOT_APPROVED', 'BUSINESS_REJECTED']);
+const recheckBusinesses = (error: unknown) => {
+  if (isApiError(error) && BUSINESS_GONE.has(error.code) && activeBusiness.get()) void queryClient.invalidateQueries({ queryKey: queryKeys.businesses });
+};
+
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({ onError: recheckBusinesses }),
+  mutationCache: new MutationCache({ onError: recheckBusinesses }),
   defaultOptions: {
     queries: {
       staleTime: 30_000,
