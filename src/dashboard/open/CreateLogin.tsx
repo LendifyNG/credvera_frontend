@@ -22,6 +22,27 @@ const COMMON_PINS = new Set([
   '0101', '2222', '1221', '0110', '1001', '4321', '1100', '0011', '2525', '5252',
 ]);
 
+/**
+ * Each step's token lasts half an hour. Once it runs out the server says
+ * "sign in again", which means nothing here: there is no login yet. Starting
+ * over with the same email and phone carries on the same sign-up.
+ */
+const timedOut = (error: unknown) => isApiError(error) && ['TOKEN_EXPIRED', 'TOKEN_INVALID', 'ONBOARDING_SESSION_INVALID'].includes(error.code);
+
+function StepProblem({ error, onRestart }: { error: unknown; onRestart: () => void }) {
+  if (!error) return null;
+  if (!timedOut(error)) return <Problem>{errorMessage(error)}</Problem>;
+  return (
+    <Problem>
+      This step timed out.{' '}
+      <button type="button" onClick={onRestart} className="font-semibold underline underline-offset-4">
+        Start again
+      </button>{' '}
+      with the same email and phone number to carry on.
+    </Problem>
+  );
+}
+
 const guessablePin = (pin: string) => {
   const year = Number(pin) >= 1940 && Number(pin) <= 2029;
   return /^(\d)\1{3}$/.test(pin) || '0123456789'.includes(pin) || '9876543210'.includes(pin) || pin.slice(0, 2) === pin.slice(2) || year || COMMON_PINS.has(pin);
@@ -65,9 +86,10 @@ export default function CreateLogin() {
               channel={stage.channel}
               onNext={(next) => setStage(next.channel ? { name: 'code', token: next.token, sentTo: next.sentTo, channel: next.channel } : { name: 'secure', token: next.token })}
               onRetarget={(token) => setStage({ ...stage, token })}
+              onRestart={() => setStage({ name: 'details' })}
             />
           )}
-          {stage.name === 'secure' && <Secure token={stage.token} email={login.email} password={login.password} />}
+          {stage.name === 'secure' && <Secure token={stage.token} email={login.email} password={login.password} onRestart={() => setStage({ name: 'details' })} />}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -146,12 +168,14 @@ function Code({
   channel,
   onNext,
   onRetarget,
+  onRestart,
 }: {
   token: string;
   sentTo: string;
   channel: Channel;
   onNext: (next: { token: string; sentTo: string; channel?: Channel }) => void;
   onRetarget: (token: string) => void;
+  onRestart: () => void;
 }) {
   const verify = useVerifyCode();
   const resend = useResendCode();
@@ -171,7 +195,7 @@ function Code({
         </span>
         <input autoFocus inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className={`${field} font-ledger tracking-[0.4em]`} />
       </label>
-      <Problem>{(verify.error && errorMessage(verify.error)) || (resend.error && errorMessage(resend.error))}</Problem>
+      <StepProblem error={verify.error ?? resend.error} onRestart={onRestart} />
       <div className="mt-8 flex flex-wrap items-center gap-5">
         <button type="submit" disabled={code.length !== 6 || verify.isPending} className={primary}>
           {verify.isPending && <Loader2 className="size-4 animate-spin" />} Confirm my {channel === 'sms' ? 'phone' : 'email'}
@@ -190,7 +214,7 @@ function Code({
   );
 }
 
-function Secure({ token, email, password }: { token: string; email: string; password: string }) {
+function Secure({ token, email, password, onRestart }: { token: string; email: string; password: string; onRestart: () => void }) {
   const progress = useRef<FinishProgress>({ done: 'none', token });
   const finish = useFinishSignUp(progress);
   const [pin, setPin] = useState('');
@@ -222,23 +246,23 @@ function Secure({ token, email, password }: { token: string; email: string; pass
       <div className="mt-2 grid gap-6 sm:grid-cols-2">
         <label className="block">
           <span className={label}>Street and number</span>
-          <input autoComplete="street-address" value={address.street} onChange={setAddr('street')} className={field} />
+          <input autoComplete="street-address" maxLength={200} value={address.street} onChange={setAddr('street')} className={field} />
         </label>
         <label className="block">
           <span className={label}>Nearest landmark</span>
-          <input value={address.nearestLandmark} onChange={setAddr('nearestLandmark')} className={field} />
+          <input maxLength={150} value={address.nearestLandmark} onChange={setAddr('nearestLandmark')} className={field} />
         </label>
         <label className="block">
           <span className={label}>City</span>
-          <input autoComplete="address-level2" value={address.city} onChange={setAddr('city')} className={field} />
+          <input autoComplete="address-level2" maxLength={100} value={address.city} onChange={setAddr('city')} className={field} />
         </label>
         <label className="block">
           <span className={label}>State</span>
-          <input autoComplete="address-level1" value={address.state} onChange={setAddr('state')} className={field} />
+          <input autoComplete="address-level1" maxLength={100} value={address.state} onChange={setAddr('state')} className={field} />
         </label>
       </div>
 
-      <Problem>{finish.error && errorMessage(finish.error)}</Problem>
+      <StepProblem error={finish.error} onRestart={onRestart} />
       <button type="submit" disabled={!ready || busy} className={`${primary} mt-8`}>
         {busy && <Loader2 className="size-4 animate-spin" />} Create my login <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </button>
