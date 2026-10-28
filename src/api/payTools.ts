@@ -97,18 +97,18 @@ export type NewInvoiceCheck = { invoiceNumber: string; accountNumber: string; ba
 export const payToolsApi = {
   schedules: () => http.get<ScheduleDto[]>('/scheduled-payments'),
   schedule: (input: NewSchedule) => http.post<ScheduleDto>('/scheduled-payments', input),
-  pauseSchedule: (id: string, pause: boolean) => http.post<ScheduleDto[]>(`/scheduled-payments/${id}/${pause ? 'pause' : 'resume'}`),
-  cancelSchedule: (id: string) => http.delete<ScheduleDto[]>(`/scheduled-payments/${id}`),
+  pauseSchedule: (id: string, pause: boolean) => http.post<ScheduleDto[]>(`/scheduled-payments/${encodeURIComponent(id)}/${pause ? 'pause' : 'resume'}`),
+  cancelSchedule: (id: string) => http.delete<ScheduleDto[]>(`/scheduled-payments/${encodeURIComponent(id)}`),
   bulkList: () => http.get<BulkSummaryDto[]>('/bulk-payments'),
-  bulk: (id: string) => http.get<BulkDetailDto>(`/bulk-payments/${id}`),
+  bulk: (id: string) => http.get<BulkDetailDto>(`/bulk-payments/${encodeURIComponent(id)}`),
   payBulk: (input: { fileName: string; rows: BulkRowInput[]; pin: string }) => http.post<BulkDetailDto>('/bulk-payments', input),
   orders: () => http.get<ProtectedOrderDto[]>('/protected-orders'),
   startOrder: (input: NewProtectedOrder) => http.post<ProtectedOrderDto>('/protected-orders', input),
-  releaseOrder: (id: string, pin: string) => http.post<ProtectedOrderDto>(`/protected-orders/${id}/release`, { pin }),
-  returnOrder: (id: string, pin: string) => http.post<ProtectedOrderDto>(`/protected-orders/${id}/return`, { pin }),
-  orderProblem: (id: string, note: string) => http.post<ProtectedOrderDto>(`/protected-orders/${id}/problem`, { note }),
+  releaseOrder: (id: string, pin: string) => http.post<ProtectedOrderDto>(`/protected-orders/${encodeURIComponent(id)}/release`, { pin }),
+  returnOrder: (id: string, pin: string) => http.post<ProtectedOrderDto>(`/protected-orders/${encodeURIComponent(id)}/return`, { pin }),
+  orderProblem: (id: string, note: string) => http.post<ProtectedOrderDto>(`/protected-orders/${encodeURIComponent(id)}/problem`, { note }),
   invoiceChecks: () => http.get<InvoiceCheckDto[]>('/suppliers/invoice-checks'),
-  checkInvoice: (supplierId: string, input: NewInvoiceCheck) => http.post<InvoiceCheckDto>(`/suppliers/${supplierId}/invoice-checks`, input),
+  checkInvoice: (supplierId: string, input: NewInvoiceCheck) => http.post<InvoiceCheckDto>(`/suppliers/${encodeURIComponent(supplierId)}/invoice-checks`, input),
 };
 
 export function useSchedules() {

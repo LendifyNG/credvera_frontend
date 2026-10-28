@@ -25,11 +25,11 @@ export type InvitationView = { businessName: string; role: TeamRole; invitedBy: 
 export const teamApi = {
   view: () => http.get<TeamDto>('/team'),
   invite: (input: { email: string; role: TeamRole }) => http.post<InviteResult>('/team/invitations', input),
-  revoke: (id: string) => http.post<TeamDto>(`/team/invitations/${id}/revoke`),
-  changeRole: (userId: string, role: TeamRole) => http.patch<TeamDto>(`/team/members/${userId}`, { role }),
-  remove: (userId: string) => http.post<TeamDto | { left: true }>(`/team/members/${userId}/remove`),
-  describe: (token: string) => http.get<InvitationView>(`/team-invitations/${token}`, { skipAuth: true }),
-  accept: (token: string) => http.post<{ businessId: string; businessName: string; role: TeamRole }>(`/team-invitations/${token}/accept`),
+  revoke: (id: string) => http.post<TeamDto>(`/team/invitations/${encodeURIComponent(id)}/revoke`),
+  changeRole: (userId: string, role: TeamRole) => http.patch<TeamDto>(`/team/members/${encodeURIComponent(userId)}`, { role }),
+  remove: (userId: string) => http.post<TeamDto | { left: true }>(`/team/members/${encodeURIComponent(userId)}/remove`),
+  describe: (token: string) => http.get<InvitationView>(`/team-invitations/${encodeURIComponent(token)}`, { skipAuth: true }),
+  accept: (token: string) => http.post<{ businessId: string; businessName: string; role: TeamRole }>(`/team-invitations/${encodeURIComponent(token)}/accept`),
 };
 
 export function useTeam() {

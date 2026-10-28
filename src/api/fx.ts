@@ -24,10 +24,10 @@ export type FxAlertDto = {
 
 export const fxApi = {
   rates: () => http.get<FxRatesDto>('/fx/rates'),
-  history: (currency: string, days: number) => http.get<FxHistoryDto>(`/fx/rates/${currency}/history`, { params: { days } }),
+  history: (currency: string, days: number) => http.get<FxHistoryDto>(`/fx/rates/${encodeURIComponent(currency)}/history`, { params: { days } }),
   alerts: () => http.get<FxAlertDto[]>('/fx/alerts'),
   createAlert: (input: { currency: string; direction: 'above' | 'below'; target: string }) => http.post<FxAlertDto>('/fx/alerts', input),
-  cancelAlert: (id: string) => http.post<{ cancelled: true }>(`/fx/alerts/${id}/cancel`),
+  cancelAlert: (id: string) => http.post<{ cancelled: true }>(`/fx/alerts/${encodeURIComponent(id)}/cancel`),
 };
 
 /** Rates change once a day; checked again every half hour while the page is open. */

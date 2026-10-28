@@ -31,10 +31,10 @@ export type ContactInput = { name: string; email: string; subject: string; messa
 
 export const supportApi = {
   list: () => http.get<SupportTicketDto[]>('/support/tickets'),
-  get: (id: string) => http.get<SupportTicketDto>(`/support/tickets/${id}`),
+  get: (id: string) => http.get<SupportTicketDto>(`/support/tickets/${encodeURIComponent(id)}`),
   open: (input: OpenTicketInput) => http.post<SupportTicketDto>('/support/tickets', { ...input, channel: 'website' }),
-  reply: (id: string, message: string) => http.post<SupportTicketDto>(`/support/tickets/${id}/messages`, { message }),
-  solve: (id: string) => http.post<SupportTicketDto>(`/support/tickets/${id}/solve`),
+  reply: (id: string, message: string) => http.post<SupportTicketDto>(`/support/tickets/${encodeURIComponent(id)}/messages`, { message }),
+  solve: (id: string) => http.post<SupportTicketDto>(`/support/tickets/${encodeURIComponent(id)}/solve`),
   contact: (input: ContactInput) => http.post<{ reference: string; message: string }>('/support/contact', input, { skipAuth: true }),
 };
 

@@ -14,6 +14,7 @@ import {
   type Payment,
 } from './model';
 import { Loading } from './ui';
+import { csvCell } from '../lib/csv';
 import { usePayments, useSession } from './data';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -150,7 +151,7 @@ function Detail({ p, onClose }: { p: Payment; onClose: () => void }) {
 
 /** Downloads what's shown as a spreadsheet file. */
 function exportCsv(rows: Payment[]) {
-  const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const q = csvCell;
   const lines = [
     ['Date', 'Reference', 'To or from', 'Details', 'Type', 'Account', 'Amount', 'Status'].join(','),
     ...rows.map((p) =>

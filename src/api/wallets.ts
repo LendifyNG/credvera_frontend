@@ -13,7 +13,7 @@ export const walletsApi = {
   /** Null when no pay-in account has been requested for the wallet yet. */
   virtualAccount: async (walletId: string) => {
     try {
-      return await http.get<VirtualAccountDto>(`/wallets/${walletId}/virtual-account`);
+      return await http.get<VirtualAccountDto>(`/wallets/${encodeURIComponent(walletId)}/virtual-account`);
     } catch (error) {
       if (isApiError(error) && error.code === 'VIRTUAL_ACCOUNT_NOT_FOUND') return null;
       throw error;
@@ -21,7 +21,7 @@ export const walletsApi = {
   },
 
   /** Issues the pay-in account, or retries one that failed. */
-  provisionVirtualAccount: (walletId: string) => http.post<VirtualAccountDto>(`/wallets/${walletId}/virtual-account`),
+  provisionVirtualAccount: (walletId: string) => http.post<VirtualAccountDto>(`/wallets/${encodeURIComponent(walletId)}/virtual-account`),
 };
 
 export function useWallets() {

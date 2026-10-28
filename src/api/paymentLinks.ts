@@ -62,11 +62,11 @@ export const paymentLinksApi = {
   list: () => http.get<Page<PaymentLinkDto>>('/payment-links', { params: { limit: LIMIT } }).then((page) => page.data),
   currencies: () => http.get<{ currency: string }[]>('/payment-links/currencies').then((rows) => rows.map((r) => r.currency)),
   create: (input: CreatePaymentLinkInput) => http.post<PaymentLinkDto>('/payment-links', input),
-  cancel: (reference: string) => http.post<PaymentLinkDto>(`/payment-links/${reference}/cancel`),
+  cancel: (reference: string) => http.post<PaymentLinkDto>(`/payment-links/${encodeURIComponent(reference)}/cancel`),
 
   // The payer's side: no sign-in.
-  view: (slug: string) => http.get<PublicInvoiceDto>(`/pay/${slug}`, { skipAuth: true }),
-  checkout: (slug: string) => http.post<{ url: string }>(`/pay/${slug}/checkout`, undefined, { skipAuth: true }),
+  view: (slug: string) => http.get<PublicInvoiceDto>(`/pay/${encodeURIComponent(slug)}`, { skipAuth: true }),
+  checkout: (slug: string) => http.post<{ url: string }>(`/pay/${encodeURIComponent(slug)}/checkout`, undefined, { skipAuth: true }),
 };
 
 /** Every payment request raised, newest first. */

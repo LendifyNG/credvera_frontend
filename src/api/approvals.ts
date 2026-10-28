@@ -42,9 +42,9 @@ export type ApprovalsDto = {
 export const approvalsApi = {
   list: () => http.get<ApprovalsDto>('/approvals'),
   setThreshold: (threshold: string | null) => http.put<ApprovalsDto>('/approvals/threshold', { threshold }),
-  approve: (id: string, pin: string) => http.post<ApprovalsDto>(`/approvals/${id}/approve`, { pin }),
-  reject: (id: string, note: string) => http.post<ApprovalsDto>(`/approvals/${id}/reject`, { note }),
-  cancel: (id: string) => http.post<ApprovalsDto>(`/approvals/${id}/cancel`),
+  approve: (id: string, pin: string) => http.post<ApprovalsDto>(`/approvals/${encodeURIComponent(id)}/approve`, { pin }),
+  reject: (id: string, note: string) => http.post<ApprovalsDto>(`/approvals/${encodeURIComponent(id)}/reject`, { note }),
+  cancel: (id: string) => http.post<ApprovalsDto>(`/approvals/${encodeURIComponent(id)}/cancel`),
 };
 
 /** Checked every minute: someone else may be waiting on you. Business accounts only. */
