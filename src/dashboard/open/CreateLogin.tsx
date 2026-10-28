@@ -134,6 +134,16 @@ function Code({ token, sentTo, onDone, onRetarget }: { token: string; sentTo: st
           {resend.isSuccess ? 'Sent again' : 'Send a new code'}
         </button>
       </div>
+      {/* Shown to everyone, because the server answers the same either way:
+          telling only existing accounts would let anyone test whose details
+          are registered. The real owner also gets an email saying so. */}
+      <div className={`mt-8 max-w-md rounded-xl border px-4 py-3 text-[14px] leading-relaxed transition-colors ${resend.isSuccess ? 'border-graphite/25 bg-graphite/[0.04] text-graphite' : 'border-graphite/10 text-graphite/60'}`}>
+        <span className="font-semibold text-graphite">No code yet?</span> If this email or phone number already has a Credvera account, we don’t send one. We email the account instead.{' '}
+        <Link to="/business/app/sign-in?next=/business/app/open" className="font-semibold text-graphite underline underline-offset-4">
+          Sign in with it instead
+        </Link>
+        .
+      </div>
     </form>
   );
 }
