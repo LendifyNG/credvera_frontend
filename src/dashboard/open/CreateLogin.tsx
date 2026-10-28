@@ -57,6 +57,10 @@ const guessablePin = (pin: string) => {
 export default function CreateLogin() {
   const [stage, setStage] = useState<Stage>({ name: 'details' });
   const [login, setLogin] = useState({ email: '', password: '' });
+  // What was typed, and the sign-up's token, kept for going back to correct
+  // the phone or email: the token lets the server start the same sign-up over.
+  const [draft, setDraft] = useState<DetailsForm | null>(null);
+  const [resumeToken, setResumeToken] = useState<string | undefined>();
 
   return (
     <div>
@@ -71,8 +75,11 @@ export default function CreateLogin() {
         <motion.div key={stage.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease }} className="mt-6">
           {stage.name === 'details' && (
             <Details
-              onDone={(token, sentTo, typed) => {
+              initial={draft}
+              resumeToken={resumeToken}
+              onDone={(token, sentTo, typed, form) => {
                 setLogin(typed);
+                setDraft(form);
                 setStage({ name: 'code', token, sentTo, channel: 'sms' });
               }}
             />
@@ -86,7 +93,14 @@ export default function CreateLogin() {
               channel={stage.channel}
               onNext={(next) => setStage(next.channel ? { name: 'code', token: next.token, sentTo: next.sentTo, channel: next.channel } : { name: 'secure', token: next.token })}
               onRetarget={(token) => setStage({ ...stage, token })}
-              onRestart={() => setStage({ name: 'details' })}
+              onRestart={() => {
+                setResumeToken(undefined);
+                setStage({ name: 'details' });
+              }}
+              onChangeDetails={() => {
+                setResumeToken(stage.token);
+                setStage({ name: 'details' });
+              }}
             />
           )}
           {stage.name === 'secure' && <Secure token={stage.token} email={login.email} password={login.password} onRestart={() => setStage({ name: 'details' })} />}
@@ -96,9 +110,19 @@ export default function CreateLogin() {
   );
 }
 
-function Details({ onDone }: { onDone: (token: string, sentTo: string, login: { email: string; password: string }) => void }) {
+type DetailsForm = { firstName: string; lastName: string; email: string; phone: string; password: string };
+
+function Details({
+  initial,
+  resumeToken,
+  onDone,
+}: {
+  initial: DetailsForm | null;
+  resumeToken?: string;
+  onDone: (token: string, sentTo: string, login: { email: string; password: string }, form: DetailsForm) => void;
+}) {
   const register = useRegister();
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+  const [form, setForm] = useState<DetailsForm>(initial ?? { firstName: '', lastName: '', email: '', phone: '', password: '' });
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [key]: e.target.value });
   const rules = passwordRules(form.password);
   // Details that already have a finished account: said here, with a way to sign in.
@@ -114,7 +138,7 @@ function Details({ onDone }: { onDone: (token: string, sentTo: string, login: { 
         e.preventDefault();
         if (!ready) return;
         const input = { firstName: form.firstName.trim(), lastName: form.lastName.trim(), email: form.email.trim(), phoneNumber: toE164(form.phone), password: form.password };
-        register.mutate(input, { onSuccess: (r) => onDone(r.onboardingToken, r.maskedContact, { email: input.email, password: input.password }) });
+        register.mutate({ input, token: resumeToken }, { onSuccess: (r) => onDone(r.onboardingToken, r.maskedContact, { email: input.email, password: input.password }, form) });
       }}
     >
       <div className="grid gap-6 sm:grid-cols-2">
@@ -169,6 +193,7 @@ function Code({
   onNext,
   onRetarget,
   onRestart,
+  onChangeDetails,
 }: {
   token: string;
   sentTo: string;
@@ -176,6 +201,7 @@ function Code({
   onNext: (next: { token: string; sentTo: string; channel?: Channel }) => void;
   onRetarget: (token: string) => void;
   onRestart: () => void;
+  onChangeDetails: () => void;
 }) {
   const verify = useVerifyCode();
   const resend = useResendCode();
@@ -208,6 +234,9 @@ function Code({
           className="text-[14px] font-semibold text-graphite/60 hover:text-graphite disabled:opacity-50"
         >
           {resend.isSuccess ? 'Sent again' : 'Send a new code'}
+        </button>
+        <button type="button" onClick={onChangeDetails} className="text-[14px] font-semibold text-graphite/60 hover:text-graphite">
+          Wrong {channel === 'sms' ? 'number' : 'email'}? Change it
         </button>
       </div>
     </form>
