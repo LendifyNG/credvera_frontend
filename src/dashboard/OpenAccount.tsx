@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { errorMessage, useBusinesses, useSignedIn, type BusinessDto } from '../api';
+import { errorMessage, useBusinesses, useSignedIn, useSignOut, type BusinessDto } from '../api';
 import logoDark from '../assets/logo-dark.png';
 import Application from './open/Application';
 import ApplicationStatus from './open/ApplicationStatus';
@@ -23,6 +23,7 @@ function current(businesses: BusinessDto[]): BusinessDto | null {
 export default function OpenAccount() {
   const signedIn = useSignedIn();
   const businesses = useBusinesses();
+  const signOut = useSignOut();
   // From the dashboard's business switcher: a new company, not the one on file.
   const [params] = useSearchParams();
   const [startingAnother, setStartingAnother] = useState(params.has('another'));
@@ -49,7 +50,12 @@ export default function OpenAccount() {
         <Link to="/business">
           <img src={logoDark} alt="Credvera" className="h-7 w-auto" />
         </Link>
-        {!signedIn && (
+        {signedIn ? (
+          // Until a business is approved this is the only page, so leaving happens here.
+          <button type="button" disabled={signOut.isPending} onClick={() => signOut.mutate()} className="text-[14px] font-semibold text-graphite/60 hover:text-graphite">
+            Sign out
+          </button>
+        ) : (
           <Link to="/business/app/sign-in" className="text-[14px] font-semibold text-graphite/60 hover:text-graphite">
             Sign in instead
           </Link>
