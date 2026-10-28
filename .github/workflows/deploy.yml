@@ -1,0 +1,60 @@
+# Publishes the site to Vercel production from GitHub's own servers, on every
+# push to main and on demand from the Actions tab. Deploying from a laptop
+# depends on that laptop's internet reaching api.vercel.com, which some
+# Nigerian networks can't; GitHub's runners always can.
+#
+# Needs, in this repository's Settings -> Secrets and variables -> Actions:
+#   secret   VERCEL_TOKEN       a token from https://vercel.com/account/tokens
+#   variable VERCEL_ORG_ID      the team id   (from .vercel/project.json)
+#   variable VERCEL_PROJECT_ID  the project id (from .vercel/project.json)
+# Production settings such as VITE_API_URL stay in the Vercel project and are
+# pulled in at build time.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time; a newer push replaces one still waiting.
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check the deploy settings are in place
+        run: |
+          missing=""
+          [ -n "$VERCEL_TOKEN" ] || missing="$missing VERCEL_TOKEN (secret)"
+          [ -n "$VERCEL_ORG_ID" ] || missing="$missing VERCEL_ORG_ID (variable)"
+          [ -n "$VERCEL_PROJECT_ID" ] || missing="$missing VERCEL_PROJECT_ID (variable)"
+          if [ -n "$missing" ]; then echo "::error::Missing:$missing. See the comment at the top of this workflow."; exit 1; fi
+
+      - run: npm ci
+
+      - name: Pull the production settings
+        run: npx --yes vercel@65.5.0 pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build
+        run: npx --yes vercel@65.5.0 build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy
+        run: npx --yes vercel@65.5.0 deploy --prebuilt --prod --token "$VERCEL_TOKEN"
