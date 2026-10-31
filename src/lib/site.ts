@@ -3,20 +3,27 @@ import type { Audience } from './audience';
 // Single source of truth for company details, links, statistics and navigation.
 // Every statistic below is a real, published figure with its source.
 
-// TODO(credvera): the company details, contact channels and pricing below (and the
-// legal copy in pages/LegalPage.tsx) are dummy data — replace before launch.
+// Company details as the CAC status report records them (RC 9894055). Keep the
+// address, phone, email and description word for word the same as the Monnify
+// dashboard and the board resolution letterhead. CAC lists no separate head
+// office, so the registered address is the office address.
+// TODO(credvera): the pricing below is still to be confirmed.
 
 export const company = {
   name: 'Credvera',
-  legalName: 'Credvera Technologies Limited', // placeholder
-  rcNumber: '0000000', // placeholder CAC number
-  address: 'Victoria Island, Lagos, Nigeria', // placeholder
-  email: 'hello@credvera.com', // placeholder
-  supportEmail: 'support@credvera.com', // placeholder
-  phone: '+234 800 000 0000', // placeholder
+  legalName: 'Credvera Technologies Limited',
+  rcNumber: '9894055',
+  address: '5, Aderoju Adewuyi Street, Opebi, Lagos State, Nigeria',
+  email: 'credveratechnologies@gmail.com',
+  supportEmail: 'credveratechnologies@gmail.com',
+  phone: '+234 704 320 6643',
   supportHours: 'Monday to Friday, 8am – 6pm WAT', // placeholder
+  // What the company does, in CAC's words (principal business activity), then
+  // what the app does. Shown in the footer and the legal pages.
+  description:
+    'Credvera Technologies Limited carries on software programming, development and provision of computer applications and related digital technology solutions. Its product, Credvera, is a mobile and web app that individuals and businesses in Nigeria use to receive and make payments, pay bills and buy airtime, save, send invoices and payment links, receive money from abroad, convert currencies, pay suppliers abroad and pay online with cards.',
   licenceStatement:
-    'Credvera is a financial technology company, not a bank. Payment services are provided by licensed partners.',
+    'Credvera is a software company, not a bank. Payment services in the app are provided by licensed partners.',
   socials: {
     linkedin: '#', // placeholder
     x: '#', // placeholder

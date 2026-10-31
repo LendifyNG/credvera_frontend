@@ -73,12 +73,21 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-20 border-t border-white/10 pt-8 text-sm text-white/45">
-          <p className="max-w-3xl leading-relaxed">{company.licenceStatement}</p>
-          {(company.legalName || company.rcNumber || company.address) && (
-            <p className="mt-3">
-              {[company.legalName, company.rcNumber && `RC ${company.rcNumber}`, company.address].filter(Boolean).join(' · ')}
-            </p>
-          )}
+          <p className="max-w-3xl leading-relaxed">
+            {company.description} {company.licenceStatement}
+          </p>
+          <p className="mt-3">
+            {company.legalName} · RC {company.rcNumber} · {company.address}
+          </p>
+          <p className="mt-1">
+            <a href={`mailto:${company.email}`} className="transition-colors hover:text-white">
+              {company.email}
+            </a>
+            {' · '}
+            <a href={`tel:${company.phone.replace(/\s+/g, '')}`} className="transition-colors hover:text-white">
+              {company.phone}
+            </a>
+          </p>
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p>
               © {year} {company.legalName ?? company.name}. All rights reserved.
