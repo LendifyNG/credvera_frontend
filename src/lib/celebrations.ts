@@ -3,7 +3,8 @@ import { http } from '../api/client';
 /**
  * Celebration pages at /c/:slug. Organisers create them in the Credvera app;
  * guests open the link or scan the QR on the invitation and send a gift,
- * by an account number made for that one gift or by card. No sign-in.
+ * by an account number made for that one gift or by card, or transfer any
+ * amount straight to the celebration's own number. No sign-in.
  */
 
 export type CelebrationKind = 'wedding' | 'birthday' | 'naming' | 'burial' | 'other';
@@ -17,6 +18,8 @@ export type Celebration = {
   message?: string | null;
   theme: CelebrationTheme;
   closed?: boolean;
+  /** The celebration's own number, while it's open; null until issued. */
+  account?: { number: string; name: string | null; bank: string | null } | null;
 };
 
 export type GiftMethod = 'transfer' | 'card';
