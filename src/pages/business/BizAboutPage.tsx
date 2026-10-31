@@ -170,10 +170,11 @@ export default function BizAboutPage() {
             <br />
             <span className="text-graphite/45">a message away.</span>
           </h2>
-          <dl className="mt-14 grid gap-px overflow-hidden rounded-xl bg-graphite/10 md:grid-cols-3">
+          <dl className="mt-14 grid gap-px overflow-hidden rounded-xl bg-graphite/10 md:grid-cols-2 lg:grid-cols-4">
             {[
               ['Support hours', company.supportHours],
               ['Email', company.email],
+              ['Phone', company.phone],
               ['Office', company.address],
             ].map(([k, v]) => (
               <div key={k} className="bg-ledger p-7">

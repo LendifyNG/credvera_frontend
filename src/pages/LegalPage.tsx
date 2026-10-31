@@ -12,8 +12,7 @@ type LegalPageProps = {
 
 type Section = { heading: string; short: string; body: string[] };
 
-// PLACEHOLDER legal drafts with dummy details (retention period, notice period,
-// DPO contact, dates). Replace with Credvera's reviewed text before launch —
+// PLACEHOLDER legal drafts (retention period, notice period, dates). Replace with Credvera's reviewed text before launch —
 // this is not legal advice. The "short" lines are plain summaries, not terms.
 const content: Record<LegalPageProps['kind'], { title: string; intro: string; sections: Section[] }> = {
   privacy: {
@@ -23,7 +22,7 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
       {
         heading: 'Who we are',
         short: 'The company behind the app.',
-        body: [`${company.legalName} (RC ${company.rcNumber}) operates the Credvera website and app. ${company.licenceStatement}`],
+        body: [`${company.legalName} (RC ${company.rcNumber}), of ${company.address}, operates the Credvera website and app. ${company.description} ${company.licenceStatement}`],
       },
       {
         heading: 'Information we collect',
@@ -73,7 +72,7 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
       {
         heading: 'Contact us',
         short: 'Questions go to a real person.',
-        body: [`Email ${company.supportEmail} or write to us at ${company.address}. You can reach our Data Protection Officer at dpo@credvera.com.`],
+        body: [`Email ${company.email}, call ${company.phone} or write to us at ${company.address}. The same email reaches our Data Protection Officer.`],
       },
     ],
   },
@@ -129,7 +128,7 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
       {
         heading: 'Contact us',
         short: 'Ask us anything about these terms.',
-        body: [`Questions about these terms? Email ${company.supportEmail}.`],
+        body: [`Questions about these terms? Email ${company.email} or call ${company.phone}.`],
       },
     ],
   },

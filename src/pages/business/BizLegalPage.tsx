@@ -23,6 +23,7 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
         title: 'These terms',
         items: [
           `These terms are an agreement between ${company.legalName} and the business that opens a Credvera business account.`,
+          company.description,
           'The person who opens the account confirms they are authorised to accept these terms for the business.',
         ],
       },
@@ -99,14 +100,14 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
       },
       {
         title: 'Law and contact',
-        items: ['These terms are governed by the laws of the Federal Republic of Nigeria.', `Questions about these terms: ${company.supportEmail}.`],
+        items: ['These terms are governed by the laws of the Federal Republic of Nigeria.', `Questions about these terms: ${company.email} or ${company.phone}.`],
       },
     ],
   },
   privacy: {
     title: 'Business privacy notice',
     glance: [
-      ['Who we are', `${company.legalName}, operating Credvera`],
+      ['Who we are', `${company.legalName} (RC ${company.rcNumber}), ${company.address}`],
       ['What we hold', 'Business details, directors’ and owners’ identity, payments, invoices and supplier records'],
       ['Shared with', 'Our payment partners, verification providers, and regulators where the law requires'],
       ['Kept for', 'At least five years after the account closes, as anti-money-laundering rules require'],
@@ -163,7 +164,7 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
       },
       {
         title: 'Contact',
-        items: [`Email ${company.supportEmail} or write to us at ${company.address}. Our Data Protection Officer can be reached at dpo@credvera.com.`],
+        items: [`Email ${company.email}, call ${company.phone} or write to us at ${company.address}. The same email reaches our Data Protection Officer.`],
       },
     ],
   },
