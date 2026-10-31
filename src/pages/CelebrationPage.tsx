@@ -65,6 +65,35 @@ function Invitation({ e }: { e: Celebration }) {
   );
 }
 
+/** The celebration's own number, for guests who'd rather transfer any amount from their bank app. */
+function DirectAccount({ account }: { account: NonNullable<Celebration['account']> }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard?.writeText(account.number).catch(() => {});
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+  return (
+    <div className="mt-5 rounded-[24px] bg-ink/[0.04] px-6 py-5">
+      <p className="text-[13.5px] text-ink/55">Or transfer any amount straight to</p>
+      <div className="mt-1.5 flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="whitespace-nowrap font-ledger text-[1.45rem] font-semibold tracking-[0.01em] text-ink">{account.number.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')}</p>
+          {(account.bank || account.name) && <p className="mt-0.5 truncate text-[13.5px] text-ink/60">{[account.bank, account.name].filter(Boolean).join(' · ')}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={copy}
+          aria-label="Copy account number"
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-ink transition-transform active:scale-95"
+        >
+          {copied ? <Check className="size-[18px]" /> : <Copy className="size-4" />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; busy: boolean; error: string | null }) {
   const [digits, setDigits] = useState('');
   const [name, setName] = useState('');
@@ -448,6 +477,7 @@ export default function CelebrationPage() {
         <div className="grid gap-12 border-t border-ink/15 pt-12 lg:grid-cols-2 lg:gap-16 lg:pt-16">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <Invitation e={e} />
+            {!e.closed && e.account && <DirectAccount account={e.account} />}
           </div>
 
           {e.closed && !confirming && step === 'form' ? null : (
