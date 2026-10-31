@@ -1,9 +1,9 @@
+import { http } from '../api/client';
+
 /**
  * Celebration pages at /c/:slug. Organisers create them in the Credvera app;
- * guests open the link or scan the QR on the invitation and send a gift.
- * Same events as the app's example data (src/data/celebrations.ts there).
- * TODO: load from the celebrations API, and create a Flutterwave dynamic
- * virtual account or checkout session per gift.
+ * guests open the link or scan the QR on the invitation and send a gift,
+ * by an account number made for that one gift or by card. No sign-in.
  */
 
 export type CelebrationKind = 'wedding' | 'birthday' | 'naming' | 'burial' | 'other';
@@ -14,9 +14,21 @@ export type Celebration = {
   kind: CelebrationKind;
   title: string; // "Chidi & Amaka"
   date: string; // ISO date of the event
-  message?: string;
+  message?: string | null;
   theme: CelebrationTheme;
   closed?: boolean;
+};
+
+export type GiftMethod = 'transfer' | 'card';
+
+/** A gift as the API tracks it: pending until Monnify confirms the money arrived. */
+export type GiftState = {
+  reference: string;
+  status: 'pending' | 'paid' | 'expired';
+  method: GiftMethod;
+  amount: string;
+  account: { number: string; name: string | null; bank: string | null; expiresAt: string | null } | null;
+  checkoutUrl: string | null;
 };
 
 export const KIND_LINE: Record<CelebrationKind, string> = {
@@ -27,31 +39,30 @@ export const KIND_LINE: Record<CelebrationKind, string> = {
   other: 'Join us for',
 };
 
-const events: Celebration[] = [
-  {
-    slug: 'chidi-and-amaka',
-    kind: 'wedding',
-    title: 'Chidi & Amaka',
-    date: '2026-11-28',
-    message: 'Your presence is the gift. If you’d like to bless us further, here’s how.',
-    theme: 'ink',
-  },
-  {
-    slug: 'mama-at-60',
-    kind: 'birthday',
-    title: 'Mama at 60',
-    date: '2026-12-12',
-    message: 'Help us make Mama’s 60th unforgettable.',
-    theme: 'lime',
-  },
-  { slug: 'baby-zara', kind: 'naming', title: 'Baby Zara', date: '2026-08-15', theme: 'paper', closed: true },
-];
+const page = (slug: string) => `/celebrations/page/${encodeURIComponent(slug)}`;
 
-export const findCelebration = (slug: string) => events.find((e) => e.slug === slug.toLowerCase());
+export const celebrationsApi = {
+  find: (slug: string) => http.get<Celebration>(page(slug), { skipAuth: true }),
+  startGift: (slug: string, gift: { amount: number; name: string; note?: string; method: GiftMethod }) =>
+    http.post<GiftState>(`${page(slug)}/gifts`, { ...gift, amount: String(gift.amount), note: gift.note || undefined }, { skipAuth: true }),
+  gift: (reference: string) => http.get<GiftState>(`/celebrations/gifts/${encodeURIComponent(reference)}`, { skipAuth: true }),
+};
 
-// A one-time account for one gift: valid for an hour, for the exact amount.
-// TODO: POST to the API, which asks Flutterwave for a dynamic virtual account.
-export function oneTimeAccount(slug: string) {
-  const number = `8${String(Math.floor(Math.random() * 1e9)).padStart(9, '0')}`;
-  return { number, bank: 'Credvera Partner Bank', name: `Credvera / ${findCelebration(slug)?.title ?? 'Celebration'}`, expiresAt: Date.now() + 60 * 60 * 1000 };
-}
+// What the guest typed, kept for the thank-you when card checkout sends them
+// back to this page.
+const KEY = (reference: string) => `credvera.gift.${reference}`;
+export const rememberGift = (reference: string, draft: unknown) => {
+  try {
+    sessionStorage.setItem(KEY(reference), JSON.stringify(draft));
+  } catch {
+    // Private mode: the thank-you is plainer, nothing else changes.
+  }
+};
+export const recallGift = <T,>(reference: string): T | null => {
+  try {
+    const raw = sessionStorage.getItem(KEY(reference));
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+};

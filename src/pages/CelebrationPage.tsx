@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowUpRight, Check, Copy, CreditCard, Gift, Landmark, Loader2 } from 'lucide-react';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { errorMessage } from '../api/errors';
 import PageHeader from '../components/editorial/PageHeader';
-import { findCelebration, KIND_LINE, oneTimeAccount, type Celebration } from '../lib/celebrations';
+import { celebrationsApi, KIND_LINE, recallGift, rememberGift, type Celebration, type GiftState } from '../lib/celebrations';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const naira = (n: number) => `₦${n.toLocaleString('en-NG')}`;
@@ -17,7 +18,7 @@ const INK = {
   paper: { bg: 'bg-white', fg: 'text-ink', muted: 'text-ink/55', amp: 'text-ink', rule: 'border-primary' },
 } as const;
 
-type Step = 'form' | 'transfer' | 'card' | 'thanks';
+type Step = 'form' | 'transfer' | 'card' | 'thanks' | 'expired';
 type GiftDraft = { amount: number; name: string; note: string; method: 'transfer' | 'card' };
 
 /** The site's pill button: dark, with a lime circle that turns on hover. */
@@ -64,7 +65,7 @@ function Invitation({ e }: { e: Celebration }) {
   );
 }
 
-function GiftForm({ onNext }: { onNext: (d: GiftDraft) => void }) {
+function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; busy: boolean; error: string | null }) {
   const [digits, setDigits] = useState('');
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
@@ -159,8 +160,17 @@ function GiftForm({ onNext }: { onNext: (d: GiftDraft) => void }) {
         </div>
       </fieldset>
 
-      <Pill type="submit" disabled={!ready}>
-        {amount >= 100 ? `Continue with ${naira(amount)}` : 'Continue'}
+      {error && <p className="text-[14px] font-medium text-[#b42318]">{error}</p>}
+      <Pill type="submit" disabled={!ready || busy}>
+        {busy ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="size-4 animate-spin" /> Getting it ready…
+          </span>
+        ) : amount >= 100 ? (
+          `Continue with ${naira(amount)}`
+        ) : (
+          'Continue'
+        )}
       </Pill>
     </form>
   );
@@ -176,21 +186,43 @@ function useCountdown(until: number) {
   return `${Math.floor(left / 60000)}:${String(Math.floor((left % 60000) / 1000)).padStart(2, '0')}`;
 }
 
+/** Asks the API every few seconds until the gift is paid or can't be any more. */
+function useGiftStatus(reference: string | null, onDone: (status: 'paid' | 'expired') => void) {
+  useEffect(() => {
+    if (!reference) return;
+    let stopped = false;
+    const ask = async () => {
+      try {
+        const g = await celebrationsApi.gift(reference);
+        if (!stopped && g.status !== 'pending') {
+          stopped = true;
+          onDone(g.status);
+        }
+      } catch {
+        // Asked again on the next tick.
+      }
+    };
+    ask();
+    const t = window.setInterval(ask, 5000);
+    return () => {
+      stopped = true;
+      clearInterval(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reference]);
+}
+
 /** The one-time account for this gift, with the exact amount and a clock. */
-function Transfer({ slug, gift, onPaid }: { slug: string; gift: GiftDraft; onPaid: () => void }) {
-  const account = useMemo(() => oneTimeAccount(slug), [slug]);
-  const left = useCountdown(account.expiresAt);
+function Transfer({ gift, state, onDone }: { gift: GiftDraft; state: GiftState; onDone: (status: 'paid' | 'expired') => void }) {
+  const account = state.account!;
+  const left = useCountdown(account.expiresAt ? new Date(account.expiresAt).getTime() : Date.now());
   const [copied, setCopied] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  useGiftStatus(state.reference, onDone);
   const copy = async () => {
     await navigator.clipboard?.writeText(account.number).catch(() => {});
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
-  };
-  // TODO: wait for the charge.completed webhook instead of a timer.
-  const sent = () => {
-    setWaiting(true);
-    window.setTimeout(onPaid, 2200);
   };
 
   return (
@@ -230,7 +262,7 @@ function Transfer({ slug, gift, onPaid }: { slug: string; gift: GiftDraft; onPai
         This number is just for your gift and works for the next {left}.
       </p>
       <div className="mt-8">
-        <Pill onClick={sent} disabled={waiting}>
+        <Pill onClick={() => setWaiting(true)} disabled={waiting}>
           {waiting ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="size-4 animate-spin" /> Looking for your transfer…
@@ -239,18 +271,19 @@ function Transfer({ slug, gift, onPaid }: { slug: string; gift: GiftDraft; onPai
             'I’ve sent it'
           )}
         </Pill>
+        {waiting && <p className="mt-3 text-[13.5px] text-ink/55">This page updates as soon as it arrives, usually within a minute.</p>}
       </div>
     </div>
   );
 }
 
-/** Card goes through the provider's secure checkout. */
-function Card({ gift, onPaid }: { gift: GiftDraft; onPaid: () => void }) {
+/** Card goes through Monnify's secure checkout, which sends the guest back here. */
+function Card({ gift, state }: { gift: GiftDraft; state: GiftState }) {
   const [opening, setOpening] = useState(false);
-  // TODO: create a Flutterwave checkout session and redirect to it.
   const pay = () => {
+    if (!state.checkoutUrl) return;
     setOpening(true);
-    window.setTimeout(onPaid, 2400);
+    window.location.assign(state.checkoutUrl);
   };
   return (
     <div>
@@ -262,7 +295,7 @@ function Card({ gift, onPaid }: { gift: GiftDraft; onPaid: () => void }) {
         </p>
       </div>
       <div className="mt-8">
-        <Pill onClick={pay} disabled={opening}>
+        <Pill onClick={pay} disabled={opening || !state.checkoutUrl}>
           {opening ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="size-4 animate-spin" /> Opening secure checkout…
@@ -276,7 +309,33 @@ function Card({ gift, onPaid }: { gift: GiftDraft; onPaid: () => void }) {
   );
 }
 
-function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft; onAgain: () => void }) {
+/** Back from card checkout: waiting for Monnify to confirm. */
+function Confirming({ reference, onDone }: { reference: string; onDone: (status: 'paid' | 'expired') => void }) {
+  useGiftStatus(reference, onDone);
+  return (
+    <div className="rounded-[24px] bg-white p-6 ring-1 ring-ink/10">
+      <Loader2 className="size-6 animate-spin text-ink" />
+      <p className="mt-4 text-[20px] font-semibold tracking-[-0.02em] text-ink">Confirming your payment…</p>
+      <p className="mt-2 text-[14.5px] leading-relaxed text-ink/60">This takes a few seconds. Please keep this page open.</p>
+    </div>
+  );
+}
+
+function Expired({ onAgain }: { onAgain: () => void }) {
+  return (
+    <div className="rounded-[24px] bg-white p-6 ring-1 ring-ink/10">
+      <p className="text-[20px] font-semibold tracking-[-0.02em] text-ink">This gift didn’t go through</p>
+      <p className="mt-2 text-[14.5px] leading-relaxed text-ink/60">
+        The time to pay ran out, or the payment wasn’t completed. If you sent a transfer after the time ran out, it goes back to your account automatically.
+      </p>
+      <button type="button" onClick={onAgain} className="mt-6 text-[15px] font-semibold text-ink underline decoration-primary decoration-2 underline-offset-4">
+        Start again
+      </button>
+    </div>
+  );
+}
+
+function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft | null; onAgain: () => void }) {
   return (
     <div>
       <motion.div
@@ -288,11 +347,11 @@ function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft; onAgain
         <Gift className="size-9 text-ink" strokeWidth={1.8} />
       </motion.div>
       <h2 className="mt-7 text-[clamp(1.9rem,7vw,2.5rem)] font-semibold leading-[1.05] tracking-[-0.035em] text-ink">
-        Thank you, {gift.name.split(' ')[0]}.
+        Thank you{gift ? `, ${gift.name.split(' ')[0]}` : ''}.
       </h2>
       <p className="mt-3 max-w-sm text-lg leading-relaxed text-ink/65">
-        Your {naira(gift.amount)} gift is with {e.title}
-        {gift.note ? ', along with your message' : ''}.
+        Your {gift ? `${naira(gift.amount)} ` : ''}gift is with {e.title}
+        {gift?.note ? ', along with your message' : ''}.
       </p>
       <button type="button" onClick={onAgain} className="mt-8 text-[15px] font-semibold text-ink underline decoration-primary decoration-2 underline-offset-4">
         Send another gift
@@ -304,20 +363,61 @@ function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft; onAgain
 /**
  * credvera.co/c/:slug — a celebration's page, in the site's frame: the
  * header, then the invitation beside the gift form. Guests pay with a
- * one-time account number by bank transfer, or by card.
+ * one-time account number by bank transfer, or by card; a gift counts only
+ * once the API has Monnify's confirmation.
  */
-/**
- * Off until the API issues a real account per gift and confirms payment by
- * webhook. Until then nothing here may show an account number to pay into or
- * claim a gift arrived: the transfer and card steps below are not wired up.
- */
-const GIFTS_OPEN = false;
-
 export default function CelebrationPage() {
   const { slug = '' } = useParams();
-  const e = findCelebration(slug);
+  const [params, setParams] = useSearchParams();
+  const returning = params.get('gift');
+  const [e, setEvent] = useState<Celebration | null | undefined>(undefined);
   const [step, setStep] = useState<Step>('form');
   const [gift, setGift] = useState<GiftDraft | null>(null);
+  const [state, setState] = useState<GiftState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    celebrationsApi.find(slug).then(setEvent).catch(() => setEvent(null));
+  }, [slug]);
+
+  // Back from card checkout with ?gift=: what they typed, and wait for Monnify.
+  useEffect(() => {
+    if (returning) setGift(recallGift<GiftDraft>(returning));
+  }, [returning]);
+
+  const start = async (d: GiftDraft) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const s = await celebrationsApi.startGift(slug, d);
+      rememberGift(s.reference, d);
+      setGift(d);
+      setState(s);
+      setStep(d.method);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const done = (status: 'paid' | 'expired') => {
+    setStep(status === 'paid' ? 'thanks' : 'expired');
+    if (returning) setParams({}, { replace: true });
+  };
+  const again = () => {
+    setState(null);
+    setStep('form');
+    if (returning) setParams({}, { replace: true });
+  };
+
+  if (e === undefined) {
+    return (
+      <div className="grid min-h-[50vh] place-items-center">
+        <Loader2 className="size-6 animate-spin text-ink/40" />
+      </div>
+    );
+  }
 
   if (!e) {
     return (
@@ -330,6 +430,7 @@ export default function CelebrationPage() {
   }
 
   const back: Partial<Record<Step, Step>> = { transfer: 'form', card: 'form' };
+  const confirming = !!returning && step === 'form';
 
   return (
     <>
@@ -337,7 +438,7 @@ export default function CelebrationPage() {
         label="Celebrations"
         title={`Send a gift to\n*${e.title}*.`}
         lede={
-          e.closed
+          e.closed && !confirming
             ? 'This celebration has ended and isn’t taking gifts any more. Thank you for thinking of them.'
             : 'Pay by bank transfer from any bank app, or by card. Your gift and your message go straight to them.'
         }
@@ -349,40 +450,32 @@ export default function CelebrationPage() {
             <Invitation e={e} />
           </div>
 
-          {e.closed ? null : !GIFTS_OPEN ? (
-            <div className="max-w-lg rounded-2xl bg-white p-6 ring-1 ring-ink/10">
-              <p className="text-[18px] font-semibold tracking-[-0.02em]">Gifts open soon</p>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink/60">
-                Sending a gift through this page isn’t available yet. Please don’t send money to any account for this celebration until it opens here.
-              </p>
-            </div>
-          ) : (
+          {e.closed && !confirming && step === 'form' ? null : (
             <div className="max-w-lg">
               {back[step] && (
                 <button
                   type="button"
-                  onClick={() => setStep(back[step]!)}
+                  onClick={again}
                   className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-semibold text-ink/55 hover:text-ink"
                 >
                   <ArrowLeft className="size-4" /> Back
                 </button>
               )}
               <AnimatePresence mode="wait">
-                <motion.div key={step} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4, ease }}>
-                  {step === 'form' ? (
-                    <GiftForm
-                      onNext={(d) => {
-                        setGift(d);
-                        setStep(d.method);
-                      }}
-                    />
-                  ) : step === 'transfer' && gift ? (
-                    <Transfer slug={e.slug} gift={gift} onPaid={() => setStep('thanks')} />
-                  ) : step === 'card' && gift ? (
-                    <Card gift={gift} onPaid={() => setStep('thanks')} />
-                  ) : gift ? (
-                    <Thanks e={e} gift={gift} onAgain={() => setStep('form')} />
-                  ) : null}
+                <motion.div key={confirming ? 'confirming' : step} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4, ease }}>
+                  {confirming ? (
+                    <Confirming reference={returning!} onDone={done} />
+                  ) : step === 'form' ? (
+                    <GiftForm onNext={start} busy={busy} error={error} />
+                  ) : step === 'transfer' && gift && state?.account ? (
+                    <Transfer gift={gift} state={state} onDone={done} />
+                  ) : step === 'card' && gift && state ? (
+                    <Card gift={gift} state={state} />
+                  ) : step === 'expired' ? (
+                    <Expired onAgain={again} />
+                  ) : (
+                    <Thanks e={e} gift={gift} onAgain={again} />
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
