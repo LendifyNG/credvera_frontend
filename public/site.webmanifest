@@ -1,0 +1,11 @@
+{
+  "name": "Credvera",
+  "short_name": "Credvera",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/credvera-mark.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#15171a",
+  "background_color": "#15171a",
+  "display": "browser"
+}

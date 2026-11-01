@@ -6,6 +6,7 @@ import SiteFooter from './components/layout/SiteFooter';
 import SiteNavbar from './components/layout/SiteNavbar';
 import { IntroContext, shouldPlayIntro } from './lib/intro';
 import { AudienceProvider } from './lib/audience';
+import { applyMeta, metaFor } from './lib/seo';
 import AboutPage from './pages/AboutPage';
 import BizAboutPage from './pages/business/BizAboutPage';
 import BizBlogPage from './pages/business/BizBlogPage';
@@ -58,66 +59,6 @@ import NotFoundPage from './pages/NotFoundPage';
 import PricingPage from './pages/PricingPage';
 import SecurityPage from './pages/SecurityPage';
 
-const titles: Record<string, string> = {
-  '/': 'Credvera — Get paid from abroad, pay bills and save',
-  '/business': 'Credvera for business — Payments, invoices, FX and supplier payments',
-  '/business/payments': 'Payments and invoices | Credvera Business',
-  '/business/fx': 'FX and currencies | Credvera Business',
-  '/business/suppliers': 'Pay suppliers abroad | Credvera Business',
-  '/business/cards': 'Business cards | Credvera Business',
-  '/business/pricing': 'Pricing | Credvera Business',
-  '/business/security': 'Security | Credvera Business',
-  '/business/about': 'About | Credvera Business',
-  '/business/faq': 'FAQ | Credvera Business',
-  '/business/contact': 'Contact | Credvera Business',
-  '/business/blog': 'Field notes | Credvera Business',
-  '/business/privacy': 'Privacy notice | Credvera Business',
-  '/business/terms': 'Terms of use | Credvera Business',
-  '/business/app': 'Home | Credvera Business',
-  '/business/app/payments': 'Transactions | Credvera Business',
-  '/business/app/accounts': 'Accounts | Credvera Business',
-  '/business/app/pay': 'Payments | Credvera Business',
-  '/business/app/pay/bulk': 'Bulk payments | Credvera Business',
-  '/business/app/pay/scheduled': 'Scheduled payments | Credvera Business',
-  '/business/app/pay/bills': 'Bills | Credvera Business',
-  '/business/app/fx': 'FX | Credvera Business',
-  '/business/app/fx/convert': 'Convert | Credvera Business',
-  '/business/app/fx/alerts': 'Rate alerts | Credvera Business',
-  '/business/app/cards': 'Cards | Credvera Business',
-  '/business/app/invoices': 'Invoices | Credvera Business',
-  '/business/app/links': 'Payment links | Credvera Business',
-  '/business/app/customers': 'Customers | Credvera Business',
-  '/business/app/suppliers/orders': 'Protected orders | Credvera Business',
-  '/business/app/suppliers/checks': 'Invoice checks | Credvera Business',
-  '/business/app/suppliers': 'Suppliers | Credvera Business',
-  '/business/app/team/roles': 'Roles and approvals | Credvera Business',
-  '/business/app/team': 'Team | Credvera Business',
-  '/business/app/reports': 'Reports | Credvera Business',
-  '/business/app/settings': 'Settings | Credvera Business',
-  '/business/app/help': 'Help | Credvera Business',
-  '/business/app/settings/security': 'Security | Credvera Business',
-  '/business/app/settings/notifications': 'Notifications | Credvera Business',
-  '/business/app/settings/documents': 'Documents | Credvera Business',
-  '/business/app/reports/cash-flow': 'Cash flow | Credvera Business',
-  '/business/app/reports/reconciliation': 'Reconciliation | Credvera Business',
-  '/business/app/reports/profit': 'Order profit | Credvera Business',
-  '/business/app/approvals': 'Approvals | Credvera Business',
-  '/business/app/sign-in': 'Sign in | Credvera Business',
-  '/business/app/open': 'Open a business account | Credvera Business',
-  '/personal/abroad': 'Get paid from abroad | Credvera',
-  '/personal/everyday': 'Everyday money | Credvera',
-  '/personal/save': 'Save and split | Credvera',
-  '/personal/passport': 'Earnings Passport | Credvera',
-  '/blog': 'Blog | Credvera',
-  '/pricing': 'Pricing | Credvera',
-  '/security': 'Security | Credvera',
-  '/about': 'About | Credvera',
-  '/faq': 'FAQ | Credvera',
-  '/contact': 'Contact | Credvera',
-  '/privacy': 'Privacy policy | Credvera',
-  '/terms': 'Terms of use | Credvera',
-};
-
 export default function App() {
   const lenisRef = useRef<Lenis | null>(null);
   const { pathname } = useLocation();
@@ -159,11 +100,11 @@ export default function App() {
 
   const { hash } = useLocation();
 
-  // Start every new page at the top, with its own browser-tab title.
+  // Start every new page at the top, with its own title, description and share tags.
   useEffect(() => {
     if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
-    document.title = titles[pathname] ?? (pathname.startsWith('/business/blog/') ? 'Field notes | Credvera Business' : pathname.startsWith('/business/app/statements/') ? 'Official statement | Credvera Business' : pathname.startsWith('/business/app/join/') ? 'Join a team | Credvera Business' : pathname.startsWith('/business/app') ? 'Credvera Business' : pathname.startsWith('/blog/') ? 'Blog | Credvera' : pathname.startsWith('/pay/') ? 'Pay | Credvera' : pathname === '/verify' || pathname.startsWith('/verify/') ? 'Staff card check | Credvera' : pathname.startsWith('/c/') ? 'Send a gift | Credvera' : 'Page not found | Credvera');
+    applyMeta(metaFor(pathname));
   }, [pathname]);
 
   // Menu links like /business#fx go to that section of the page.
