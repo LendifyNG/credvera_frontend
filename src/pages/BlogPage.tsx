@@ -12,9 +12,10 @@ export default function BlogPage() {
   const { audience } = useAudience();
   // Business has its own notes.
   if (audience === 'business') return <Navigate to="/business/blog" replace />;
-  const withCovers = personalPosts.filter((p): p is typeof p & { cover: Photo } => !!p.cover);
-  const [featured, ...rest] = withCovers;
+  // The newest post with a photo leads; every other post follows, newest first.
+  const featured = personalPosts.find((p): p is typeof p & { cover: Photo } => !!p.cover);
   if (!featured) return null;
+  const rest = personalPosts.filter((p) => p !== featured);
   return (
     <>
       <section className="mx-auto max-w-7xl px-6 pb-16 pt-32 lg:px-8 lg:pt-40">
@@ -60,14 +61,21 @@ export default function BlogPage() {
                   className="group grid gap-6 border-b border-ink/15 py-8 sm:grid-cols-[9rem_1fr_auto] sm:items-center"
                 >
                   <div className="overflow-hidden rounded-xl bg-mist">
-                    <img
-                      src={p.cover.src}
-                      alt={p.cover.alt}
-                      width={p.cover.width}
-                      height={p.cover.height}
-                      loading="lazy"
-                      className="block h-auto w-full transition-transform duration-700 group-hover:scale-[1.04]"
-                    />
+                    {p.cover ? (
+                      <img
+                        src={p.cover.src}
+                        alt={p.cover.alt}
+                        width={p.cover.width}
+                        height={p.cover.height}
+                        loading="lazy"
+                        className="block h-auto w-full transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      // No photo: a plain tile with the Credvera diamond.
+                      <div className="flex aspect-[3/2] items-center justify-center bg-background transition-transform duration-700 group-hover:scale-[1.04]">
+                        <span className="size-4 rotate-45 rounded-[3px] bg-primary" />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold text-ink/45">
