@@ -25,6 +25,9 @@ type Case = {
   options?: string[];
 };
 
+/** The Remita service fee, as the app charges it. */
+const REMITA_FEE = 150;
+
 const cases: Record<Audience, Case[]> = {
   personal: [
     {
@@ -72,10 +75,11 @@ const cases: Record<Audience, Case[]> = {
       max: 200000,
       step: 500,
       options: ['Airtime', 'DStv', 'Remita'],
+      // Remita has a service fee (REMITA_FEE in the app); airtime and TV are free.
       lines: (a, o) => [
         [['Airtime', 'DStv', 'Remita'][o] ?? 'Bill', ngn(a)],
-        ['Fee', 'Free', 'free'],
-        ['Total', ngn(a), 'strong'],
+        o === 2 ? ['Service fee', ngn(REMITA_FEE)] : ['Fee', 'Free', 'free'],
+        ['Total', ngn(o === 2 ? a + REMITA_FEE : a), 'strong'],
       ],
     },
   ],

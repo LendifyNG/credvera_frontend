@@ -17,7 +17,7 @@ export type Post = {
   topic?: 'Getting paid' | 'Controls' | 'FX' | 'Suppliers';
   date: string; // ISO
   minutes: number;
-  /** Personal posts have a photo; business notes are set as memos, without one. */
+  /** Personal posts usually have a photo (those without get a plain tile); business notes are set as memos, without one. */
   cover?: Photo;
   /** Business notes: the page to read next. */
   related?: { label: string; to: string };
@@ -80,6 +80,139 @@ export const posts: Post[] = [
       { list: ['Choose Split bill from Payments, or open a payment you already made and tap Split this payment.', 'Add the people sharing it, and each person’s share.', 'Send them the request.'] },
       { h: 'Follow it' },
       { p: 'Each split shows who has paid in full, who has paid part, and who hasn’t paid yet. Your own Home screen shows how much you’re still owed in total.' },
+    ],
+  },
+  {
+    slug: 'spot-a-fake-transfer-alert',
+    audience: 'personal',
+    title: 'How to spot a fake transfer alert before you hand over the goods',
+    dek: 'An alert text or a payment screenshot can be faked in seconds. Your balance can’t.',
+    category: 'Guides',
+    date: '2026-11-01',
+    minutes: 3,
+    body: [
+      { p: 'It usually happens at a busy moment. A customer shows you a transfer on their phone, or an alert arrives by text, and they ask to leave with the goods. The money never lands.' },
+      { h: 'Signs to watch for' },
+      {
+        list: [
+          'They show you a screenshot, or their own phone, instead of waiting for your alert.',
+          'The text comes from an ordinary phone number, or the wording and spacing look different from your usual alerts.',
+          'The balance in the message doesn’t match what you know you had.',
+          'They’re in a hurry, or keep talking while you check.',
+          'Someone says they sent too much by mistake and asks you to send the difference back.',
+        ],
+      },
+      { h: 'The only check that counts' },
+      { p: 'Open your banking app and look at your balance and your latest transactions. If the money isn’t there, it hasn’t arrived, whatever the message or the screenshot says.' },
+      { h: 'On Credvera' },
+      { p: 'Money you receive shows in Transactions with who sent it and how much. If you sell with invoices, an invoice marks itself paid when the money lands, so you don’t have to match alerts to customers.' },
+      { h: 'If someone has already left' },
+      { p: 'Report it at your nearest police station with whatever you have: the customer’s number, their account details, and the fake alert or screenshot.' },
+    ],
+  },
+  {
+    slug: 'convert-dollars-to-naira',
+    audience: 'personal',
+    title: 'Converting dollars to naira: how to see what you really get',
+    dek: 'Before you convert, put the rate you’re offered beside the market rate. The gap between them is what the conversion costs.',
+    category: 'Guides',
+    date: '2026-10-31',
+    minutes: 3,
+    body: [
+      { p: 'When you change money, the cost is usually hidden in the rate. Two offers can both say “no fee” and still leave you with very different amounts of naira.' },
+      { h: 'Three numbers to look at' },
+      { list: ['The market rate: what a dollar is worth right now.', 'The rate you’re offered.', 'How much naira you end up with.'] },
+      { p: 'The difference between the first two is what you’re paying. The third is the only number that lands in your account.' },
+      { h: 'Converting in the app' },
+      {
+        list: [
+          'Open Wallets and tap Convert.',
+          'Choose the currency you’re converting from, such as US dollars, and naira as the one to get.',
+          'Enter how much to convert, or how much naira you want to end up with.',
+          'Before you confirm, you see your rate, the market rate, our margin and the total taken from your wallet.',
+          'The rate is held for a short time while you decide. If it runs out, get a new rate.',
+        ],
+      },
+      { h: 'When it arrives' },
+      { p: 'The naira lands in your naira wallet, usually within a minute. You can convert pounds and euros the same way.' },
+      { h: 'You don’t have to convert straight away' },
+      { p: 'Money from abroad can stay in dollars, pounds or euros for as long as you like. Convert when you need the naira.' },
+    ],
+  },
+  {
+    slug: 'buy-electricity-token-online',
+    audience: 'personal',
+    title: 'How to buy prepaid electricity units online and get your token',
+    dek: 'Pay for prepaid or postpaid electricity from your phone, check the name on the meter first, and copy your token straight from the screen.',
+    category: 'Guides',
+    date: '2026-10-30',
+    minutes: 3,
+    body: [
+      { p: 'No queue at the vending point and no running out of light at night. You can buy units for your own meter, your parents’ or your shop’s, from wherever you are.' },
+      { h: 'What you need' },
+      { list: ['The meter number, printed on the meter or on an old receipt.', 'Whether the meter is prepaid or postpaid.', 'Money in your naira wallet.'] },
+      { h: 'Buy the units' },
+      {
+        list: [
+          'Open Payments and choose Electricity.',
+          'Pick your electricity company and the meter type.',
+          'Enter the meter number. The app checks it and shows the name the meter is registered to.',
+          'Enter the amount. Each company sets its own minimum, and the app shows it.',
+          'Confirm with your PIN.',
+        ],
+      },
+      { h: 'Your token' },
+      { p: 'For a prepaid meter, the token appears on screen once the electricity company sends it. Tap to copy it, then key it into your meter. It’s on your receipt too, if you’re buying for someone else and want to send it to them.' },
+      { p: 'If the company is slow to answer, the app tells you the payment is on its way instead. It stays in Transactions with its reference, so you can follow it up.' },
+      { h: 'Check the name before you pay' },
+      { p: 'If the name shown isn’t the one you expect, stop and check the number. Units bought for the wrong meter go to that meter.' },
+    ],
+  },
+  {
+    slug: 'pay-remita-rrr-online',
+    audience: 'personal',
+    title: 'How to pay a Remita bill with your RRR',
+    dek: 'Government fees, school charges and other Remita invoices, paid from your phone with the reference number on the invoice.',
+    category: 'Guides',
+    date: '2026-10-27',
+    minutes: 3,
+    body: [
+      { p: 'Many government agencies, schools and other organisations bill through Remita. Their invoice carries a Remita Retrieval Reference, or RRR: a 12-digit number that tells Remita exactly what you’re paying for and how much.' },
+      { h: 'Pay it' },
+      {
+        list: [
+          'Open Payments and choose Remita.',
+          'Enter the RRR from your invoice.',
+          'The app finds the bill and shows its details and the amount.',
+          'Check them, then confirm with your PIN. It’s paid from your naira wallet.',
+        ],
+      },
+      { h: 'Fees' },
+      { p: 'Any service fee is shown beside the total before you confirm.' },
+      { h: 'Afterwards' },
+      { p: 'Keep the receipt from Transactions. The organisation that billed you can check the payment against the RRR, and many ask for the receipt as proof.' },
+      { h: 'If the RRR isn’t found' },
+      { p: 'Check the number against the invoice. If it has already been paid or is no longer valid, ask the organisation that issued it for a new one.' },
+    ],
+  },
+  {
+    slug: 'save-for-school-fees',
+    audience: 'personal',
+    title: 'How to save for school fees without thinking about it',
+    dek: 'Set a goal with the amount and the date you need it, and let auto-save put a little aside every day, week or month.',
+    category: 'Guides',
+    date: '2026-10-24',
+    minutes: 3,
+    body: [
+      { p: 'School fees come round on the same dates every year, and they’re rarely smaller than last time. Putting a little aside as you go is easier than finding it all in one month.' },
+      { h: 'Set the goal' },
+      { list: ['Open Savings and tap New goal.', 'Say what it’s for: school fees, rent, a new laptop.', 'Enter how much you need and when you need it.'] },
+      { h: 'Turn on auto-save' },
+      { p: 'Choose daily, weekly or monthly. The app works out how much to put aside each time to reach the goal by your date. Use that figure or set your own. It comes from your naira wallet.' },
+      { h: 'Change it whenever you like' },
+      { p: 'You can pause auto-save or change the amount at any time, or leave it off and add money yourself when you can.' },
+      { h: 'A tip' },
+      { p: 'Set the date a few weeks before the fees are due, so the money is ready before the school asks for it. The same works for rent.' },
     ],
   },
   {
@@ -160,11 +293,39 @@ export const posts: Post[] = [
       { p: 'Every order adds to a supplier’s record: how many businesses they have shipped to and how often on time. We confirm shipment, not the quality of the goods, so check them when they arrive.' },
     ],
   },
+  {
+    slug: 'pay-staff-and-suppliers-on-a-schedule',
+    audience: 'business',
+    category: 'Business',
+    topic: 'Controls',
+    related: { label: 'Payments and invoices', to: '/business/payments' },
+    title: 'Paying staff and suppliers on a schedule',
+    dek: 'Set up a repeat payment once, every week or every month, with the name on the account checked before the first one goes.',
+    date: '2026-10-29',
+    minutes: 3,
+    body: [
+      { p: 'Salaries, rent and a regular supplier get paid every month: the same amount, to the same account. Doing it by hand each time is how payments get missed, or sent to the wrong place.' },
+      { h: 'Set it up once' },
+      {
+        list: [
+          'In your business dashboard, open Payments and choose Pay someone.',
+          'Choose the bank and enter the account number. We check the name on the account before you pay.',
+          'Add what it’s for, like “Deliveries, September”.',
+          'Choose to repeat it every week or every month.',
+          'You see the fee and the total before you confirm.',
+        ],
+      },
+      { h: 'Keep track' },
+      { p: 'Scheduled payments lists everything that repeats, and the date each one next goes out.' },
+      { h: 'Pay suppliers from saved details' },
+      { p: 'Save the businesses you pay often in Suppliers and pay them from the saved details. If a supplier says their bank has changed, treat it as a new recipient and confirm it by phone before you pay.' },
+    ],
+  },
 ];
 
 export const postBySlug = (slug?: string) => posts.find((p) => p.slug === slug);
 
-export const personalPosts = posts.filter((p) => p.audience === 'personal');
+export const personalPosts = posts.filter((p) => p.audience === 'personal').sort((a, b) => b.date.localeCompare(a.date));
 export const businessPosts = posts.filter((p) => p.audience === 'business').sort((a, b) => b.date.localeCompare(a.date));
 
 export const postDate = (iso: string) =>
