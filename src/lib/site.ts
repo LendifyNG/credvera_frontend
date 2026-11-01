@@ -24,10 +24,13 @@ export const company = {
     'Credvera Technologies Limited carries on software programming, development and provision of computer applications and related digital technology solutions. Its product, Credvera, is a mobile and web app that individuals and businesses in Nigeria use to receive and make payments, pay bills and buy airtime, save, send invoices and payment links, receive money from abroad, convert currencies, pay suppliers abroad and pay online with cards.',
   licenceStatement:
     'Credvera is a software company, not a bank. Payment services in the app are provided by licensed partners.',
+  // Shown in the footer and sent to search engines as the company's profiles.
+  // Leave a profile null until it exists; null ones are hidden.
   socials: {
-    linkedin: '#', // placeholder
-    x: '#', // placeholder
-    instagram: '#', // placeholder
+    LinkedIn: 'https://www.linkedin.com/company/credvera',
+    YouTube: 'https://www.youtube.com/@credvera',
+    X: null,
+    Instagram: null,
   } as Record<string, string | null>,
 };
 
