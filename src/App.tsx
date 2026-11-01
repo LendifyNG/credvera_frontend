@@ -23,6 +23,7 @@ import BusinessHomePage from './pages/BusinessHomePage';
 import PayPage from './pages/PayPage';
 import VerifyPage from './pages/VerifyPage';
 import CelebrationPage from './pages/CelebrationPage';
+import SplitPayPage from './pages/SplitPayPage';
 import Accounts from './dashboard/Accounts';
 import AppShell from './dashboard/AppShell';
 import Approvals from './dashboard/Approvals';
@@ -193,6 +194,9 @@ export default function App() {
 
           {/* A celebration's page, where guests send gifts */}
           <Route path="/c/:slug" element={<CelebrationPage />} />
+
+          {/* One person's share of a split bill, from the link they were texted */}
+          <Route path="/s/:token" element={<SplitPayPage />} />
 
           {/* The business dashboard */}
           <Route path="/business/app/sign-in" element={<SignIn />} />
