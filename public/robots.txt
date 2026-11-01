@@ -1,12 +1,14 @@
 # Credvera — https://credvera.co
 # Keep crawlers out of signed-in areas and private links: the business
-# dashboard, payment links, gift pages and staff card checks.
+# dashboard, payment links, split-bill links, gift pages and staff card checks.
+# Those pages also send a noindex header (vercel.json).
 
 User-agent: *
 Allow: /
 Disallow: /business/app
 Disallow: /c/
 Disallow: /pay/
+Disallow: /s/
 Disallow: /verify
 
 Sitemap: https://credvera.co/sitemap.xml

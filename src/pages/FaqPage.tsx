@@ -3,6 +3,7 @@ import { ArrowUpRight, Plus, Search, X } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Headline from '../components/editorial/Headline';
+import JsonLd, { faqLd } from '../components/seo/JsonLd';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
 import { company } from '../lib/site';
@@ -136,6 +137,7 @@ export default function FaqPage() {
 
   return (
     <>
+      <JsonLd data={faqLd(groups.flatMap((g) => g.items))} />
       <header className="mx-auto max-w-7xl px-6 pb-12 pt-32 lg:px-8 lg:pt-40">
         <Reveal>
           <p className="border-b border-ink/10 pb-5 text-[13px] font-semibold text-background">FAQ</p>

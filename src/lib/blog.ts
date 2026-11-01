@@ -3,7 +3,6 @@ import { photos, type Photo } from './photos';
 // The blog. Short, practical guides that describe only what the app does
 // today. TODO(credvera): have the team review or rewrite each post, and add
 // author names, before launch.
-// When you add a post, add its URL to public/sitemap.xml too.
 
 export type Block = { h?: string; p?: string; list?: string[] };
 

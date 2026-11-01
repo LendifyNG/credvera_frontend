@@ -3,6 +3,7 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import JsonLd, { faqLd } from '../../components/seo/JsonLd';
 import { company } from '../../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -87,6 +88,7 @@ export default function BizFaqPage() {
 
   return (
     <>
+      <JsonLd data={faqLd(topics.flatMap((t) => t.items))} />
       <header className="bg-ledger text-graphite">
         <div className="mx-auto max-w-7xl px-6 pb-14 pt-32 lg:px-8 lg:pt-40">
           <div className="flex items-center justify-between border-b border-graphite/15 pb-5 font-medium text-[13px] text-graphite/50">
