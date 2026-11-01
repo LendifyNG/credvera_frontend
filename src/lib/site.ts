@@ -234,7 +234,8 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
       rows: [
         ['Opening an account', 'Free'],
         ['Transfers to Nigerian banks', '₦10 per transfer'],
-        ['Airtime, TV and Remita bills', 'Free'],
+        ['Airtime, data, electricity and TV', 'Free'],
+        ['Remita bills', '₦150 service fee'],
       ],
     },
     {
