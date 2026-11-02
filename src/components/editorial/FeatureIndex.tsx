@@ -8,93 +8,57 @@ import Headline from './Headline';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-// A small drawn detail for each feature, shown when its row is open.
+// A small drawn detail for each feature, shown when its row is open. Savings is the fallback.
 function Detail({ to }: { to: string }): ReactNode {
-  if (to === '/personal/abroad')
-    return (
-      <div className="space-y-2">
-        {[
-          ['us', 'USD', '₦1,535.00'],
-          ['gb', 'GBP', '₦2,065.00'],
-          ['eu', 'EUR', '₦1,790.00'],
-        ].map(([flag, code, rate]) => (
-          <div key={code} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3">
-            <img src={`https://flagcdn.com/w40/${flag}.png`} alt="" className="h-4 w-6 rounded-[2px] object-cover" loading="lazy" />
-            <span className="text-sm font-semibold">{code}</span>
-            <span className="ml-auto text-sm tabular-nums text-ink/60">{rate}</span>
-          </div>
-        ))}
-      </div>
-    );
   if (to === '/personal/everyday')
     return (
       <div className="flex flex-wrap gap-2">
-        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer', 'Dollar card'].map((b) => (
+        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer'].map((b) => (
           <span key={b} className="rounded-full border border-ink/10 bg-paper px-3.5 py-1.5 text-sm text-ink/70">
             {b}
           </span>
         ))}
       </div>
     );
-  if (to === '/personal/save')
-    return (
-      <div className="space-y-4">
-        {[
-          ['School fees', 38],
-          ['New laptop', 31],
-          ['Emergency fund', 30],
-        ].map(([name, pct]) => (
-          <div key={name}>
-            <div className="flex justify-between text-sm">
-              <span className="font-medium">{name}</span>
-              <span className="tabular-nums text-ink/50">{pct}%</span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-mist">
-              <motion.div
-                className="h-full rounded-full bg-background"
-                initial={{ width: 0 }}
-                animate={{ width: `${pct}%` }}
-                transition={{ duration: 1.2, ease, delay: 0.2 }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
   return (
-    <div className="rounded-2xl bg-paper p-5">
-      <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-ink/45">Earnings Passport</span>
-        <span className="rounded-full bg-background px-2.5 py-1 text-[11px] font-semibold text-primary">Verified</span>
-      </div>
-      <p className="mt-4 text-sm text-ink/50">Monthly income from abroad</p>
-      <p className="text-2xl font-semibold tracking-tight">$1,000 – $2,000</p>
-      <p className="mt-3 text-sm text-ink/50">Paid 12 of 12 months · Balance never shown</p>
+    <div className="space-y-4">
+      {[
+        ['School fees', 38],
+        ['New laptop', 31],
+        ['Emergency fund', 30],
+      ].map(([name, pct]) => (
+        <div key={name}>
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">{name}</span>
+            <span className="tabular-nums text-ink/50">{pct}%</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-mist">
+            <motion.div
+              className="h-full rounded-full bg-background"
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 1.2, ease, delay: 0.2 }}
+            />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
 // What each feature does, in a sentence and three points.
 const more: Record<string, { body: string; points: string[] }> = {
-  '/personal/abroad': {
-    body: 'Clients, employers and platforms pay you straight into US, UK and euro account details in your own name.',
-    points: ['Your own USD, GBP and EUR account details', 'Our rate always beside the market rate', 'A PayPal link for clients who pay that way'],
-  },
   '/personal/everyday': {
     body: 'Everything you pay for every month, from the same place as your money.',
-    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', 'A dollar card for online, a naira card for shops'],
+    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', 'A receipt for every payment'],
   },
   '/personal/save': {
     body: 'Put money aside for what’s next, and stop chasing friends for their share.',
     points: ['Goals with weekly or monthly auto-save', 'Money in a goal is kept apart', 'Split any bill and see who still owes'],
   },
-  '/personal/passport': {
-    body: 'Share a link that proves your income from abroad, checked from the payments you actually received.',
-    points: ['Shows a range, never your balance', 'You choose the months and how long it lasts', 'Cancel it and the link stops working'],
-  },
 };
 
-/** The four core features as open-on-click rows, with a short explanation and a way into each page. */
+/** The core features as open-on-click rows, with a short explanation and a way into each page. */
 export default function FeatureIndex() {
   const [open, setOpen] = useState<string | null>(personalPages[0].to);
 

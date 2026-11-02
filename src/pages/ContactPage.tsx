@@ -17,11 +17,9 @@ const channels = [
 const topics = [
   'my personal account',
   'a payment',
-  'getting paid from abroad',
-  'my dollar card',
-  'Earnings Passport',
+  'paying a bill',
+  'savings or a split bill',
   'my business account',
-  'paying suppliers abroad',
   'a security concern',
   'something else',
 ];

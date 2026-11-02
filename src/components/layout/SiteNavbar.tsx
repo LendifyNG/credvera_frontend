@@ -44,7 +44,7 @@ export default function SiteNavbar() {
   const solid = scrolled || mobileOpen;
   // Cream pages (personal and the blog) get dark text; the menu overlay stays dark.
   const light =
-    (pathname === '/' || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', '/business/fx', '/business/suppliers', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
+    (pathname === '/' || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
     !mobileOpen;
   const linkIdle = light ? 'text-ink/70 hover:text-ink' : 'text-white/80 hover:text-white';
 
