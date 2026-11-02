@@ -6,13 +6,13 @@ import NextChapter from '../../components/editorial/NextChapter';
 import NudgeChat from '../../components/editorial/NudgeChat';
 import SplitBill from '../../components/editorial/SplitBill';
 
-/** Personal, chapter 03: saving and splitting bills. */
+/** Personal, chapter 02: saving and splitting bills. */
 export default function SavePage() {
   return (
     <>
       <Masthead
-        chapter="03"
-        of="04"
+        chapter="02"
+        of="02"
         section="Save and split"
         title={'Put money aside.\n*Get paid* back.'}
         lede="Set goals for school fees, rent or a new laptop and let Credvera save for you. Split a bill with friends and see who still owes you, without the awkward reminder."

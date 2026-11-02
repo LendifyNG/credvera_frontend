@@ -10,16 +10,13 @@ import { applyMeta, metaFor } from './lib/seo';
 import AboutPage from './pages/AboutPage';
 import BizAboutPage from './pages/business/BizAboutPage';
 import BizBlogPage from './pages/business/BizBlogPage';
-import BizCardsPage from './pages/business/CardsPage';
 import BizContactPage from './pages/business/BizContactPage';
 import BizFaqPage from './pages/business/BizFaqPage';
 import BizLegalPage from './pages/business/BizLegalPage';
-import BizFxPage from './pages/business/FxPage';
 import BizPaymentsPage from './pages/business/PaymentsPage';
 import BizPostPage from './pages/business/BizPostPage';
 import BizPricingPage from './pages/business/BizPricingPage';
 import BizSecurityPage from './pages/business/BizSecurityPage';
-import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
 import PayPage from './pages/PayPage';
 import VerifyPage from './pages/VerifyPage';
@@ -48,9 +45,7 @@ import Today from './dashboard/Today';
 import PersonalHomePage from './pages/PersonalHomePage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
-import AbroadPage from './pages/personal/AbroadPage';
 import EverydayPage from './pages/personal/EverydayPage';
-import PassportPage from './pages/personal/PassportPage';
 import SavePage from './pages/personal/SavePage';
 import ContactPage from './pages/ContactPage';
 import FaqPage from './pages/FaqPage';
@@ -172,9 +167,9 @@ export default function App() {
           <Route path="/" element={<PersonalHomePage />} />
           <Route path="/business" element={<BusinessHomePage />} />
           <Route path="/business/payments" element={<BizPaymentsPage />} />
-          <Route path="/business/fx" element={<BizFxPage />} />
-          <Route path="/business/suppliers" element={<BizSuppliersPage />} />
-          <Route path="/business/cards" element={<BizCardsPage />} />
+          <Route path="/business/fx" element={<Navigate to="/business" replace />} />
+          <Route path="/business/suppliers" element={<Navigate to="/business" replace />} />
+          <Route path="/business/cards" element={<Navigate to="/business" replace />} />
           <Route path="/business/pricing" element={<BizPricingPage />} />
           <Route path="/business/security" element={<BizSecurityPage />} />
           <Route path="/business/about" element={<BizAboutPage />} />
@@ -184,18 +179,18 @@ export default function App() {
           <Route path="/business/blog/:slug" element={<BizPostPage />} />
           <Route path="/business/privacy" element={<BizLegalPage kind="privacy" />} />
           <Route path="/business/terms" element={<BizLegalPage kind="terms" />} />
-          <Route path="/personal/abroad" element={<AbroadPage />} />
+          <Route path="/personal/abroad" element={<Navigate to="/" replace />} />
           <Route path="/personal/everyday" element={<EverydayPage />} />
           <Route path="/personal/save" element={<SavePage />} />
-          <Route path="/personal/passport" element={<PassportPage />} />
+          <Route path="/personal/passport" element={<Navigate to="/" replace />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           {/* Earlier product pages, now sections of the two home pages. */}
           <Route path="/business-payments" element={<Navigate to="/business/payments" replace />} />
-          <Route path="/cross-border" element={<Navigate to="/business/fx" replace />} />
-          <Route path="/supplier-payments" element={<Navigate to="/business/suppliers" replace />} />
+          <Route path="/cross-border" element={<Navigate to="/business" replace />} />
+          <Route path="/supplier-payments" element={<Navigate to="/business" replace />} />
           <Route path="/study-abroad" element={<Navigate to="/" replace />} />
-          <Route path="/pay-home" element={<Navigate to="/personal/abroad" replace />} />
+          <Route path="/pay-home" element={<Navigate to="/" replace />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route path="/about" element={<AboutPage />} />

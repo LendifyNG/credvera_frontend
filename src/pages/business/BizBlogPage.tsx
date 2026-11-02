@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { businessPosts, postDate } from '../../lib/blog';
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const topics = ['All', 'Getting paid', 'Controls', 'FX', 'Suppliers'] as const;
+const topics = ['All', 'Getting paid', 'Controls'] as const;
 
 /** Business notes, listed like a journal's contents page. */
 export default function BizBlogPage() {

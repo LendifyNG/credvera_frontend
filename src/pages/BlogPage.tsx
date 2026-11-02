@@ -23,7 +23,7 @@ export default function BlogPage() {
           <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50">
             <span className="text-background">The Credvera blog</span>
             <span className="h-px w-8 bg-ink/20" />
-            <span>Guides and notes on money, at home and abroad</span>
+            <span>Guides and notes on everyday money</span>
           </div>
         </Reveal>
         <Headline

@@ -29,9 +29,9 @@ const days = [
   },
   {
     day: 'Thu',
-    title: 'Order from your supplier',
-    body: 'Pay a 30% deposit to Shenzhen. The rest waits until the goods are loaded.',
-    tag: 'From ₦2,500',
+    title: 'Pay your suppliers',
+    body: 'Save them once with their bank details. Each payment shows the account name before you send.',
+    tag: '₦25 each',
   },
   {
     day: 'Fri',
@@ -50,7 +50,7 @@ export default function FirstWeek() {
         <h2 className="text-[clamp(2.4rem,5.5vw,4.8rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
           Your first week.
           <br />
-          <span className="text-graphite/45">From sign-up to supplier.</span>
+          <span className="text-graphite/45">From sign-up to payday.</span>
         </h2>
 
         {/* The week, like a page from a desk calendar */}

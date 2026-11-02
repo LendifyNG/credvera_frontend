@@ -24,15 +24,6 @@ const cases = [
     ],
   },
   {
-    name: 'The supplier who never ships',
-    how: 'A new supplier found online takes the full payment up front, then stops answering.',
-    stops: [
-      'Pay a 30% or 50% deposit, not the whole order',
-      'The balance is held until the shipping line confirms loading',
-      'Supplier Passport shows their record with other Nigerian businesses',
-    ],
-  },
-  {
     name: 'The payment nobody agreed',
     how: 'Someone with access to the account sends a large payment without anyone else knowing.',
     stops: [
@@ -47,8 +38,6 @@ const controls = [
   ['PIN or Face ID', 'On every payment'],
   ['Daily limits', 'On each account'],
   ['Second approval', 'For big payments'],
-  ['Card freeze', 'In one tap'],
-  ['Card details', 'Only after your PIN'],
   ['Screenshots', 'Blocked while details show'],
   ['New phone', 'Payments capped for a while'],
   ['Receipts', 'For every payment'],
@@ -158,7 +147,7 @@ export default function BizSecurityPage() {
             <br />
             <span className="text-graphite/45">from day one.</span>
           </h2>
-          <dl className="mt-14 grid gap-px overflow-hidden rounded-xl bg-graphite/10 sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="mt-14 grid gap-px overflow-hidden rounded-xl bg-graphite/10 sm:grid-cols-2 lg:grid-cols-3">
             {controls.map(([k, v]) => (
               <div key={k} className="bg-ledger p-6">
                 <dt className="text-lg font-semibold tracking-tight">{k}</dt>

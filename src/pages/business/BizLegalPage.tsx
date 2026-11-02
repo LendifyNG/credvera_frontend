@@ -14,8 +14,6 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
     glance: [
       ['Who they cover', 'Businesses registered in Nigeria, and the people who use the account for them'],
       ['Fees', 'As on the business pricing page, shown before you confirm, with 30 days’ notice of changes'],
-      ['Pay on shipment', 'We confirm shipment with the shipping line, not the quality of the goods'],
-      ['Held money', 'Returned to you if the goods are not loaded by the ship-by date'],
       ['Law', 'The laws of the Federal Republic of Nigeria'],
     ],
     clauses: [
@@ -58,29 +56,6 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
         ],
       },
       {
-        title: 'Paying suppliers on shipment',
-        items: [
-          'You choose a deposit and a ship-by date. The deposit is paid to the supplier when you confirm.',
-          'We hold the balance and pay it to the supplier when the shipping line confirms the goods are loaded.',
-          'If the goods are not loaded by the ship-by date, the held balance is returned to you. The deposit is a matter between you and your supplier.',
-          'We confirm shipment. We do not inspect goods or guarantee their quality.',
-        ],
-      },
-      {
-        title: 'Currencies and converting',
-        items: [
-          'Our rate is shown beside the market rate before you convert, and is held for thirty seconds while you confirm.',
-          'If the rate changes after the hold, you are asked to confirm the new rate before anything is converted.',
-        ],
-      },
-      {
-        title: 'Business cards',
-        items: [
-          'Cards spend only from the account they are linked to, within any limits you set.',
-          'You can freeze a card at any time. Card details are shown only after your PIN.',
-        ],
-      },
-      {
         title: 'Fees',
         items: ['Fees are listed on the business pricing page and shown on each payment before you confirm. We will give you at least 30 days’ notice of any change.'],
       },
@@ -108,7 +83,7 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
     title: 'Business privacy notice',
     glance: [
       ['Who we are', `${company.legalName} (RC ${company.rcNumber}), ${company.address}`],
-      ['What we hold', 'Business details, directors’ and owners’ identity, payments, invoices and supplier records'],
+      ['What we hold', 'Business details, directors’ and owners’ identity, payments, invoices and the people you pay'],
       ['Shared with', 'Our payment partners, verification providers, and regulators where the law requires'],
       ['Kept for', 'At least five years after the account closes, as anti-money-laundering rules require'],
       ['The law', 'The Nigeria Data Protection Act 2023'],
@@ -126,7 +101,7 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
         items: [
           'Business details, including CAC registration and registration documents.',
           'Identity details of directors and owners, including name, date of birth and BVN.',
-          'Payments, invoices, payment links, supplier details and orders, and device and usage information from the app.',
+          'Payments, invoices, payment links, the details of the people you pay, and device and usage information from the app.',
         ],
       },
       {
@@ -134,13 +109,6 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
         items: [
           'When you send an invoice or payment link, we process your customer’s name, contact details and payment to deliver it.',
           'You should only give us customer details you are allowed to share, and tell your customers how you use them.',
-        ],
-      },
-      {
-        title: 'Supplier Passport',
-        items: [
-          'Supplier Passport shows other businesses on Credvera a supplier’s record: how many orders they have shipped and how often on time.',
-          'It is built from order outcomes. It does not show your business’s name, amounts or other details to anyone else.',
         ],
       },
       {

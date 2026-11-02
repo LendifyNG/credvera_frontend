@@ -4,7 +4,6 @@ import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import agency from '../../assets/photos/business/trade-agency.webp';
-import importer from '../../assets/photos/business/trade-importer.webp';
 import kitchen from '../../assets/photos/business/trade-kitchen.webp';
 import pharmacy from '../../assets/photos/business/trade-pharmacy.webp';
 import tailor from '../../assets/photos/business/trade-tailor.webp';
@@ -14,7 +13,7 @@ import { company, marketStats } from '../../lib/site';
 const ease = [0.16, 1, 0.3, 1] as const;
 
 // The figures quoted in the brief, in the order they're footnoted.
-const sources = [marketStats.msmes!, marketStats.msmeGdp!, marketStats.chinaImports!, marketStats.intraAfricaRouting!];
+const sources = [marketStats.msmes!, marketStats.msmeGdp!];
 
 /** A figure in the brief, with its footnote number. */
 function Fig({ n, children }: { n: number; children: string }) {
@@ -28,20 +27,17 @@ function Fig({ n, children }: { n: number; children: string }) {
 
 const charter = [
   ['You see the fee before you pay.', 'On every payment screen, never after the money has gone.'],
-  ['A supplier is paid when the goods ship.', 'Not on faith, and not before the shipping line says so.'],
   ['Big payments get a second pair of eyes.', 'Nobody moves a large amount alone.'],
-  ['Customers abroad pay you like a local.', 'With account details in their own country’s format.'],
   ['Your accountant gets one clean list.', 'Every payment in and out, with a receipt for each.'],
 ];
 
-// Real businesses of the kinds Credvera is for (Pexels photos 7464397, 28459125,
+// Real businesses of the kinds Credvera is for (Pexels photos 28459125,
 // 11645426, 30678215, 8547282). Stock photography: never implied to be customers.
 const trades = [
-  { name: 'Importers', line: 'Paying suppliers in China, the UK and Europe', img: importer, w: 800, h: 534, alt: 'A man packing cardboard boxes for shipping' },
   { name: 'Restaurants and kitchens', line: 'Suppliers at home, card payments online', img: kitchen, w: 800, h: 1200, alt: 'Chefs preparing dishes in a busy kitchen' },
-  { name: 'Fashion and tailoring', line: 'Fabric abroad, customers everywhere', img: tailor, w: 800, h: 1066, alt: 'A smiling tailor at his work table' },
+  { name: 'Fashion and tailoring', line: 'Deposits by payment link, invoices for every order', img: tailor, w: 800, h: 1066, alt: 'A smiling tailor at his work table' },
   { name: 'Pharmacies', line: 'Stock from importers, salaries with approvals', img: pharmacy, w: 800, h: 534, alt: 'Customers shopping in a Lagos pharmacy' },
-  { name: 'Agencies and studios', line: 'Clients abroad paying in dollars and pounds', img: agency, w: 800, h: 534, alt: 'A team looking at a laptop together in an office' },
+  { name: 'Agencies and studios', line: 'Clients paying invoices by card or transfer', img: agency, w: 800, h: 534, alt: 'A team looking at a laptop together in an office' },
 ];
 
 const roman = ['I', 'II', 'III', 'IV', 'V'];
@@ -73,9 +69,7 @@ export default function BizAboutPage() {
           </motion.h1>
           <Reveal>
             <p className="mt-16 max-w-5xl text-[clamp(1.5rem,3vw,2.6rem)] font-medium leading-[1.25] tracking-[-0.02em] text-graphite/45">
-              Nigeria runs on <Fig n={1}>39.65 million</Fig> small businesses, and they make <Fig n={2}>46.31%</Fig> of the economy.
-              In 2024, Nigeria imported <Fig n={3}>₦14.15 trillion</Fig> of goods from China alone. Yet more than <Fig n={4}>80%</Fig>{' '}
-              of payments between African countries still go through Europe or the US.{' '}
+              Nigeria runs on <Fig n={1}>39.65 million</Fig> small businesses, and they make <Fig n={2}>46.31%</Fig> of the economy.{' '}
               <span className="text-graphite">They deserve an account built for how they trade.</span>
             </p>
           </Reveal>
