@@ -127,7 +127,7 @@ export default function NameCheck() {
           />
           <Reveal delay={0.15}>
             <p className="mt-7 max-w-md text-lg leading-relaxed text-ink/65">
-              Send to any bank in Nigeria for ₦10. Type the account number and the name on it comes back before anything
+              Send to any bank in Nigeria from ₦10. Type the account number and the name on it comes back before anything
               moves, so two swapped digits never cost you.
             </p>
           </Reveal>

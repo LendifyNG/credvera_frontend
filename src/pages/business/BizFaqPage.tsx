@@ -33,7 +33,7 @@ const topics: Topic[] = [
   {
     name: 'Paying out',
     items: [
-      { q: 'How much is a transfer to a Nigerian bank?', a: '₦25 a transfer from a business account. The account name shows before you send.' },
+      { q: 'How much is a transfer to a Nigerian bank?', a: '₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. The account name shows before you send.' },
       { q: 'What is a second approval?', a: 'Big payments wait for someone else to approve them before they go out. Nobody moves a large amount alone.' },
       { q: 'Can I save the people I pay often?', a: 'Yes. Staff, suppliers and landlords are saved once and paid again in a few taps.' },
     ],

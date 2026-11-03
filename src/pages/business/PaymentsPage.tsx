@@ -27,7 +27,7 @@ const frames = [
 const approval = [
   { time: '09:12', who: 'Tunde, Finance', what: 'Asks to pay Kemi Adeyemi ₦650,000', note: 'Salary for September · Zenith Bank' },
   { time: '09:40', who: 'You', what: 'Approve it with your PIN', note: 'Big payments need a second person' },
-  { time: '09:40', who: 'Kemi Adeyemi', what: 'Paid ₦650,000.00', note: '₦25 fee · a receipt for both of you' },
+  { time: '09:40', who: 'Kemi Adeyemi', what: 'Paid ₦650,000.00', note: '₦40 fee · a receipt for both of you' },
 ];
 
 /** Business: getting paid and paying out. */
@@ -143,7 +143,7 @@ export default function PaymentsPage() {
               <span className="text-white/45">pair of eyes.</span>
             </h2>
             <p className="mt-6 max-w-sm text-lg leading-relaxed text-white/65">
-              Big payments wait for someone else to approve them. Small ones go straight out, for ₦25, with the account name shown
+              Big payments wait for someone else to approve them. Small ones go straight out, from ₦10, with the account name shown
               before you send.
             </p>
           </div>
