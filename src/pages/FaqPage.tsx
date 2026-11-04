@@ -22,7 +22,7 @@ const personalGroups: Group[] = [
       { q: 'What do I need to open an account?', a: 'Your phone number, your email and your BVN or NIN. You sign up in the app, check your identity, and can start straight away. Some features open as you verify a little more.' },
       { q: 'Can I sign up from outside Nigeria?', a: 'Not yet. For now, sign-up is for people in Nigeria with a Nigerian phone number and a BVN or NIN.' },
       { q: 'How do I get the app?', a: 'Use the Get the app button on this site, which takes you to the official store listing. Don’t install Credvera from links sent to you by anyone else.' },
-      { q: 'How much does it cost?', a: 'Opening an account is free, and most things are free. A transfer to a Nigerian bank is ₦10. Every fee is on the Pricing page and shown in the app before you confirm.' },
+      { q: 'How much does it cost?', a: 'Opening an account is free, and most things are free. A transfer to a Nigerian bank is ₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. Every fee is on the Pricing page and shown in the app before you confirm.' },
     ],
   },
   {
@@ -31,7 +31,7 @@ const personalGroups: Group[] = [
     items: [
       { q: 'Which bills can I pay?', a: 'Airtime and data on MTN, Airtel, Glo and 9mobile; prepaid and postpaid electricity with Ikeja, Eko and Abuja Electric; DStv, GOtv and StarTimes; and government and school payments through Remita.' },
       { q: 'When do I get my electricity token?', a: 'The moment you pay. It shows in the app and stays with the payment, ready to copy or share.' },
-      { q: 'Can I send money to any Nigerian bank?', a: 'Yes, for ₦10 a transfer. The name on the account shows before you send, so you know it’s the right person.' },
+      { q: 'Can I send money to any Nigerian bank?', a: 'Yes, from ₦10 a transfer. The name on the account shows before you send, so you know it’s the right person.' },
     ],
   },
   {

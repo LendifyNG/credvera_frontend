@@ -10,7 +10,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const prices = [
   { value: '₦0', label: 'to open a business account' },
   { value: '₦0', label: 'for invoices and payment links' },
-  { value: '₦25', label: 'to pay any Nigerian bank' },
+  { value: '₦10', label: 'to pay any Nigerian bank, under ₦10,000' },
 ];
 
 /** A digit that rolls up into place, like a counter on a till. */

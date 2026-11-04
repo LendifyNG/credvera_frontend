@@ -4,7 +4,7 @@ export const businessPages = [
   {
     to: '/business/payments',
     label: 'Payments and invoices',
-    proof: 'Invoices and payment links, paid by card or transfer. ₦25 to pay any Nigerian bank.',
+    proof: 'Invoices and payment links, paid by card or transfer. From ₦10 to pay any Nigerian bank.',
   },
 ] as const;
 

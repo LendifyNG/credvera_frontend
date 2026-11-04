@@ -161,7 +161,9 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
       to: '/personal/everyday',
       rows: [
         ['Opening an account', 'Free'],
-        ['Transfers to Nigerian banks', '₦10 per transfer'],
+        ['Transfers under ₦10,000', '₦10 per transfer'],
+        ['Transfers of ₦10,000 to ₦49,999', '₦20 per transfer'],
+        ['Transfers of ₦50,000 and over', '₦40 per transfer'],
         ['Airtime, data, electricity and TV', 'Free'],
         ['Remita bills', '₦150 service fee'],
       ],
@@ -173,7 +175,9 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
       to: '/business/payments',
       rows: [
         ['Opening a business account', 'Free'],
-        ['Transfers to Nigerian banks', '₦25 per transfer'],
+        ['Transfers under ₦10,000', '₦10 per transfer'],
+        ['Transfers of ₦10,000 to ₦49,999', '₦20 per transfer'],
+        ['Transfers of ₦50,000 and over', '₦40 per transfer'],
         ['Invoices and payment links', 'Free to create'],
       ],
     },

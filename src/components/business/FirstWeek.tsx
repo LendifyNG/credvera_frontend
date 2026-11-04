@@ -31,13 +31,13 @@ const days = [
     day: 'Thu',
     title: 'Pay your suppliers',
     body: 'Save them once with their bank details. Each payment shows the account name before you send.',
-    tag: '₦25 each',
+    tag: 'From ₦10 each',
   },
   {
     day: 'Fri',
     title: 'Pay salaries',
     body: 'Big payments wait for a second approval, then go out with your PIN.',
-    tag: '₦25 each',
+    tag: 'From ₦10 each',
   },
 ];
 

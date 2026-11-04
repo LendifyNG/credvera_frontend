@@ -9,7 +9,9 @@ const ease = [0.16, 1, 0.3, 1] as const;
 // TODO(credvera): confirm with the partner bank before launch.
 const tariff: [string, string, string][] = [
   ['Opening a business account', 'Free', 'Once'],
-  ['Transfer to a Nigerian bank', '₦25', 'Per transfer'],
+  ['Transfer under ₦10,000', '₦10', 'Per transfer'],
+  ['Transfer of ₦10,000 to ₦49,999', '₦20', 'Per transfer'],
+  ['Transfer of ₦50,000 and over', '₦40', 'Per transfer'],
   ['Invoices and payment links', 'Free', 'To create and send'],
 ];
 

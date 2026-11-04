@@ -34,7 +34,7 @@ const pages: Record<string, Page> = {
   '/pricing': {
     title: 'Pricing | Credvera',
     description:
-      'Opening a Credvera account is free and most things cost nothing. A transfer to a Nigerian bank is ₦10. You see every fee before you confirm.',
+      'Opening a Credvera account is free and most things cost nothing. A transfer to a Nigerian bank is ₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. You see every fee before you confirm.',
   },
   '/security': {
     title: 'Security | Credvera',
@@ -81,7 +81,7 @@ const pages: Record<string, Page> = {
   '/business/pricing': {
     title: 'Pricing | Credvera Business',
     description:
-      'Free to open, ₦25 per transfer to a Nigerian bank, and free invoices and payment links.',
+      'Free to open, transfers to any Nigerian bank from ₦10, and free invoices and payment links.',
   },
   '/business/security': {
     title: 'Security | Credvera Business',
