@@ -9,8 +9,9 @@ type Row = { date: string; who: string; what: string; amount: string; kind: Kind
 const rows: Row[] = [
   { date: '26 Sep', who: 'Kemi Adeyemi', what: 'Salary · Zenith Bank', amount: '₦650,000.00', kind: 'out', waiting: true },
   { date: '26 Sep', who: 'Lekki Grill', what: 'INV-0143 · bank transfer', amount: '₦420,000.00', kind: 'in' },
+  { date: '25 Sep', who: 'Müller Verpackung GmbH', what: 'Supplier · Germany', amount: '€2,300.00', kind: 'out' },
   { date: '24 Sep', who: 'Ikeja Electric', what: 'Bill · prepaid', amount: '₦85,000.00', kind: 'out' },
-  { date: '23 Sep', who: 'Northwind Retail', what: 'Payment link · card', amount: '₦320,000.00', kind: 'in' },
+  { date: '23 Sep', who: 'Northwind Retail', what: 'Payment link · card', amount: '$3,200.00', kind: 'in' },
   { date: '22 Sep', who: 'Chinedu Logistics', what: 'Delivery · GTBank', amount: '₦240,000.00', kind: 'out' },
   { date: '21 Sep', who: 'Oak & Iron Studio', what: 'INV-0138 · card', amount: '₦180,000.00', kind: 'in' },
 ];

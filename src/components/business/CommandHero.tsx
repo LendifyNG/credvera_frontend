@@ -13,8 +13,10 @@ const cta = ctaFor('business');
 // What a business asks for, and what the app does with it, in one line each.
 // Example names and amounts, matching the app's example business account.
 const commands: { text: string; result: string; waiting?: boolean }[] = [
+  { text: 'Pay Shenzhen Hongda $12,400 when the goods ship', result: 'Deposit of $3,720 paid. The rest waits until the goods are loaded.' },
   { text: 'Invoice Lekki Grill ₦420,000, due Friday', result: 'INV-0143 sent to Lekki Grill by email and WhatsApp.' },
   { text: 'Pay Kemi’s September salary, ₦650,000', result: 'Sent to Tunde in Finance for a second approval.', waiting: true },
+  { text: 'Convert $5,000 to naira', result: '₦7,675,000.00 in your naira account, at ₦1,535.00 to the dollar.' },
   { text: 'Send a payment link for ₦85,000', result: 'Link ready. Your customer pays by card or bank transfer.' },
 ];
 

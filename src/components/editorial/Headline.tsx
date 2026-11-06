@@ -6,7 +6,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 type Token = { text: string; serif?: boolean; mark?: boolean };
 
-// "Your money, *sorted* ==every day==." → sans, serif italic, highlighted.
+// "Your money, *home* and ==abroad==." → sans, serif italic, highlighted.
 function tokens(line: string): Token[] {
   const out: Token[] = [];
   const re = /\*([^*]+)\*|==([^=]+)==/g;

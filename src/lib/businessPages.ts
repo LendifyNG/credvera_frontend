@@ -6,6 +6,21 @@ export const businessPages = [
     label: 'Payments and invoices',
     proof: 'Invoices and payment links, paid by card or transfer. From ₦10 to pay any Nigerian bank.',
   },
+  {
+    to: '/business/fx',
+    label: 'FX and currencies',
+    proof: 'Dollar, pound and euro accounts in your name. Our rate beside the market rate.',
+  },
+  {
+    to: '/business/suppliers',
+    label: 'Pay suppliers abroad',
+    proof: 'Pay when the goods ship. One flat fee, from ₦2,500.',
+  },
+  {
+    to: '/business/cards',
+    label: 'Business cards',
+    proof: 'A dollar card for software and ads, a naira card for everyday costs.',
+  },
 ] as const;
 
 export type BusinessPage = (typeof businessPages)[number];

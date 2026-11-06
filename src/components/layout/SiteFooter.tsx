@@ -20,8 +20,8 @@ const legalFor = {
 
 // One line on what Credvera is, for each audience.
 const tagline = {
-  personal: 'Pay your bills, send money and save, from one app.',
-  business: 'Collect, pay, invoice and approve, from one account.',
+  personal: 'Get paid from abroad, pay your bills and save, from one app.',
+  business: 'Collect, pay suppliers, invoice and trade across borders, from one account.',
 };
 
 export default function SiteFooter() {

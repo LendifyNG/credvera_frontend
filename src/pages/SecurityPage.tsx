@@ -23,7 +23,7 @@ export default function SecurityPage() {
       <PageHeader
         label="Security"
         title={'Built for the day\n*someone* tries.'}
-        lede="Your PIN on every payment, extra care on a new phone, and the name shown before you send. Here’s how that plays out."
+        lede="Your PIN on every payment, card details that hide themselves, extra care on a new phone, and the name shown before you send. Here’s how that plays out."
       />
 
       {/* Think like a scammer */}

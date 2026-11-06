@@ -5,6 +5,7 @@ import payCard from '../../assets/photos/business/pay-card.webp';
 import payInvoice from '../../assets/photos/business/pay-invoice.webp';
 import payLink from '../../assets/photos/business/pay-link.webp';
 import payTransfer from '../../assets/photos/business/pay-transfer.webp';
+import BizClose from '../../components/business/BizClose';
 import InvoiceAnatomy from '../../components/business/InvoiceAnatomy';
 import PaymentLedger from '../../components/business/PaymentLedger';
 import Reveal from '../../components/ui/Reveal';
@@ -165,6 +166,8 @@ export default function PaymentsPage() {
           </ol>
         </div>
       </section>
+
+      <BizClose path={PATH} />
     </>
   );
 }

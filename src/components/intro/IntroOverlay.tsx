@@ -19,12 +19,12 @@ const FADE_OUT = 0.5;
 const looks = {
   personal: {
     bg: '#0e0f11',
-    statement: 'Your money, sorted every day.',
+    statement: 'Your money, home and abroad.',
     panels: [
-      { word: 'Send', bg: '#dcf17e', fg: '#0e0f11' },
+      { word: 'Get paid', bg: '#dcf17e', fg: '#0e0f11' },
       { word: 'Pay bills', bg: '#15171a', fg: '#dcf17e' },
       { word: 'Save', bg: '#f3f4ef', fg: '#15171a' },
-      { word: 'Split', bg: '#0e0f11', fg: '#dcf17e' },
+      { word: 'Prove it', bg: '#0e0f11', fg: '#dcf17e' },
     ],
   },
   business: {
@@ -33,7 +33,7 @@ const looks = {
     panels: [
       { word: 'Collect', bg: '#1c1e21', fg: '#eeefea' },
       { word: 'Pay out', bg: '#eeefea', fg: '#1c1e21' },
-      { word: 'Invoice', bg: '#e4e8e2', fg: '#1c1e21' },
+      { word: 'Convert', bg: '#e4e8e2', fg: '#1c1e21' },
       { word: 'Trade', bg: '#26302a', fg: '#dcf17e' },
     ],
   },
