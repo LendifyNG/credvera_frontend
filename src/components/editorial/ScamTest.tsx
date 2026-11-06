@@ -11,6 +11,7 @@ type Attempt = {
   lines: [('them' | 'app' | 'you'), string][];
   verdict: string;
   why: string;
+  blackout?: boolean;
 };
 
 // Each attack answered by something the app really does.
@@ -46,6 +47,17 @@ const attempts: Attempt[] = [
     ],
     verdict: 'Slowed right down',
     why: 'After a new phone or a SIM change, payments are capped for a while, and you’re told, so there’s time to stop it.',
+  },
+  {
+    move: 'Screenshot the card details',
+    lines: [
+      ['them', 'Opens your dollar card'],
+      ['app', 'PIN or Face ID needed to show details'],
+      ['them', 'Takes a screenshot'],
+    ],
+    verdict: 'Nothing captured',
+    why: 'Card details show only after your PIN, hide again on their own, alert you every time, and screenshots come out black.',
+    blackout: true,
   },
   {
     move: 'Get you to pay the wrong account',
@@ -153,6 +165,21 @@ export default function ScamTest() {
           </AnimatePresence>
         </div>
 
+        {/* The screenshot that comes out black */}
+        <AnimatePresence>
+          {a.blackout && shown >= a.lines.length && (
+            <motion.div
+              key="black"
+              className="absolute inset-0 grid place-items-center bg-black"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 1.6, times: [0, 0.1, 0.7, 1] }}
+            >
+              <span className="text-sm text-white/50">Screenshot: blank</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* The verdict */}
         <AnimatePresence>
           {done && (
@@ -161,7 +188,7 @@ export default function ScamTest() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6, ease }}
+              transition={{ duration: 0.6, ease, delay: a.blackout ? 1.2 : 0 }}
               className="absolute inset-x-6 bottom-6 rounded-2xl bg-primary p-5 text-secondary sm:inset-x-8 sm:bottom-8"
             >
               <p className="flex items-center gap-2 text-lg font-semibold tracking-tight">

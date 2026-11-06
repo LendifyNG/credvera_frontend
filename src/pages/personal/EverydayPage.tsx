@@ -1,6 +1,7 @@
 import AppBand from '../../components/editorial/AppBand';
 import BillerRail from '../../components/editorial/BillerRail';
 import Headline from '../../components/editorial/Headline';
+import HoldReveal from '../../components/editorial/HoldReveal';
 import LightsBack from '../../components/editorial/LightsBack';
 import Masthead from '../../components/editorial/Masthead';
 import NameCheck from '../../components/editorial/NameCheck';
@@ -9,16 +10,16 @@ import PaymentDay from '../../components/editorial/PaymentDay';
 import Receipt from '../../components/editorial/Receipt';
 import Reveal from '../../components/ui/Reveal';
 
-/** Personal, chapter 01: everyday money. */
+/** Personal, chapter 02: everyday money. */
 export default function EverydayPage() {
   return (
     <>
       <Masthead
-        chapter="01"
-        of="02"
+        chapter="02"
+        of="04"
         section="Everyday money"
-        title={'Bills, airtime\nand transfers to\n*any* bank.'}
-        lede="Top up airtime, buy electricity, renew your TV and pay government bills in a few taps. Send to any Nigerian bank, and see the name on the account before you do."
+        title={'Bills, airtime\nand a card that\nworks *online*.'}
+        lede="Top up airtime, buy electricity, renew your TV and pay government bills in a few taps. Send to any Nigerian bank, and pay online with a dollar card."
         aside={<PaymentDay />}
       />
 
@@ -26,6 +27,7 @@ export default function EverydayPage() {
 
       <LightsBack />
       <NameCheck />
+      <HoldReveal />
 
       <section className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
         <div>

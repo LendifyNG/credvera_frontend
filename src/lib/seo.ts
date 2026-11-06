@@ -17,19 +17,29 @@ type Page = { title: string; description: string };
 
 const pages: Record<string, Page> = {
   '/': {
-    title: 'Credvera — Pay bills, send money and save',
+    title: 'Credvera — Get paid from abroad, pay bills and save',
     description:
-      'Pay bills and buy airtime, send to any Nigerian bank, save for what matters and split bills with friends. One app for your everyday money.',
+      'Get paid from abroad into your own dollar, pound and euro accounts, pay bills and airtime, send to any Nigerian bank, save and split bills. One app.',
+  },
+  '/personal/abroad': {
+    title: 'Get paid from abroad | Credvera',
+    description:
+      'Receive payments from clients, employers and platforms abroad into US, UK and euro account details in your own name. Keep the currency or convert to naira.',
   },
   '/personal/everyday': {
     title: 'Everyday money | Credvera',
     description:
-      'Top up airtime, buy electricity, renew your TV, pay Remita and government bills, and send to any Nigerian bank in seconds.',
+      'Top up airtime, buy electricity, renew your TV, pay Remita and government bills, send to any Nigerian bank and pay online with a dollar card.',
   },
   '/personal/save': {
     title: 'Save and split | Credvera',
     description:
       'Set savings goals for school fees, rent or a new laptop, let Credvera save for you, and split bills with friends to see who still owes you.',
+  },
+  '/personal/passport': {
+    title: 'Earnings Passport | Credvera',
+    description:
+      'Prove your income without a bank statement. Earnings Passport shares a link to your income from abroad, verified from the payments you received.',
   },
   '/pricing': {
     title: 'Pricing | Credvera',
@@ -39,17 +49,17 @@ const pages: Record<string, Page> = {
   '/security': {
     title: 'Security | Credvera',
     description:
-      'Your PIN on every payment, extra care on a new phone and the name shown before you send. How Credvera keeps you safe.',
+      'Your PIN on every payment, card details that hide themselves, extra care on a new phone and the name shown before you send. How Credvera keeps you safe.',
   },
   '/about': {
     title: 'About | Credvera',
     description:
-      'Credvera is building one place for your everyday money: bills, transfers, savings and splitting. Meet the company behind the app.',
+      'Across apps, banks and borders, in naira and in dollars: Credvera is building one place for all of your money. Meet the company behind the app.',
   },
   '/faq': {
     title: 'FAQ | Credvera',
     description:
-      'Answers about opening a Credvera account, bills and transfers, saving and splitting, fees and keeping your account safe.',
+      'Answers about opening a Credvera account, getting paid from abroad, bills and transfers, saving and splitting, fees and keeping your account safe.',
   },
   '/contact': {
     title: 'Contact | Credvera',
@@ -58,7 +68,7 @@ const pages: Record<string, Page> = {
   },
   '/blog': {
     title: 'Blog | Credvera',
-    description: 'Short, practical guides to paying bills, saving and splitting bills with Credvera.',
+    description: 'Short, practical guides to getting paid from abroad, paying rent and splitting bills with Credvera.',
   },
   '/privacy': {
     title: 'Privacy policy | Credvera',
@@ -69,19 +79,33 @@ const pages: Record<string, Page> = {
     description: 'The terms that apply when you use the Credvera app and website.',
   },
   '/business': {
-    title: 'Credvera for business — Payments, invoices and payment links',
+    title: 'Credvera for business — Payments, invoices, FX and supplier payments',
     description:
-      'A business account for Nigerian companies: collect payments, send invoices and payment links, pay staff and vendors, with approvals on big payments.',
+      'A business account for Nigerian companies: collect payments, send invoices and payment links, hold and convert dollars, pounds and euros, and pay suppliers abroad.',
   },
   '/business/payments': {
     title: 'Payments and invoices | Credvera Business',
     description:
       'Collect payments, pay staff and vendors, and send invoices with a payment link from one Credvera business account, with bulk payments and approvals.',
   },
+  '/business/fx': {
+    title: 'FX and currencies | Credvera Business',
+    description:
+      'Hold, receive and convert US dollars, pounds and euros at a clear rate, shown beside the market rate before you confirm.',
+  },
+  '/business/suppliers': {
+    title: 'Pay suppliers abroad | Credvera Business',
+    description:
+      'Pay suppliers in the UK, Europe, the US and China, and pay when it ships. Check who you are paying with Supplier Passport.',
+  },
+  '/business/cards': {
+    title: 'Business cards | Credvera Business',
+    description: 'Dollar and naira cards for your business’s online spend, from Credvera Business.',
+  },
   '/business/pricing': {
     title: 'Pricing | Credvera Business',
     description:
-      'Free to open, transfers to any Nigerian bank from ₦10, and free invoices and payment links.',
+      'Free to open, transfers to any Nigerian bank from ₦10, free invoices and payment links, and a flat fee for each payment to a supplier abroad.',
   },
   '/business/security': {
     title: 'Security | Credvera Business',
@@ -90,20 +114,20 @@ const pages: Record<string, Page> = {
   },
   '/business/about': {
     title: 'About | Credvera Business',
-    description: 'Why we built Credvera Business: one account for Nigerian businesses to get paid, pay staff and vendors, and keep control of company money.',
+    description: 'Why we built Credvera Business: one account for Nigerian businesses to get paid, pay suppliers and work across currencies.',
   },
   '/business/faq': {
     title: 'FAQ | Credvera Business',
     description:
-      'Answers for businesses about opening an account, payments and invoices, team access and fees.',
+      'Answers for businesses about opening an account, payments and invoices, FX, paying suppliers abroad, team access and fees.',
   },
   '/business/contact': {
     title: 'Contact | Credvera Business',
-    description: 'Talk to the Credvera Business team about opening an account, payments or invoices.',
+    description: 'Talk to the Credvera Business team about opening an account, payments, FX or paying suppliers abroad.',
   },
   '/business/blog': {
     title: 'Field notes | Credvera Business',
-    description: 'Field notes for Nigerian businesses: getting paid, approvals on big payments and paying staff on a schedule.',
+    description: 'Field notes for Nigerian businesses: getting paid, approvals on big payments, customers abroad and paying suppliers.',
   },
   '/business/privacy': {
     title: 'Privacy notice | Credvera Business',

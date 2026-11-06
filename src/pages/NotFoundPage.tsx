@@ -6,8 +6,9 @@ import SplitFlap from '../components/editorial/SplitFlap';
 // Where you can go instead, as rows on a departures board.
 const departures = [
   { to: '/', place: 'HOME', status: 'ON TIME' },
-  { to: '/personal/everyday', place: 'EVERYDAY MONEY', status: 'BOARDING' },
-  { to: '/personal/save', place: 'SAVE AND SPLIT', status: 'ON TIME' },
+  { to: '/personal/abroad', place: 'GET PAID FROM ABROAD', status: 'BOARDING' },
+  { to: '/personal/everyday', place: 'EVERYDAY MONEY', status: 'ON TIME' },
+  { to: '/personal/passport', place: 'EARNINGS PASSPORT', status: 'ON TIME' },
   { to: '/pricing', place: 'PRICING', status: 'ON TIME' },
   { to: '/faq', place: 'FAQ', status: 'ON TIME' },
 ];

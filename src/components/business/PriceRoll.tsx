@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-// The three prices a business asks about first (from the pricing page).
+// The four prices a business asks about first (from the pricing page).
 const prices = [
   { value: '₦0', label: 'to open a business account' },
   { value: '₦0', label: 'for invoices and payment links' },
   { value: '₦10', label: 'to pay any Nigerian bank, under ₦10,000' },
+  { value: '₦2,500', label: 'flat, to pay a supplier in the UK or Europe' },
 ];
 
 /** A digit that rolls up into place, like a counter on a till. */
@@ -52,7 +53,7 @@ function Rolling({ text, go, base }: { text: string; go: boolean; base: number }
   );
 }
 
-/** What it costs: three prices that roll into place, and the way to the full list. */
+/** What it costs: four prices that roll into place, and the way to the full list. */
 export default function PriceRoll() {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -74,9 +75,9 @@ export default function PriceRoll() {
           </Link>
         </div>
 
-        <dl className="mt-14 grid border-t border-white/15 sm:grid-cols-3">
+        <dl className="mt-14 grid border-t border-white/15 sm:grid-cols-2 lg:grid-cols-4">
           {prices.map((p, i) => (
-            <div key={p.label} className="border-b border-white/15 py-8 sm:border-b-0 sm:border-r sm:px-8 sm:first:pl-0 sm:last:border-r-0">
+            <div key={p.label} className="border-b border-white/15 py-8 sm:odd:pr-8 lg:border-b-0 lg:border-r lg:px-8 lg:first:pl-0 lg:last:border-r-0">
               <dt className="font-ledger text-[clamp(3rem,5.6vw,4.8rem)] font-medium tracking-[-0.05em]">
                 <Rolling text={p.value} go={go} base={i * 0.15} />
               </dt>

@@ -52,6 +52,7 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
         short: 'Only who we must, or who you choose. We never sell it.',
         body: [
           'Our licensed payment and banking partners, identity-verification providers, service providers who work on our behalf, and regulators or law enforcement where the law requires. We do not sell your data.',
+          'When you share an Earnings Passport, the person with the link sees only what you chose to show, and only until the link expires or you cancel it.',
         ],
       },
       {

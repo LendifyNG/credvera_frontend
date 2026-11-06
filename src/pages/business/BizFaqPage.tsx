@@ -28,6 +28,7 @@ const topics: Topic[] = [
     items: [
       { q: 'How do my customers pay me?', a: 'Send an invoice or a payment link. Your customer pays by card or bank transfer, and the invoice marks itself paid when the money lands.', more: ['Payments and invoices', '/business/payments'] },
       { q: 'Do reminders go out on their own?', a: 'Yes. If an invoice isn’t paid by its due date, a reminder goes out for you.' },
+      { q: 'Can customers abroad pay me?', a: 'Yes, into dollar, pound and euro accounts in your business’s name. They pay you with local details: ACH in the US, sort code in the UK, IBAN in the euro area.', more: ['FX and currencies', '/business/fx'] },
     ],
   },
   {
@@ -39,9 +40,32 @@ const topics: Topic[] = [
     ],
   },
   {
+    name: 'FX',
+    items: [
+      { q: 'How does converting work?', a: 'You see our rate beside the market rate. The rate is held for thirty seconds while you confirm. If it moves after that, we show you the new rate and ask again.', more: ['FX and currencies', '/business/fx'] },
+      { q: 'Does it cost anything to open a currency account?', a: 'No. Dollar, pound and euro accounts are free to open.' },
+    ],
+  },
+  {
+    name: 'Suppliers',
+    items: [
+      { q: 'How does paying on shipment work?', a: 'You pay a 30% or 50% deposit and set the date the goods must ship by. We hold the rest and pay it when the shipping line confirms your goods are loaded.', more: ['Pay suppliers abroad', '/business/suppliers'] },
+      { q: 'What if the goods don’t ship?', a: 'If nothing is loaded by the ship-by date, the held money comes back to you. Only the deposit you chose was at stake.' },
+      { q: 'What does it cost to pay a supplier?', a: 'One flat fee per payment: ₦2,500 for the UK and euro countries, ₦3,500 for the United States and ₦5,000 for China.' },
+      { q: 'What is Supplier Passport?', a: 'A supplier’s record with Nigerian businesses on Credvera: how many orders they’ve shipped and how often on time. We confirm shipment, not the quality of the goods.' },
+    ],
+  },
+  {
+    name: 'Cards',
+    items: [
+      { q: 'Which cards does a business get?', a: 'A virtual dollar card that spends from your dollar account, and a virtual naira card that spends from your naira account. Physical cards are on the way.', more: ['Business cards', '/business/cards'] },
+      { q: 'Can I set limits or freeze a card?', a: 'Yes. Set a monthly limit on each card, and freeze or unfreeze it in one tap.' },
+    ],
+  },
+  {
     name: 'Safety',
     items: [
-      { q: 'How is a business account protected?', a: 'Your PIN or Face ID on every payment, a daily limit on each account, and a second approval for big payments.', more: ['Business security', '/business/security'] },
+      { q: 'How is a business account protected?', a: 'Your PIN or Face ID on every payment, a daily limit on each account, a second approval for big payments, and card details shown only after your PIN.', more: ['Business security', '/business/security'] },
       { q: 'Will Credvera ever ask for my PIN?', a: 'Never. Not by phone, chat or email. Anyone who asks for your PIN, password or codes isn’t us.' },
       { q: 'Is Credvera a bank?', a: company.licenceStatement },
     ],

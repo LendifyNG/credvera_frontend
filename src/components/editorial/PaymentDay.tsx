@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
-import { Lightbulb, Landmark, Smartphone, Tv, ArrowUpRight, Wifi } from 'lucide-react';
+import { CreditCard, Lightbulb, Landmark, Smartphone, Tv, ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import SplitFlap from './SplitFlap';
 
@@ -22,7 +22,7 @@ const day: Moment[] = [
   { at: 12 * 60 + 20, icon: ArrowUpRight, title: 'Sent to Chiamaka Obi', detail: 'GTBank · “Lunch, thank you!”', amount: '₦4,500.00' },
   { at: 15 * 60 + 5, icon: Landmark, title: 'Remita', detail: 'Government payment · RRR 2810 ••• 7736', amount: '₦12,500.00' },
   { at: 19 * 60 + 30, icon: Tv, title: 'DStv Compact', detail: 'Renewed for a month', amount: '₦19,000.00' },
-  { at: 21 * 60 + 45, icon: Wifi, title: 'Airtel data', detail: 'Monthly bundle · 0802 ••• 6630', amount: '₦3,500.00' },
+  { at: 21 * 60 + 45, icon: CreditCard, title: 'Netflix', detail: 'Dollar card •• 0291', amount: '$9.99' },
 ];
 
 const START = 6 * 60; // 06:00
@@ -90,7 +90,7 @@ export default function PaymentDay() {
   const s = skyAt(m);
   const done = day.filter((d) => d.at <= m);
   const shown = done.slice(-4);
-  const spent = done.reduce((a, d) => a + Number(d.amount.replace(/[₦,]/g, '')), 0);
+  const spent = done.filter((d) => d.amount.startsWith('₦')).reduce((a, d) => a + Number(d.amount.replace(/[₦,]/g, '')), 0);
   // The sun's path: a low arc across the top of the panel.
   const p = (m - START) / (END - START);
   const sunX = 8 + p * 84;

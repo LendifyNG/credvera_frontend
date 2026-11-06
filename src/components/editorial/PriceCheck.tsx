@@ -4,15 +4,20 @@ import type { Audience } from '../../lib/audience';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
+// Today's example rate, the same on the Abroad page.
+// TODO(credvera): use the live rate once the rates API is connected.
+const RATE = 1535;
+
 // The torn bottom edge of the receipt.
 const TEAR = 'conic-gradient(from -45deg at bottom, transparent 90deg, #000 0) bottom / 14px 7px repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - 7px) no-repeat';
 
 const ngn = (n: number) => `₦${n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 type Line = [string, string, ('strong' | 'free' | 'muted')?];
 type Case = {
   name: string;
-  currency: '₦';
+  currency: '₦' | '$';
   start: number;
   max: number;
   step: number;
@@ -36,6 +41,31 @@ const cases: Record<Audience, Case[]> = {
         ['Transfer fee', ngn(10)],
         ['They get', ngn(a), 'strong'],
         ['Taken from your balance', ngn(a + 10), 'muted'],
+      ],
+    },
+    {
+      name: 'Receive from abroad',
+      currency: '$',
+      start: 850,
+      max: 10000,
+      step: 50,
+      lines: (a) => [
+        ['Your client sends', usd(a)],
+        ['Fee to receive', 'Free', 'free'],
+        ['Lands in your USD account', usd(a), 'strong'],
+      ],
+    },
+    {
+      name: 'Convert dollars to naira',
+      currency: '$',
+      start: 500,
+      max: 10000,
+      step: 50,
+      lines: (a) => [
+        ['You convert', usd(a)],
+        ['Our rate', ngn(RATE)],
+        ['Market rate', ngn(RATE), 'muted'],
+        ['You get', ngn(a * RATE), 'strong'],
       ],
     },
     {
@@ -65,6 +95,32 @@ const cases: Record<Audience, Case[]> = {
         ['Transfer fee', ngn(25)],
         ['They get', ngn(a), 'strong'],
         ['Taken from your balance', ngn(a + 25), 'muted'],
+      ],
+    },
+    {
+      name: 'Pay a supplier abroad',
+      currency: '$',
+      start: 5000,
+      max: 100000,
+      step: 500,
+      options: ['UK or euro', 'United States', 'China'],
+      lines: (a, o) => [
+        ['Supplier gets', usd(a), 'strong'],
+        ['Payment fee, flat', ngn([2500, 3500, 5000][o] ?? 2500)],
+        ['Same fee for any amount', '', 'muted'],
+      ],
+    },
+    {
+      name: 'Convert dollars to naira',
+      currency: '$',
+      start: 20000,
+      max: 200000,
+      step: 500,
+      lines: (a) => [
+        ['You convert', usd(a)],
+        ['Our rate', ngn(RATE)],
+        ['Market rate', ngn(RATE), 'muted'],
+        ['You get', ngn(a * RATE), 'strong'],
       ],
     },
   ],

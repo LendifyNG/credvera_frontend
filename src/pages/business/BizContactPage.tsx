@@ -11,7 +11,8 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const reasons = [
   { name: 'Opening an account', ready: ['Your CAC registration number', 'Where you are in the sign-up'] },
   { name: 'A payment or invoice', ready: ['The date and amount', 'The invoice number, if there is one', 'Who it was to or from'] },
-  { name: 'Large volumes', ready: ['Roughly how much you move each month'] },
+  { name: 'A supplier order', ready: ['The supplier’s name', 'The order date and ship-by date', 'The bill of lading, if you have it'] },
+  { name: 'FX or large volumes', ready: ['The currencies you use', 'Roughly how much you move each month'] },
   { name: 'A security concern', ready: ['What happened, and when', 'Don’t send your PIN, password or codes, ever'] },
   { name: 'Something else', ready: ['Anything that helps us understand'] },
 ];

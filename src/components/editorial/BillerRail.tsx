@@ -17,7 +17,7 @@ const billers: [string, string][] = [
   ['Remita', 'Government · school fees'],
 ];
 
-const things = ['airtime', 'data', 'electricity', 'TV', 'school fees', 'government bills', 'any Nigerian bank'];
+const things = ['airtime', 'data', 'electricity', 'TV', 'school fees', 'government bills', 'any Nigerian bank', 'online, in dollars'];
 
 const wrap = (min: number, max: number, v: number) => {
   const r = max - min;

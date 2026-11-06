@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Figure from '../components/editorial/Figure';
 import Headline from '../components/editorial/Headline';
+import PassportDoc from '../components/editorial/PassportDoc';
 import FeatureIndex from '../components/editorial/FeatureIndex';
 import EverydayPeople from '../components/editorial/EverydayPeople';
 import LoopVideo from '../components/editorial/LoopVideo';
@@ -14,17 +16,17 @@ const cta = ctaFor('personal');
 
 // The banner along the bottom of the opening.
 const banner = [
-  'Send to any Nigerian bank',
+  'Get paid in dollars, pounds and euros',
+  'Our rate beside the market rate',
   'Airtime, electricity and TV',
-  'Government bills through Remita',
+  'A dollar card for online',
   'Savings goals that fill themselves',
   'Split bills and get paid back',
-  'The name shown before you send',
-  'A receipt for every payment',
+  'Earnings Passport',
   'Your PIN or Face ID on every payment',
 ];
 
-const numbers: Stat[] = [marketStats.instantPayments, marketStats.msmes, marketStats.msmeGdp];
+const numbers: Stat[] = [marketStats.remittances, marketStats.migrants, marketStats.remittanceCost];
 
 function GetTheApp({ light = false }: { light?: boolean }) {
   return (
@@ -72,19 +74,19 @@ export default function PersonalHomePage() {
             <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50 whitespace-nowrap lg:max-w-[54%]">
               <span className="text-background">Credvera Personal</span>
               <span className="h-px w-8 bg-ink/20" />
-              <span className="hidden sm:inline">Everyday money, in naira</span>
+              <span className="hidden sm:inline">In more than one currency</span>
             </div>
           </Reveal>
           <div className="mt-12 max-w-[46rem]">
             <Headline
               as="h1"
-              text={'Your money,\n*sorted*\n==every day==.'}
+              text={'Your money,\n*home* and\n==abroad==.'}
               className="text-[clamp(3rem,8.4vw,7.4rem)] font-semibold leading-[0.9] tracking-[-0.045em]"
             />
             <Reveal delay={0.3}>
               <p className="mt-10 max-w-lg text-lg leading-relaxed text-ink/70 sm:text-xl">
-                Pay your bills, send to any Nigerian bank, save for what matters and get paid back when you split. Your
-                everyday naira money, in one app built for the way Nigerians pay.
+                Get paid in dollars, pounds and euros. Pay your bills, save for what matters, and prove your income when it
+                counts. Built for Nigerians whose money moves between home and the rest of the world.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
                 <GetTheApp />
@@ -117,10 +119,35 @@ export default function PersonalHomePage() {
 
       <EverydayPeople />
 
+      {/* Earnings Passport, the part nobody else has */}
+      <section className="overflow-x-clip bg-secondary text-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
+          <div>
+            <Reveal>
+              <p className="text-[13px] font-semibold text-primary">Only on Credvera</p>
+            </Reveal>
+            <Headline
+              text={'Prove your income\n*without* a bank\nstatement.'}
+              className="mt-6 text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]"
+            />
+            <Reveal delay={0.2}>
+              <p className="mt-8 max-w-md text-lg leading-relaxed text-white/65">
+                Landlords, embassies and lenders often won’t believe a PDF. Earnings Passport shares a link that shows your
+                income from abroad, verified from the payments you actually received. Never your balance.
+              </p>
+              <Link to="/personal/passport" className="mt-10 inline-flex items-center gap-3 text-[15px] font-semibold text-primary">
+                Read the chapter <ArrowRight className="size-4" />
+              </Link>
+            </Reveal>
+          </div>
+          <PassportDoc dark />
+        </div>
+      </section>
+
       {/* The numbers behind it */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
         <Headline
-          text={'Nigeria runs on\n*instant* transfers.'}
+          text={'Millions of Nigerians\nearn from *abroad*.'}
           className="max-w-3xl text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[0.98] tracking-[-0.03em]"
         />
         <div className="mt-16 grid gap-12 border-t border-ink/15 pt-12 md:grid-cols-3">
@@ -149,9 +176,9 @@ export default function PersonalHomePage() {
       <section className="border-y border-ink/10 bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 lg:grid-cols-4 lg:px-8">
           {[
-            ['Nothing hidden', 'Every fee is shown before you pay, and every payment gets a receipt.'],
+            ['Nothing hidden', 'Every fee and rate is shown before you pay, and every payment gets a receipt.'],
             ['Your PIN, every time', 'Payments need your PIN or Face ID. We never ask for your PIN by phone or chat.'],
-            ['The name before you send', 'The account name shows before every transfer, so a wrong or swapped number stands out.'],
+            ['Card details stay hidden', 'Shown only after your PIN, hidden again on their own, and screenshots are blocked.'],
             ['Care on a new phone', 'After a new phone or a SIM change, payments are capped for a while.'],
           ].map(([t, b], i) => (
             <Reveal key={t} delay={i * 0.06}>

@@ -12,21 +12,21 @@ import { marketStats } from '../lib/site';
 
 // TODO(credvera): the team to review this copy before launch.
 const MANIFESTO =
-  'Money in Nigeria is harder than it should be. A bill payment fails and nobody says why. A trader juggles four apps to get paid by customers. Friends split dinner and spend a week chasing their share. None of that has to be true. Credvera puts spending, saving and paying in one place, for people and for the businesses they run.';
+  'Money in Nigeria is harder than it should be. A freelancer waits for dollars that land in someone else’s name. A trader juggles four apps to pay one supplier. A family abroad pays too much to send money home. None of that has to be true. Credvera puts earning, spending, saving and paying in one place, for people and for the businesses they run.';
 
 const doors = [
   {
     to: '/',
     label: 'Personal',
     title: 'For your own money',
-    body: 'Pay bills, send to any Nigerian bank, save and split.',
+    body: 'Get paid from abroad, pay bills, save and split, and prove your income.',
     photo: photos.manCapSunglasses,
   },
   {
     to: '/business',
     label: 'Business',
     title: 'For the business you run',
-    body: 'Collect payments, pay any Nigerian bank and send invoices.',
+    body: 'Collect, pay suppliers at home and abroad, send invoices and hold dollars.',
     photo: photos.marketNutsSeller,
   },
 ];
@@ -41,7 +41,7 @@ export default function AboutPage() {
       <PageHeader
         label="About Credvera"
         title={'Money that moves\nlike *Nigerians* do.'}
-        lede="Across apps, banks and billers, from the market stall to the monthly rent. We’re building one place for all of it."
+        lede="Across apps, banks and borders, in naira and in dollars. We’re building one place for all of it."
       />
 
       <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-8 lg:pb-36">
@@ -60,6 +60,7 @@ export default function AboutPage() {
             { stat: marketStats.msmes, video: { name: 'market-cash', label: 'A trader counting cash at a Lagos market' } },
             { stat: marketStats.msmeGdp, photo: photos.marketLagosScene },
             { stat: marketStats.instantPayments, video: { name: 'lagos-aerial', label: 'Lagos traffic and market streets from above' } },
+            { stat: marketStats.remittances, photo: photos.womanBraidsPhone },
           ]}
         />
       </section>

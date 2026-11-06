@@ -18,11 +18,21 @@ const personalGroups: Group[] = [
     id: 'start',
     title: 'Getting started',
     items: [
-      { q: 'What is Credvera?', a: 'An app for paying bills, sending money to any Nigerian bank, saving towards your goals and splitting bills with friends. There’s a business account too.' },
+      { q: 'What is Credvera?', a: 'An app for getting paid from abroad, paying bills and sending money at home, saving and splitting, and proving your income with Earnings Passport. There’s a business account too.' },
       { q: 'What do I need to open an account?', a: 'Your phone number, your email and your BVN or NIN. You sign up in the app, check your identity, and can start straight away. Some features open as you verify a little more.' },
       { q: 'Can I sign up from outside Nigeria?', a: 'Not yet. For now, sign-up is for people in Nigeria with a Nigerian phone number and a BVN or NIN.' },
       { q: 'How do I get the app?', a: 'Use the Get the app button on this site, which takes you to the official store listing. Don’t install Credvera from links sent to you by anyone else.' },
       { q: 'How much does it cost?', a: 'Opening an account is free, and most things are free. A transfer to a Nigerian bank is ₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. Every fee is on the Pricing page and shown in the app before you confirm.' },
+    ],
+  },
+  {
+    id: 'abroad',
+    title: 'Money from abroad',
+    items: [
+      { q: 'How do I get paid from Upwork, Fiverr or a client abroad?', a: 'Open a US dollar, pound or euro account in the app and share its details with your client, employer or platform. Payments land in your own name.' },
+      { q: 'What do I need to receive from abroad?', a: 'Add your NIN and a selfie in the app. It takes about a minute.' },
+      { q: 'Does it cost anything to receive?', a: 'No. Receiving into your dollar, pound or euro account is free.' },
+      { q: 'How does converting to naira work?', a: 'You see our rate beside the market rate before you confirm, and the rate is held while you do. Keep your money in the currency for as long as you like.' },
     ],
   },
   {
@@ -32,6 +42,7 @@ const personalGroups: Group[] = [
       { q: 'Which bills can I pay?', a: 'Airtime and data on MTN, Airtel, Glo and 9mobile; prepaid and postpaid electricity with Ikeja, Eko and Abuja Electric; DStv, GOtv and StarTimes; and government and school payments through Remita.' },
       { q: 'When do I get my electricity token?', a: 'The moment you pay. It shows in the app and stays with the payment, ready to copy or share.' },
       { q: 'Can I send money to any Nigerian bank?', a: 'Yes, from ₦10 a transfer. The name on the account shows before you send, so you know it’s the right person.' },
+      { q: 'What is the dollar card for?', a: 'Paying online in dollars: streaming, courses, subscriptions and shopping. Its details show only after your PIN or Face ID and hide again on their own.' },
     ],
   },
   {
@@ -43,10 +54,19 @@ const personalGroups: Group[] = [
     ],
   },
   {
+    id: 'passport',
+    title: 'Earnings Passport',
+    items: [
+      { q: 'What is Earnings Passport?', a: 'A link you share with a landlord, embassy or lender that shows your income from abroad, checked from the payments you actually received. It replaces a pile of bank statements.' },
+      { q: 'What can the person I share it with see?', a: 'Your name, that your identity was checked, your monthly income from abroad as a range, and how many months you were paid. Who paid you, only if you choose. Never your balance, exact amounts or other payments.' },
+      { q: 'Can I stop sharing it?', a: 'Yes. You can see how often each Passport was opened, and cancel any of them. The link stops working straight away.' },
+    ],
+  },
+  {
     id: 'safety',
     title: 'Safety',
     items: [
-      { q: 'How is my account protected?', a: 'Your PIN or Face ID for every payment, extra care after a new phone or a SIM change, and the account name shown before every transfer.' },
+      { q: 'How is my account protected?', a: 'Your PIN or Face ID for every payment, card details that hide themselves, extra care after a new phone or a SIM change, and the account name shown before every transfer.' },
       { q: 'Will Credvera ever ask for my PIN?', a: 'Never. Not by phone, chat or email. Anyone who asks for your PIN, password or codes isn’t us.' },
       { q: 'What should I do if I lose my phone?', a: 'Contact us straight away and we’ll help you secure your account. Without your PIN or Face ID, nobody can open the app or make a payment.' },
       { q: 'Is Credvera a bank?', a: company.licenceStatement },
@@ -56,7 +76,7 @@ const personalGroups: Group[] = [
 
 
 // Example questions that cycle in the empty search box.
-const hints = ['How do savings goals work?', 'When do I get my electricity token?', 'Can I send money to any Nigerian bank?', 'Will Credvera ever ask for my PIN?'];
+const hints = ['How do I get paid from Upwork?', 'When do I get my electricity token?', 'Can I stop sharing my Passport?', 'Will Credvera ever ask for my PIN?'];
 
 /** Wraps each match of the search in a lime highlight. */
 function Highlight({ text, query }: { text: string; query: string }) {
