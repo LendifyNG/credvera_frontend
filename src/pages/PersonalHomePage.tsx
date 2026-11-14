@@ -64,10 +64,13 @@ export default function PersonalHomePage() {
             eager
             className="h-full w-full object-cover object-center"
           />
+          {/* Brand grade: a soft lime wash, and a lime glow low on the right, both fading out with the video. */}
+          <div aria-hidden className="absolute inset-0 bg-primary opacity-30 mix-blend-soft-light" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_100%_100%,color-mix(in_srgb,var(--color-primary)_30%,transparent),transparent_70%)]" />
         </motion.div>
         {/* Desktop: the video fades itself into the paper (.hero-fade in index.css), so it has no hard edge. */}
         {/* Phones: the video fills the top 60vh only (a full-height box would crop it to a thin, soft sliver), shows clear at the top and fades into paper behind the text. */}
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--color-paper)_45%,transparent)_0%,transparent_14%,transparent_24%,color-mix(in_srgb,var(--color-paper)_85%,transparent)_44%,var(--color-paper)_58%)] lg:hidden" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--color-paper)_45%,transparent)_0%,transparent_14%,transparent_24%,color-mix(in_srgb,color-mix(in_srgb,var(--color-primary)_22%,var(--color-paper))_80%,transparent)_40%,var(--color-paper)_58%)] lg:hidden" />
 
         <div className="mx-auto max-w-7xl px-6 pb-20 pt-[52vh] lg:px-8 lg:pb-28 lg:pt-40">
           <Reveal>

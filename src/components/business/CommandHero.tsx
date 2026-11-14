@@ -67,12 +67,16 @@ export default function CommandHero() {
   return (
     <section ref={ref} className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-graphite text-white">
       <LoopVideo
-        name="business-open"
-        label="Nigerian businesses at work: a provisions shop, a seamstress, stock being checked, a delivery"
+        name="business-reel"
+        label="Nigerian businesses at work: Lagos business district from the air, a call to a supplier, a market stall, a restaurant owner checking a payment, colleagues at a laptop, market women trading"
         eager
         className="absolute inset-0 -z-20 h-full w-full object-cover"
       />
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(28,30,33,0.9)_0%,rgba(28,30,33,0.7)_50%,rgba(28,30,33,0.35)_100%),linear-gradient(to_top,rgba(28,30,33,0.8),transparent_50%)]" />
+      {/* Brand grade: a soft lime wash over the footage, then ink from the left and bottom so
+          the type reads, and a lime glow rising from the bottom-right corner. */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-primary opacity-25 mix-blend-soft-light" />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(14,15,17,0.92)_0%,rgba(14,15,17,0.72)_42%,rgba(14,15,17,0.3)_100%),linear-gradient(to_top,rgba(14,15,17,0.88),transparent_48%)]" />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(55%_45%_at_100%_100%,rgba(220,241,126,0.26),transparent_70%)]" />
 
       <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-36 lg:px-8 lg:pb-24">
         <motion.h1
