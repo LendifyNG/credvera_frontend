@@ -66,6 +66,15 @@
     padding-inline: 0.06em;
   }
 
+  /* Opening video on phones and tablets: its own bottom edge fades out, so it
+     melts into the paper under the headline. */
+  @media (max-width: 63.98rem) {
+    .hero-fade {
+      mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+    }
+  }
+
   /* Opening video on large screens: fades in from the left and the top, so
      it melts into the paper with no visible edge at any width. */
   @media (min-width: 64rem) {

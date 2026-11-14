@@ -53,21 +53,24 @@ export default function PersonalHomePage() {
       {/* Opening: the photo sits behind, fading in from the left so the type stays clear. */}
       <section className="relative isolate overflow-hidden">
         <motion.div
-          className="hero-fade absolute bottom-0 right-0 top-0 -z-20 h-full w-full lg:top-24 lg:h-[calc(100%-6rem)] lg:w-[60%]"
+          className="hero-fade absolute right-0 top-0 -z-20 h-[60vh] w-full lg:top-24 lg:h-[calc(100%-6rem)] lg:w-[60%]"
           initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <LoopVideo
-            name="hero-daily"
-            label="Everyday life in Nigeria: a busy street, the market, a call on the go, buying at a stall"
+            name="hero-reel"
+            label="Money moving in Nigeria: Lagos from the air, a video call home, a trader counting cash, work on a laptop, a card payment, a family call, a shop packing an order"
             eager
             className="h-full w-full object-cover object-center"
           />
+          {/* Brand grade: a soft lime wash, and a lime glow low on the right, both fading out with the video. */}
+          <div aria-hidden className="absolute inset-0 bg-primary opacity-30 mix-blend-soft-light" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_50%_at_100%_100%,color-mix(in_srgb,var(--color-primary)_30%,transparent),transparent_70%)]" />
         </motion.div>
         {/* Desktop: the video fades itself into the paper (.hero-fade in index.css), so it has no hard edge. */}
-        {/* Phones: the photo shows at the top and fades into paper behind the text. */}
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--color-paper)_20%,transparent)_0%,color-mix(in_srgb,var(--color-paper)_85%,transparent)_42%,var(--color-paper)_62%)] lg:hidden" />
+        {/* Phones: the video fills the top 60vh only (a full-height box would crop it to a thin, soft sliver), shows clear at the top and fades into paper behind the text. */}
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--color-paper)_45%,transparent)_0%,transparent_14%,transparent_24%,color-mix(in_srgb,color-mix(in_srgb,var(--color-primary)_22%,var(--color-paper))_80%,transparent)_40%,var(--color-paper)_58%)] lg:hidden" />
 
         <div className="mx-auto max-w-7xl px-6 pb-20 pt-[52vh] lg:px-8 lg:pb-28 lg:pt-40">
           <Reveal>
