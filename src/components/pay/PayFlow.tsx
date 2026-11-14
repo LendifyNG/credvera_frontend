@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, Copy, CreditCard, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, CreditCard, Landmark, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 /**
@@ -194,5 +194,32 @@ export function Expired({ what, onAgain }: { what: string; onAgain: () => void }
         Start again
       </button>
     </div>
+  );
+}
+
+/** Bank transfer or card, as two big tiles. */
+export function MethodPicker({ method, onChange, dark = false }: { method: 'transfer' | 'card'; onChange: (m: 'transfer' | 'card') => void; dark?: boolean }) {
+  return (
+    <fieldset>
+      <legend className={`text-[13px] font-semibold ${dark ? 'text-white/50' : 'text-ink/50'}`}>How you’ll pay</legend>
+      <div className="mt-2 grid grid-cols-2 gap-3">
+        {([
+          ['transfer', 'Bank transfer', 'From any bank app', Landmark],
+          ['card', 'Card', 'Debit or credit', CreditCard],
+        ] as const).map(([key, title, sub, Icon]) => (
+          <label
+            key={key}
+            className={`flex cursor-pointer flex-col gap-3 rounded-2xl p-4 transition-all ${method === key ? 'bg-background text-white' : 'bg-white text-ink ring-1 ring-ink/10 hover:ring-ink/30'}`}
+          >
+            <input type="radio" name="method" value={key} checked={method === key} onChange={() => onChange(key)} className="sr-only" />
+            <Icon className={`size-5 ${method === key ? 'text-primary' : ''}`} />
+            <span>
+              <span className="block text-[15px] font-semibold">{title}</span>
+              <span className={`block text-[13px] ${method === key ? 'text-white/55' : 'text-ink/50'}`}>{sub}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

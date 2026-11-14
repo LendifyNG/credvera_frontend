@@ -23,6 +23,7 @@ import BizSuppliersPage from './pages/business/SuppliersPage';
 import BusinessHomePage from './pages/BusinessHomePage';
 import PayPage from './pages/PayPage';
 import VerifyPage from './pages/VerifyPage';
+import CelebrationLivePage from './pages/CelebrationLivePage';
 import CelebrationPage from './pages/CelebrationPage';
 import SplitPayPage from './pages/SplitPayPage';
 import Accounts from './dashboard/Accounts';
@@ -64,7 +65,8 @@ export default function App() {
   const { pathname } = useLocation();
   // The business dashboard has its own frame, without the website's menu and footer.
   // The dashboard and the public pay page stand alone, without the site's chrome.
-  const inApp = pathname.startsWith('/business/app') || pathname.startsWith('/pay/');
+  // So does a celebration's big screen.
+  const inApp = pathname.startsWith('/business/app') || pathname.startsWith('/pay/') || /^\/c\/[^/]+\/live\/?$/.test(pathname);
   const [introActive, setIntroActive] = useState(() => shouldPlayIntro(pathname));
   const [introDone, setIntroDone] = useState(!introActive);
 
@@ -135,6 +137,8 @@ export default function App() {
 
           {/* A celebration's page, where guests send gifts */}
           <Route path="/c/:slug" element={<CelebrationPage />} />
+          {/* Its big screen at the party, where sprayed notes rain down */}
+          <Route path="/c/:slug/live" element={<CelebrationLivePage />} />
 
           {/* One person's share of a split bill, from the link they were texted */}
           <Route path="/s/:token" element={<SplitPayPage />} />

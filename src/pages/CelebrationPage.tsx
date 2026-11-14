@@ -1,11 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Check, Copy, CreditCard, Gift, Landmark, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, Gift, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../api/errors';
 import PageHeader from '../components/editorial/PageHeader';
-import { Card, Confirming, Expired, naira, Pill, Transfer } from '../components/pay/PayFlow';
-import { celebrationsApi, KIND_LINE, recallGift, rememberGift, type Celebration, type GiftState } from '../lib/celebrations';
+import { Card, Confirming, Expired, MethodPicker, naira, Pill, Transfer } from '../components/pay/PayFlow';
+import SprayForm, { type SprayDraft } from '../components/spray/SprayForm';
+import SprayNote from '../components/spray/SprayNote';
+import SprayStage from '../components/spray/SprayStage';
+import { celebrationsApi, keepWad, keptWads, KIND_LINE, monogram, recallGift, rememberGift, type Celebration, type GiftState, type Wad } from '../lib/celebrations';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const longDate = (iso: string) =>
@@ -19,7 +22,10 @@ const INK = {
 } as const;
 
 type Step = 'form' | 'transfer' | 'card' | 'thanks' | 'expired';
-type GiftDraft = { amount: number; name: string; note: string; method: 'transfer' | 'card' };
+type GiftDraft = { kind?: 'gift'; amount: number; name: string; note: string; method: 'transfer' | 'card' };
+type Draft = GiftDraft | SprayDraft;
+type Mode = 'spray' | 'gift';
+type OpenWad = { reference: string; key: string; wad: Wad };
 
 /** The invitation, as on the organiser's share card. */
 function Invitation({ e }: { e: Celebration }) {
@@ -150,27 +156,7 @@ function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; bus
         </div>
       </div>
 
-      <fieldset>
-        <legend className="text-[13px] font-semibold text-ink/50">How you’ll pay</legend>
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          {([
-            ['transfer', 'Bank transfer', 'From any bank app', Landmark],
-            ['card', 'Card', 'Debit or credit', CreditCard],
-          ] as const).map(([key, title, sub, Icon]) => (
-            <label
-              key={key}
-              className={`flex cursor-pointer flex-col gap-3 rounded-2xl p-4 transition-all ${method === key ? 'bg-background text-white' : 'bg-white text-ink ring-1 ring-ink/10 hover:ring-ink/30'}`}
-            >
-              <input type="radio" name="method" value={key} checked={method === key} onChange={() => setMethod(key)} className="sr-only" />
-              <Icon className={`size-5 ${method === key ? 'text-primary' : ''}`} />
-              <span>
-                <span className="block text-[15px] font-semibold">{title}</span>
-                <span className={`block text-[13px] ${method === key ? 'text-white/55' : 'text-ink/50'}`}>{sub}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <MethodPicker method={method} onChange={setMethod} />
 
       {error && <p className="text-[14px] font-medium text-[#b42318]">{error}</p>}
       <Pill type="submit" disabled={!ready || busy}>
@@ -188,7 +174,8 @@ function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; bus
   );
 }
 
-function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft | null; onAgain: () => void }) {
+function Thanks({ e, gift, onAgain }: { e: Celebration; gift: Draft | null; onAgain: () => void }) {
+  const note = gift && gift.kind !== 'spray' ? gift.note : '';
   return (
     <div>
       <motion.div
@@ -204,7 +191,7 @@ function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft | null; 
       </h2>
       <p className="mt-3 max-w-sm text-lg leading-relaxed text-ink/65">
         Your {gift ? `${naira(gift.amount)} ` : ''}gift is with {e.title}
-        {gift?.note ? ', along with your message' : ''}.
+        {note ? ', along with your message' : ''}.
       </p>
       <button type="button" onClick={onAgain} className="mt-8 text-[15px] font-semibold text-ink underline decoration-primary decoration-2 underline-offset-4">
         Send another gift
@@ -213,11 +200,67 @@ function Thanks({ e, gift, onAgain }: { e: Celebration; gift: GiftDraft | null; 
   );
 }
 
+/** On the day: spray (the default) or send a gift. */
+function ModeSwitch({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  return (
+    <div className="mb-8 inline-flex rounded-full bg-white p-1 ring-1 ring-ink/10" role="tablist">
+      {([
+        ['spray', 'Spray'],
+        ['gift', 'Send a gift'],
+      ] as const).map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          role="tab"
+          aria-selected={mode === key}
+          onClick={() => onChange(key)}
+          className={`relative rounded-full px-5 py-2.5 text-[14.5px] font-semibold transition-colors ${mode === key ? 'text-white' : 'text-ink/60 hover:text-ink'}`}
+        >
+          {mode === key && <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-full bg-background" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+          <span className="relative inline-flex items-center gap-2">
+            {key === 'spray' && (
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#ff5a4e] opacity-70" />
+                <span className="relative inline-flex size-2 rounded-full bg-[#ff5a4e]" />
+              </span>
+            )}
+            {label}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Spray money this phone bought and hasn't finished flicking. */
+function Resume({ wad, mark, onOpen }: { wad: Wad; mark: string; onOpen: () => void }) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-8 flex w-full items-center gap-4 rounded-[24px] bg-background p-4 pr-5 text-left text-white transition-transform active:scale-[0.99]"
+    >
+      <div className="relative w-24 shrink-0 -rotate-6">
+        <SprayNote value={wad.note} mark={mark} className="w-full" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-semibold">{naira(wad.left * wad.note)} still in your hand</p>
+        <p className="mt-0.5 text-[13.5px] text-white/55">{wad.left.toLocaleString('en-NG')} notes left. Tap to keep spraying.</p>
+      </div>
+      <Sparkles className="size-5 shrink-0 text-primary" />
+    </motion.button>
+  );
+}
+
 /**
  * credvera.co/c/:slug — a celebration's page, in the site's frame: the
  * header, then the invitation beside the gift form. Guests pay with a
  * one-time account number by bank transfer, or by card; a gift counts only
- * once the API has Monnify's confirmation.
+ * once the API has Monnify's confirmation. On the day itself the page opens
+ * on spraying: guests buy spray money the same way, then flick it from their
+ * phone onto the celebration's live screen (/c/:slug/live).
  */
 export default function CelebrationPage() {
   const { slug = '' } = useParams();
@@ -225,25 +268,55 @@ export default function CelebrationPage() {
   const returning = params.get('gift');
   const [e, setEvent] = useState<Celebration | null | undefined>(undefined);
   const [step, setStep] = useState<Step>('form');
-  const [gift, setGift] = useState<GiftDraft | null>(null);
+  const [gift, setGift] = useState<Draft | null>(null);
+  const [mode, setMode] = useState<Mode>('gift');
+  const [stage, setStage] = useState<OpenWad | null>(null);
+  const [resume, setResume] = useState<OpenWad | null>(null);
   const [state, setState] = useState<GiftState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    celebrationsApi.find(slug).then(setEvent).catch(() => setEvent(null));
+    celebrationsApi
+      .find(slug)
+      .then((c) => {
+        setEvent(c);
+        if (c.sprayOn) setMode('spray');
+      })
+      .catch(() => setEvent(null));
   }, [slug]);
+
+  // Spray money bought on this phone and not all flicked yet.
+  const findOpenWad = async (only?: string): Promise<OpenWad | null> => {
+    for (const k of keptWads(slug).filter((w) => !only || w.reference === only).slice(0, 4)) {
+      try {
+        const g = await celebrationsApi.gift(k.reference);
+        if (g.status === 'paid' && g.spray && g.spray.left > 0) return { reference: k.reference, key: k.key, wad: g.spray };
+      } catch {
+        // Gone or unreachable: look at the next one.
+      }
+    }
+    return null;
+  };
+  useEffect(() => {
+    if (e?.sprayOn && !returning) findOpenWad().then(setResume);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [e?.sprayOn, returning]);
 
   // Back from card checkout with ?gift=: what they typed, and wait for Monnify.
   useEffect(() => {
-    if (returning) setGift(recallGift<GiftDraft>(returning));
+    if (returning) setGift(recallGift<Draft>(returning));
   }, [returning]);
 
-  const start = async (d: GiftDraft) => {
+  const start = async (d: Draft) => {
     setBusy(true);
     setError(null);
     try {
-      const s = await celebrationsApi.startGift(slug, d);
+      const s =
+        d.kind === 'spray'
+          ? await celebrationsApi.startGift(slug, { amount: d.amount, name: d.name, method: d.method, kind: 'spray', noteValue: d.note })
+          : await celebrationsApi.startGift(slug, d);
+      if (d.kind === 'spray' && s.sprayKey) keepWad(slug, { reference: s.reference, key: s.sprayKey, name: d.name });
       rememberGift(s.reference, d);
       setGift(d);
       setState(s);
@@ -254,7 +327,19 @@ export default function CelebrationPage() {
       setBusy(false);
     }
   };
-  const done = (status: 'paid' | 'expired') => {
+  const done = async (status: 'paid' | 'expired') => {
+    const reference = returning ?? state?.reference;
+    if (status === 'paid' && gift?.kind === 'spray' && reference) {
+      // Paid spray money goes straight into the guest's hand.
+      const open = await findOpenWad(reference);
+      if (open) {
+        setStage(open);
+        setState(null);
+        setStep('form');
+        if (returning) setParams({}, { replace: true });
+        return;
+      }
+    }
     setStep(status === 'paid' ? 'thanks' : 'expired');
     if (returning) setParams({}, { replace: true });
   };
@@ -284,16 +369,21 @@ export default function CelebrationPage() {
 
   const back: Partial<Record<Step, Step>> = { transfer: 'form', card: 'form' };
   const confirming = !!returning && step === 'form';
+  const spraying = mode === 'spray' && !!e.sprayOn;
+  const mark = monogram(e.title);
+  const what = gift?.kind === 'spray' ? 'spray money' : 'gift';
 
   return (
     <>
       <PageHeader
         label="Celebrations"
-        title={`Send a gift to\n*${e.title}*.`}
+        title={spraying ? `Spray\n*${e.title}*.` : `Send a gift to\n*${e.title}*.`}
         lede={
           e.closed && !confirming
             ? 'This celebration has ended and isn’t taking gifts any more. Thank you for thinking of them.'
-            : 'Pay by bank transfer from any bank app, or by card. Your gift and your message go straight to them.'
+            : spraying
+              ? 'It’s the day. Get spray money by transfer or card, then flick it from your phone onto the big screen. Every note goes straight to them.'
+              : 'Pay by bank transfer from any bank app, or by card. Your gift and your message go straight to them.'
         }
       />
 
@@ -306,6 +396,8 @@ export default function CelebrationPage() {
 
           {e.closed && !confirming && step === 'form' ? null : (
             <div className="max-w-lg">
+              {e.sprayOn && !e.closed && step === 'form' && !confirming && <ModeSwitch mode={mode} onChange={setMode} />}
+              {spraying && step === 'form' && !confirming && resume && <Resume wad={resume.wad} mark={mark} onOpen={() => setStage(resume)} />}
               {back[step] && (
                 <button
                   type="button"
@@ -316,17 +408,17 @@ export default function CelebrationPage() {
                 </button>
               )}
               <AnimatePresence mode="wait">
-                <motion.div key={confirming ? 'confirming' : step} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4, ease }}>
+                <motion.div key={confirming ? 'confirming' : `${step}-${mode}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4, ease }}>
                   {confirming ? (
                     <Confirming reference={returning!} ask={celebrationsApi.gift} onDone={done} />
                   ) : step === 'form' ? (
-                    <GiftForm onNext={start} busy={busy} error={error} />
+                    spraying ? <SprayForm mark={mark} onNext={start} busy={busy} error={error} /> : <GiftForm onNext={start} busy={busy} error={error} />
                   ) : step === 'transfer' && gift && state?.account ? (
-                    <Transfer amount={gift.amount} what="gift" state={state} ask={celebrationsApi.gift} onDone={done} />
+                    <Transfer amount={gift.amount} what={what} state={state} ask={celebrationsApi.gift} onDone={done} />
                   ) : step === 'card' && gift && state ? (
                     <Card amount={gift.amount} state={state} />
                   ) : step === 'expired' ? (
-                    <Expired what="gift" onAgain={again} />
+                    <Expired what={what} onAgain={again} />
                   ) : (
                     <Thanks e={e} gift={gift} onAgain={again} />
                   )}
@@ -336,6 +428,30 @@ export default function CelebrationPage() {
           )}
         </div>
       </section>
+
+      <AnimatePresence>
+        {stage && (
+          <SprayStage
+            key={stage.reference}
+            slug={e.slug}
+            title={e.title}
+            mark={mark}
+            reference={stage.reference}
+            sprayKey={stage.key}
+            wad={stage.wad}
+            onClose={() => {
+              setStage(null);
+              findOpenWad().then(setResume);
+            }}
+            onMore={() => {
+              setStage(null);
+              setResume(null);
+              setMode('spray');
+              again();
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
