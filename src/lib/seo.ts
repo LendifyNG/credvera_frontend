@@ -182,6 +182,7 @@ function privateTitle(path: string): string | null {
   if (path.startsWith('/pay/')) return 'Pay | Credvera';
   if (path.startsWith('/s/')) return 'Pay your share | Credvera';
   if (path === '/verify' || path.startsWith('/verify/')) return 'Staff card check | Credvera';
+  if (/^\/c\/[^/]+\/live\/?$/.test(path)) return 'Live | Credvera';
   if (path.startsWith('/c/')) return 'Send a gift | Credvera';
   return null;
 }
