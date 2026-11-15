@@ -35,6 +35,7 @@ export type OrderMethod = 'transfer' | 'card';
 /** An order as the API tracks it. It never carries the buyer's details. */
 export type OrderState = PaymentState & {
   quantity: number;
+  option: { id: string; name: string } | null;
   collection: { slug: string; title: string };
   paidAt: string | null;
 };
@@ -85,23 +86,6 @@ export const forgetOrder = (slug: string, reference: string) => {
   }
 };
 
-// Which option an order was for, for the receipt: the API's order doesn't
-// say. Only the option's id, for this tab.
-const OPTION = (reference: string) => `credvera.asoebi.option.${reference}`;
-export const rememberOption = (reference: string, optionId: string) => {
-  try {
-    sessionStorage.setItem(OPTION(reference), optionId);
-  } catch {
-    // The receipt works it out from the price instead.
-  }
-};
-export const recallOption = (reference: string): string | null => {
-  try {
-    return sessionStorage.getItem(OPTION(reference));
-  } catch {
-    return null;
-  }
-};
 
 /** "2026-12-20" → "Saturday, 20 December". The year only when it isn't this year. */
 export function deadlineDate(iso: string, withDay = true) {

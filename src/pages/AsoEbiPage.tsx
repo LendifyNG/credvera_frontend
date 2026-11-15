@@ -15,8 +15,6 @@ import {
   forgetOrder,
   keepOrder,
   keptOrders,
-  recallOption,
-  rememberOption,
   type AsoEbiPage as Collection,
   type OrderDraft,
   type OrderState,
@@ -31,13 +29,10 @@ type Loaded = Collection | 'missing' | 'error' | undefined;
 const resumable = (o: OrderState) =>
   o.status === 'pending' && (o.account ? !o.account.expiresAt || Date.parse(o.account.expiresAt) > Date.now() : !!o.checkoutUrl);
 
-/** Which option an order was for: as picked in this tab, or the one option at that price. */
+/** Which option an order was for, as the API says, with its price from the page. */
 function optionFor(c: Collection, o: OrderState) {
-  const picked = c.options.find((x) => x.id === recallOption(o.reference));
-  if (picked) return picked;
-  const unit = Number(o.amount) / (o.quantity || 1);
-  const same = c.options.filter((x) => Number(x.price) === unit);
-  return same.length === 1 ? same[0]! : null;
+  if (!o.option) return null;
+  return c.options.find((x) => x.id === o.option!.id) ?? { id: o.option.id, name: o.option.name, price: (Number(o.amount) / (o.quantity || 1)).toFixed(2), left: null };
 }
 
 /** An order this phone started and didn't finish paying. */
@@ -203,7 +198,6 @@ export default function AsoEbiPage() {
     try {
       const o = await asoEbiApi.order(c.slug, d);
       keepOrder(c.slug, o.reference);
-      rememberOption(o.reference, d.optionId);
       setBuyer(d.name.split(/\s+/)[0] ?? null);
       setOrder(o);
       setWaiting(null);
