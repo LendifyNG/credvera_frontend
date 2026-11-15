@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../api/errors';
 import PageHeader from '../components/editorial/PageHeader';
-import { Card, Confirming, Expired, naira, Pill, Transfer, type PaymentState } from '../components/pay/PayFlow';
+import { Card, Confirming, Expired, naira, Pill, returnedReference, Transfer, type PaymentState } from '../components/pay/PayFlow';
 import { splitsApi, type SplitShare } from '../lib/splits';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -149,7 +149,7 @@ function Thanks({ s, amount }: { s: SplitShare; amount: number | null }) {
 export default function SplitPayPage() {
   const { token = '' } = useParams();
   const [params, setParams] = useSearchParams();
-  const returning = params.get('payment');
+  const returning = returnedReference(params, 'payment');
   const [s, setShare] = useState<SplitShare | null | undefined>(undefined);
   const [step, setStep] = useState<Step>('form');
   const [draft, setDraft] = useState<Draft | null>(null);

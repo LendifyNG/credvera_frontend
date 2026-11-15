@@ -8,7 +8,7 @@ import OrderForm from '../components/asoebi/OrderForm';
 import Receipt from '../components/asoebi/Receipt';
 import Swatch from '../components/asoebi/Swatch';
 import PageHeader from '../components/editorial/PageHeader';
-import { Card, Confirming, Expired, naira, Transfer } from '../components/pay/PayFlow';
+import { Card, Confirming, Expired, naira, returnedReference, Transfer } from '../components/pay/PayFlow';
 import {
   asoEbiApi,
   deadlineDate,
@@ -95,7 +95,7 @@ function Paid({ c, orders, onOpen }: { c: Collection; orders: OrderState[]; onOp
 export default function AsoEbiPage() {
   const { slug = '' } = useParams();
   const [params, setParams] = useSearchParams();
-  const returning = params.get('order');
+  const returning = returnedReference(params, 'order');
   const [c, setCollection] = useState<Loaded>(undefined);
   const [step, setStep] = useState<Step>('form');
   const [order, setOrder] = useState<OrderState | null>(null);

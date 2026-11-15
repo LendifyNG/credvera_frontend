@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../api/errors';
 import AsoEbiLinks from '../components/asoebi/AsoEbiLinks';
 import PageHeader from '../components/editorial/PageHeader';
-import { Card, Confirming, Expired, MethodPicker, naira, Pill, Transfer } from '../components/pay/PayFlow';
+import { Card, Confirming, Expired, MethodPicker, naira, Pill, returnedReference, Transfer } from '../components/pay/PayFlow';
 import SprayForm, { type SprayDraft } from '../components/spray/SprayForm';
 import SprayNote from '../components/spray/SprayNote';
 import SprayStage from '../components/spray/SprayStage';
@@ -266,7 +266,7 @@ function Resume({ wad, mark, onOpen }: { wad: Wad; mark: string; onOpen: () => v
 export default function CelebrationPage() {
   const { slug = '' } = useParams();
   const [params, setParams] = useSearchParams();
-  const returning = params.get('gift');
+  const returning = returnedReference(params, 'gift');
   const [e, setEvent] = useState<Celebration | null | undefined>(undefined);
   const [step, setStep] = useState<Step>('form');
   const [gift, setGift] = useState<Draft | null>(null);
