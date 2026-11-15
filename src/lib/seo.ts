@@ -184,6 +184,7 @@ function privateTitle(path: string): string | null {
   if (path === '/verify' || path.startsWith('/verify/')) return 'Staff card check | Credvera';
   if (/^\/c\/[^/]+\/live\/?$/.test(path)) return 'Live | Credvera';
   if (path.startsWith('/c/')) return 'Send a gift | Credvera';
+  if (path.startsWith('/a/')) return 'Aso-ebi | Credvera';
   return null;
 }
 

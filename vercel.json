@@ -15,13 +15,14 @@
     { "source": "/business/app/:path*", "destination": "/shell.html" },
     { "source": "/pay/:path*", "destination": "/shell-pay.html" },
     { "source": "/c/:path*", "destination": "/shell-gift.html" },
+    { "source": "/a/:path*", "destination": "/shell-asoebi.html" },
     { "source": "/s/:path*", "destination": "/shell-pay.html" },
     { "source": "/verify", "destination": "/shell.html" },
     { "source": "/verify/:path*", "destination": "/shell.html" }
   ],
   "headers": [
     {
-      "source": "/(business/app|business/app/.*|pay/.*|c/.*|s/.*|verify|verify/.*|shell.*)",
+      "source": "/(business/app|business/app/.*|pay/.*|c/.*|a/.*|s/.*|verify|verify/.*|shell.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
