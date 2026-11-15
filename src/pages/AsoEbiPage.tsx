@@ -15,6 +15,8 @@ import {
   forgetOrder,
   keepOrder,
   keptOrders,
+  linesOf,
+  orderLabel,
   type AsoEbiPage as Collection,
   type OrderDraft,
   type OrderState,
@@ -29,15 +31,14 @@ type Loaded = Collection | 'missing' | 'error' | undefined;
 const resumable = (o: OrderState) =>
   o.status === 'pending' && (o.account ? !o.account.expiresAt || Date.parse(o.account.expiresAt) > Date.now() : !!o.checkoutUrl);
 
-/** Which option an order was for, as the API says, with its price from the page. */
-function optionFor(c: Collection, o: OrderState) {
-  if (!o.option) return null;
-  return c.options.find((x) => x.id === o.option!.id) ?? { id: o.option.id, name: o.option.name, price: (Number(o.amount) / (o.quantity || 1)).toFixed(2), left: null };
+/** The swatch pattern for an order: its first fabric's place on the page. */
+function patternFor(c: Collection, o: OrderState) {
+  const first = linesOf(o)[0];
+  return Math.max(0, first ? c.options.findIndex((x) => x.id === first.id) : 0);
 }
 
 /** An order this phone started and didn't finish paying. */
 function Waiting({ c, order, onOpen }: { c: Collection; order: OrderState; onOpen: () => void }) {
-  const option = optionFor(c, order);
   return (
     <motion.button
       type="button"
@@ -46,11 +47,11 @@ function Waiting({ c, order, onOpen }: { c: Collection; order: OrderState; onOpe
       animate={{ opacity: 1, y: 0 }}
       className="mb-8 flex w-full items-center gap-4 rounded-[24px] bg-background p-3 pr-5 text-left text-white transition-transform active:scale-[0.99]"
     >
-      <Swatch pattern={option ? c.options.indexOf(option) : 0} tone="lime" moving className="size-14 shrink-0 rounded-[16px]" />
+      <Swatch pattern={patternFor(c, order)} tone="lime" moving className="size-14 shrink-0 rounded-[16px]" />
       <span className="min-w-0 flex-1">
         <span className="block text-[15px] font-semibold">Finish paying {naira(Number(order.amount))}</span>
         <span className="mt-0.5 block truncate text-[13.5px] text-white/55">
-          {order.quantity} × {option?.name ?? 'your order'}, held for you. Tap to pay.
+          {orderLabel(order)}, held for you. Tap to pay.
         </span>
       </span>
       <ArrowUpRight className="size-5 shrink-0 text-primary" />
@@ -64,7 +65,6 @@ function Paid({ c, orders, onOpen }: { c: Collection; orders: OrderState[]; onOp
     <div className="mb-8 rounded-[24px] bg-white p-2 ring-1 ring-ink/10">
       <p className="px-3 pb-1 pt-2 text-[13px] font-semibold text-ink/50">{orders.length > 1 ? 'Your orders' : 'Your order'}</p>
       {orders.map((o) => {
-        const option = optionFor(c, o);
         return (
           <button
             key={o.reference}
@@ -74,7 +74,7 @@ function Paid({ c, orders, onOpen }: { c: Collection; orders: OrderState[]; onOp
           >
             <ReceiptIcon className="size-4 shrink-0 text-ink/45" />
             <span className="min-w-0 flex-1 truncate text-[14.5px] text-ink">
-              {o.quantity} × {option?.name ?? 'aso-ebi'} <span className="text-ink/35">·</span> <span className="font-ledger font-semibold">{naira(Number(o.amount))}</span>
+              {orderLabel(o, 'aso-ebi')} <span className="text-ink/35">·</span> <span className="font-ledger font-semibold">{naira(Number(o.amount))}</span>
             </span>
             <span className="shrink-0 text-[13px] font-semibold text-ink/55">Paid · receipt</span>
           </button>
@@ -244,7 +244,6 @@ export default function AsoEbiPage() {
   const open = c.state === 'open';
   const confirming = !!returning && step === 'form';
   const inFlow = confirming || step !== 'form';
-  const option = order ? optionFor(c, order) : null;
 
   const header =
     c.state === 'on_hold' ? (
@@ -314,7 +313,7 @@ export default function AsoEbiPage() {
           ) : step === 'expired' ? (
             <Expired what="order" onAgain={again} />
           ) : step === 'paid' && order ? (
-            <Receipt c={c} order={order} option={option?.name ?? null} pattern={option ? c.options.indexOf(option) : 0} buyer={buyer} onAgain={again} />
+            <Receipt c={c} order={order} pattern={patternFor(c, order)} buyer={buyer} onAgain={again} />
           ) : open ? (
             <OrderForm c={c} onNext={start} busy={busy} error={error} />
           ) : null}

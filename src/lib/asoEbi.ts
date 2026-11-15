@@ -32,17 +32,22 @@ export type AsoEbiPage = {
 
 export type OrderMethod = 'transfer' | 'card';
 
+/** One fabric in an order, and how many. */
+export type OrderLine = { id: string; name: string; quantity: number; amount: string };
+
 /** An order as the API tracks it. It never carries the buyer's details. */
 export type OrderState = PaymentState & {
+  /** Pieces in the whole order. */
   quantity: number;
+  /** Each fabric in it. Older orders may only have `option`. */
+  items?: OrderLine[];
   option: { id: string; name: string } | null;
   collection: { slug: string; title: string };
   paidAt: string | null;
 };
 
 export type OrderDraft = {
-  optionId: string;
-  quantity: number;
+  items: { optionId: string; quantity: number }[];
   name: string;
   phone: string;
   size?: string;
@@ -58,6 +63,16 @@ export const asoEbiApi = {
   order: (slug: string, d: OrderDraft) => http.post<OrderState>(`${page(slug)}/orders`, { ...d, size: d.size || undefined }, { skipAuth: true }),
   status: (reference: string) => http.get<OrderState>(`/aso-ebi/orders/${encodeURIComponent(reference)}`, { skipAuth: true }),
 };
+
+/** An order's fabrics, whether it came with lines or only the one option. */
+export const linesOf = (o: OrderState): OrderLine[] =>
+  o.items?.length ? o.items : o.option ? [{ id: o.option.id, name: o.option.name, quantity: o.quantity, amount: o.amount }] : [];
+
+/** "1 × Gele, 2 × Buba" */
+export const orderLabel = (o: OrderState, fallback = 'your order') =>
+  linesOf(o)
+    .map((l) => `${l.quantity} × ${l.name}`)
+    .join(', ') || fallback;
 
 // Orders started on this phone, kept so a guest can come back to one (after
 // card checkout, or a closed tab) and see a receipt. Only the references:
