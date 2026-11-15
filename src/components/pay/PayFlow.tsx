@@ -1,5 +1,6 @@
 import { ArrowUpRight, Check, Copy, CreditCard, Landmark, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { ApiError } from '../../api/errors';
 
 /**
  * The steps of paying through a Monnify collection, shared by the
@@ -49,7 +50,27 @@ export function useCountdown(until: number) {
 }
 
 /** Asks the API every few seconds until the payment is paid or can't be any more. */
-export function usePaymentStatus(reference: string | null, ask: (reference: string) => Promise<{ status: PaymentState['status'] }>, onDone: (status: 'paid' | 'expired') => void) {
+/**
+ * The payment reference in a link back from checkout. Monnify adds its own
+ * `?paymentReference=…` to the end of our return link even when it already has
+ * a `?`, so ours arrives as "CVA…?paymentReference=CVA…": only the reference
+ * itself is kept. Falls back to Monnify's own parameter, which is the same
+ * reference.
+ */
+export function returnedReference(params: URLSearchParams, key: string): string | null {
+  for (const raw of [params.get(key), params.get('paymentReference')]) {
+    const ref = raw?.split(/[?&#]/)[0]?.trim().toUpperCase();
+    if (ref && /^CV[A-Z][0-9A-Z]{8,60}$/.test(ref)) return ref;
+  }
+  return null;
+}
+
+export function usePaymentStatus(
+  reference: string | null,
+  ask: (reference: string) => Promise<{ status: PaymentState['status'] }>,
+  onDone: (status: 'paid' | 'expired') => void,
+  onLost?: () => void,
+) {
   useEffect(() => {
     if (!reference) return;
     let stopped = false;
@@ -60,8 +81,13 @@ export function usePaymentStatus(reference: string | null, ask: (reference: stri
           stopped = true;
           onDone(g.status);
         }
-      } catch {
-        // Asked again on the next tick.
+      } catch (e) {
+        // There's no such payment: asking again won't change that.
+        if (!stopped && e instanceof ApiError && e.status === 404 && onLost) {
+          stopped = true;
+          onLost();
+        }
+        // Anything else is asked again on the next tick.
       }
     };
     check();
@@ -173,7 +199,18 @@ export function Card({ amount, state }: { amount: number; state: PaymentState })
 
 /** Back from card checkout: waiting for Monnify to confirm. */
 export function Confirming({ reference, ask, onDone }: { reference: string; ask: StatusAsk; onDone: (status: 'paid' | 'expired') => void }) {
-  usePaymentStatus(reference, ask, onDone);
+  const [lost, setLost] = useState(false);
+  usePaymentStatus(reference, ask, onDone, () => setLost(true));
+  if (lost) {
+    return (
+      <div className="rounded-[24px] bg-white p-6 ring-1 ring-ink/10">
+        <p className="text-[20px] font-semibold tracking-[-0.02em] text-ink">We couldn’t find this payment</p>
+        <p className="mt-2 text-[14.5px] leading-relaxed text-ink/60">
+          The link you came back on may be incomplete. If you were charged, contact us with the reference {reference} and we’ll sort it out.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="rounded-[24px] bg-white p-6 ring-1 ring-ink/10">
       <Loader2 className="size-6 animate-spin text-ink" />
