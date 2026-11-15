@@ -25,6 +25,8 @@ function stored(): Audience | null {
 function fromPath(pathname: string): Audience | null {
   if (pathname === '/business' || pathname.startsWith('/business/')) return 'business';
   if (pathname === '/' || pathname.startsWith('/personal/')) return 'personal';
+  // Links people open from the personal app: celebrations, aso-ebi, split bills.
+  if (/^\/(c|a|s)\//.test(pathname)) return 'personal';
   return null;
 }
 

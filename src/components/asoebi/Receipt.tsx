@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { AsoEbiPage, OrderState } from '../../lib/asoEbi';
+import { linesOf, type AsoEbiPage, type OrderState } from '../../lib/asoEbi';
 import { naira } from '../pay/PayFlow';
 import Swatch from './Swatch';
 
@@ -12,23 +12,21 @@ const paidOn = (iso: string) =>
 export default function Receipt({
   c,
   order,
-  option,
   pattern,
   buyer,
   onAgain,
 }: {
   c: AsoEbiPage;
   order: OrderState;
-  /** The option's name, where we know it. */
-  option: string | null;
   pattern: number;
   /** First name, only in the tab they ordered in. */
   buyer: string | null;
   onAgain: () => void;
 }) {
+  const lines = linesOf(order);
   const rows: [string, string][] = [
-    ...(option ? ([['Fabric', option]] as [string, string][]) : []),
-    ['Quantity', String(order.quantity)],
+    ...lines.map((l, i) => [i === 0 ? (lines.length > 1 ? 'Fabrics' : 'Fabric') : '', `${l.quantity} × ${l.name}`] as [string, string]),
+    ...(lines.length ? [] : ([['Quantity', String(order.quantity)]] as [string, string][])),
     ['Paid', naira(Number(order.amount))],
     ...(order.paidAt ? ([['When', paidOn(order.paidAt)]] as [string, string][]) : []),
     ['Reference', order.reference],
@@ -70,8 +68,8 @@ export default function Receipt({
           <span className="absolute inset-x-5 top-1/2 border-t border-dashed border-white/20" />
         </div>
         <dl className="grid gap-3 px-5 pb-6 pt-1 text-[14.5px]">
-          {rows.map(([k, v]) => (
-            <div key={k} className="flex items-baseline justify-between gap-4">
+          {rows.map(([k, v], i) => (
+            <div key={`${k}${i}`} className="flex items-baseline justify-between gap-4">
               <dt className="text-white/45">{k}</dt>
               <dd className={`min-w-0 truncate text-right font-medium ${k === 'Paid' ? 'font-ledger text-[18px] font-semibold text-primary' : ''}`}>{v}</dd>
             </div>
