@@ -25,6 +25,7 @@ import PayPage from './pages/PayPage';
 import VerifyPage from './pages/VerifyPage';
 import CelebrationLivePage from './pages/CelebrationLivePage';
 import CelebrationPage from './pages/CelebrationPage';
+import AsoEbiPage from './pages/AsoEbiPage';
 import SplitPayPage from './pages/SplitPayPage';
 import Accounts from './dashboard/Accounts';
 import AppShell from './dashboard/AppShell';
@@ -139,6 +140,9 @@ export default function App() {
           <Route path="/c/:slug" element={<CelebrationPage />} />
           {/* Its big screen at the party, where sprayed notes rain down */}
           <Route path="/c/:slug/live" element={<CelebrationLivePage />} />
+
+          {/* An aso-ebi collection's page, where guests order the family fabric */}
+          <Route path="/a/:slug" element={<AsoEbiPage />} />
 
           {/* One person's share of a split bill, from the link they were texted */}
           <Route path="/s/:token" element={<SplitPayPage />} />

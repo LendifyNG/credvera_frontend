@@ -33,11 +33,12 @@ async function write(file, contents) {
   await writeFile(file, contents);
 }
 
-// The bare app for private pages: no page content, noindex. Gift and payment
-// links get their own title, for the preview when someone shares one.
+// The bare app for private pages: no page content, noindex. Gift, aso-ebi and
+// payment links get their own title, for the preview when someone shares one.
 const shell = (title, description) => page({ ...metaFor('/'), title, description, noindex: true, jsonLd: [] });
 await write(join(dist, 'shell.html'), shell('Credvera', metaFor('/').description));
 await write(join(dist, 'shell-gift.html'), shell('Send a gift | Credvera', 'Send a gift to this celebration with Credvera.'));
+await write(join(dist, 'shell-asoebi.html'), shell('Aso-ebi | Credvera', 'Order your aso-ebi with Credvera.'));
 await write(join(dist, 'shell-pay.html'), shell('Pay | Credvera', 'Pay this request with Credvera.'));
 
 for (const path of indexablePaths) {

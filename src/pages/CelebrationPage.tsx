@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Copy, Gift, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../api/errors';
+import AsoEbiLinks from '../components/asoebi/AsoEbiLinks';
 import PageHeader from '../components/editorial/PageHeader';
 import { Card, Confirming, Expired, MethodPicker, naira, Pill, Transfer } from '../components/pay/PayFlow';
 import SprayForm, { type SprayDraft } from '../components/spray/SprayForm';
@@ -392,6 +393,7 @@ export default function CelebrationPage() {
           <div className="lg:sticky lg:top-28 lg:self-start">
             <Invitation e={e} />
             {!e.closed && e.account && <DirectAccount account={e.account} />}
+            {!!e.asoEbi?.length && <AsoEbiLinks items={e.asoEbi} />}
           </div>
 
           {e.closed && !confirming && step === 'form' ? null : (
