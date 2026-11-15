@@ -22,6 +22,8 @@ export type Celebration = {
   account?: { number: string; name: string | null; bank: string | null } | null;
   /** The day itself: guests can buy spray money and flick it onto the live screen. */
   sprayOn?: boolean;
+  /** The family's aso-ebi on sale for it (open, before its deadline), each at /a/:slug. */
+  asoEbi?: { slug: string; title: string; deadline: string }[];
 };
 
 export type GiftMethod = 'transfer' | 'card';
