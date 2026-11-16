@@ -6,6 +6,9 @@ import { queryClient } from './api'
 import './index.css'
 import App from './App'
 
+// The script is running: switch off the no-script fallback in index.html.
+document.documentElement.classList.remove('booting')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

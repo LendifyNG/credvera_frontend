@@ -68,6 +68,7 @@ export default function IntroOverlay({ onReveal, onFinish }: IntroOverlayProps) 
   return (
     <motion.div
       aria-hidden
+      data-intro
       className="fixed inset-0 z-[100] overflow-hidden"
       style={{ backgroundColor: look.bg }}
       initial={{ opacity: 1 }}

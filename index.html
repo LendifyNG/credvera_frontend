@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="booting">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -17,6 +17,21 @@
     <title>Credvera</title>
     <meta name="description" content="Get paid from abroad, pay bills and save, and run your business's payments, invoices, FX and supplier payments, in one app." />
     <!--/seo-->
+    <!--
+      If the site's script never starts (an extension blocks it, a cached copy,
+      a very slow connection), the ready-made page would stay behind the dark
+      intro cover with its headings still faded out. After 4 seconds this fades
+      the cover away and shows everything. main.tsx removes "booting" as soon
+      as the script runs, so normally this never applies.
+    -->
+    <style>
+      @keyframes boot-show { to { opacity: 1; transform: none; clip-path: none; } }
+      @keyframes boot-uncover { to { opacity: 0; visibility: hidden; } }
+      html.booting #root [style*="opacity:0"],
+      html.booting #root [style*="translateY(105%)"],
+      html.booting #root [style*="clip-path:inset(100%"] { animation: boot-show 0.6s ease-out 4s forwards; }
+      html.booting [data-intro] { animation: boot-uncover 0.5s ease-out 4s forwards; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
