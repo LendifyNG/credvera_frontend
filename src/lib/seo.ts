@@ -191,7 +191,7 @@ function privateTitle(path: string): string | null {
 
 // At launch (lib/launch.ts): the international pages leave the sitemap, the
 // celebration chapters join it, and pages that mention dollars read in naira.
-const INTERNATIONAL_ONLY = ['/personal/abroad', '/personal/passport'];
+const INTERNATIONAL_ONLY = ['/personal/abroad', '/personal/passport', '/business/fx', '/business/cards'];
 const atLaunch: Record<string, Page> = {
   '/': {
     title: 'Credvera — Gifts, spray and aso-ebi, plus bills and savings',
@@ -213,6 +213,46 @@ const atLaunch: Record<string, Page> = {
       'Share one link for the aso-ebi. Guests choose fabrics, add their sizes and pay by transfer or card; you see who paid for what and tick them off as they collect.',
   },
 };
+Object.assign(atLaunch, {
+  '/business': {
+    title: 'Credvera for business — Payments, invoices, payouts and supplier payments',
+    description:
+      'A business account for Nigerian companies: collect payments, send invoices and payment links, pay staff in bulk or on a schedule, pay suppliers with the balance held until the goods move, and approve as a team.',
+  },
+  '/business/payouts': {
+    title: 'Bulk and scheduled payouts | Credvera Business',
+    description: 'Pay staff and vendors from one list, or on a date you set, to any Nigerian bank, with every account name checked and approvals on big runs.',
+  },
+  '/business/suppliers': {
+    title: 'Protected supplier payments | Credvera Business',
+    description: 'Pay a supplier a deposit now and let Credvera hold the rest until the goods are on their way. If they don’t move, the held money comes back.',
+  },
+  '/business/team': {
+    title: 'Team and approvals | Credvera Business',
+    description: 'Invite your team to Credvera Business, choose who can pay, and have big payments approved by a second person before they go.',
+  },
+  '/business/pricing': {
+    title: 'Pricing | Credvera Business',
+    description: 'Free to open, transfers to any Nigerian bank from ₦10, free invoices and payment links, and no extra fee for bulk, scheduled or protected payments.',
+  },
+  '/business/about': {
+    title: 'About | Credvera Business',
+    description: 'Why we built Credvera Business: one account for Nigerian businesses to get paid, pay their team and pay suppliers safely.',
+  },
+  '/business/faq': {
+    title: 'FAQ | Credvera Business',
+    description: 'Answers for businesses about opening an account, payments and invoices, bulk payouts, protected supplier payments, team access and fees.',
+  },
+  '/business/contact': {
+    title: 'Contact | Credvera Business',
+    description: 'Talk to the Credvera Business team about opening an account, payments, payouts or paying suppliers.',
+  },
+  '/business/blog': {
+    title: 'Field notes | Credvera Business',
+    description: 'Field notes for Nigerian businesses: getting paid, approvals on big payments, paying your team and paying suppliers.',
+  },
+} satisfies Record<string, Page>);
+
 const pages: Record<string, Page> = INTERNATIONAL
   ? allPages
   : Object.fromEntries(Object.entries({ ...allPages, ...atLaunch }).filter(([path]) => !INTERNATIONAL_ONLY.includes(path)));

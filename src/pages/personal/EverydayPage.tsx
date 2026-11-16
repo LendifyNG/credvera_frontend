@@ -2,6 +2,7 @@ import AppBand from '../../components/editorial/AppBand';
 import BillerRail from '../../components/editorial/BillerRail';
 import Headline from '../../components/editorial/Headline';
 import HoldReveal from '../../components/editorial/HoldReveal';
+import HoldToSend from '../../components/editorial/HoldToSend';
 import LightsBack from '../../components/editorial/LightsBack';
 import Masthead from '../../components/editorial/Masthead';
 import NameCheck from '../../components/editorial/NameCheck';
@@ -32,8 +33,8 @@ export default function EverydayPage() {
 
       <LightsBack />
       <NameCheck />
-      {/* The dollar card waits for partner licences (lib/launch.ts). */}
-      {INTERNATIONAL && <HoldReveal />}
+      {/* The dollar card waits for partner licences; transfers take its place (lib/launch.ts). */}
+      {INTERNATIONAL ? <HoldReveal /> : <HoldToSend />}
 
       <section className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
         <div>

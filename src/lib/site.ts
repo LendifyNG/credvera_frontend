@@ -215,9 +215,16 @@ export const navByAudience: Record<Audience, NavEntry[]> = {
       label: 'Features',
       items: [
         { label: 'Payments and invoices', to: '/business/payments', description: 'Collect, pay and send invoices with a link' },
-        { label: 'FX and currencies', to: '/business/fx', description: 'Hold, receive and convert at a clear rate' },
-        { label: 'Pay suppliers abroad', to: '/business/suppliers', description: 'Pay when it ships, with Supplier Passport' },
-        { label: 'Business cards', to: '/business/cards', description: 'Dollar and naira cards for online spend' },
+        // At launch the naira features take the international places (lib/launch.ts).
+        INTERNATIONAL
+          ? { label: 'FX and currencies', to: '/business/fx', description: 'Hold, receive and convert at a clear rate' }
+          : { label: 'Bulk and scheduled payouts', to: '/business/payouts', description: 'Pay staff and vendors from one list' },
+        INTERNATIONAL
+          ? { label: 'Pay suppliers abroad', to: '/business/suppliers', description: 'Pay when it ships, with Supplier Passport' }
+          : { label: 'Protected supplier payments', to: '/business/suppliers', description: 'The rest is held until the goods are on their way' },
+        INTERNATIONAL
+          ? { label: 'Business cards', to: '/business/cards', description: 'Dollar and naira cards for online spend' }
+          : { label: 'Team and approvals', to: '/business/team', description: 'Roles, and a second pair of eyes on big payments' },
       ],
     },
     { label: 'Pricing', to: '/business/pricing' },
@@ -303,22 +310,51 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
         ['Invoices and payment links', 'Free to create'],
       ],
     },
-    {
-      product: 'FX and currencies',
-      to: '/business/fx',
-      rows: [
-        ['Currency accounts', 'Free to open'],
-        ['Converting', 'Our rate, shown beside the market rate'],
-      ],
-    },
-    {
-      product: 'Paying suppliers abroad',
-      to: '/business/suppliers',
-      rows: [
-        ['UK and euro countries', '₦2,500 per payment'],
-        ['United States', '₦3,500 per payment'],
-        ['China', '₦5,000 per payment'],
-      ],
-    },
+    ...(INTERNATIONAL
+      ? [
+          {
+            product: 'FX and currencies',
+            to: '/business/fx',
+            rows: [
+              ['Currency accounts', 'Free to open'],
+              ['Converting', 'Our rate, shown beside the market rate'],
+            ] as [string, string][],
+          },
+          {
+            product: 'Paying suppliers abroad',
+            to: '/business/suppliers',
+            rows: [
+              ['UK and euro countries', '₦2,500 per payment'],
+              ['United States', '₦3,500 per payment'],
+              ['China', '₦5,000 per payment'],
+            ] as [string, string][],
+          },
+        ]
+      : [
+          {
+            product: 'Bulk and scheduled payouts',
+            to: '/business/payouts',
+            rows: [
+              ['Each payment in a bulk or scheduled run', 'The transfer fee above'],
+              ['Setting up a schedule', 'Free'],
+            ] as [string, string][],
+          },
+          {
+            product: 'Protected supplier payments',
+            to: '/business/suppliers',
+            rows: [
+              ['Holding the balance', 'Free'],
+              ['Paying the deposit and the balance', 'The transfer fee above'],
+            ] as [string, string][],
+          },
+          {
+            product: 'Team and approvals',
+            to: '/business/team',
+            rows: [
+              ['Inviting your team', 'Free'],
+              ['Approvals on payments', 'Free'],
+            ] as [string, string][],
+          },
+        ]),
   ],
 };

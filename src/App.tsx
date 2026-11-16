@@ -15,6 +15,9 @@ import BizContactPage from './pages/business/BizContactPage';
 import BizFaqPage from './pages/business/BizFaqPage';
 import BizLegalPage from './pages/business/BizLegalPage';
 import BizFxPage from './pages/business/FxPage';
+import BizPayoutsPage from './pages/business/PayoutsPage';
+import BizProtectedPage from './pages/business/ProtectedPage';
+import BizTeamPage from './pages/business/TeamPage';
 import BizPaymentsPage from './pages/business/PaymentsPage';
 import BizPostPage from './pages/business/BizPostPage';
 import BizPricingPage from './pages/business/BizPricingPage';
@@ -183,9 +186,12 @@ export default function App() {
           <Route path="/" element={<PersonalHomePage />} />
           <Route path="/business" element={<BusinessHomePage />} />
           <Route path="/business/payments" element={<BizPaymentsPage />} />
-          <Route path="/business/fx" element={<BizFxPage />} />
-          <Route path="/business/suppliers" element={<BizSuppliersPage />} />
-          <Route path="/business/cards" element={<BizCardsPage />} />
+          {/* At launch payouts, protected orders and team take the international places (lib/launch.ts). */}
+          <Route path="/business/fx" element={INTERNATIONAL ? <BizFxPage /> : <Navigate to="/business/payouts" replace />} />
+          <Route path="/business/suppliers" element={INTERNATIONAL ? <BizSuppliersPage /> : <BizProtectedPage />} />
+          <Route path="/business/cards" element={INTERNATIONAL ? <BizCardsPage /> : <Navigate to="/business/team" replace />} />
+          <Route path="/business/payouts" element={INTERNATIONAL ? <Navigate to="/business/fx" replace /> : <BizPayoutsPage />} />
+          <Route path="/business/team" element={INTERNATIONAL ? <Navigate to="/business/cards" replace /> : <BizTeamPage />} />
           <Route path="/business/pricing" element={<BizPricingPage />} />
           <Route path="/business/security" element={<BizSecurityPage />} />
           <Route path="/business/about" element={<BizAboutPage />} />
