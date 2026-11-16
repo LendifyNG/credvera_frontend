@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { INTERNATIONAL } from '../../lib/launch';
 import { personalPages } from '../../lib/personalPages';
 import Reveal from '../ui/Reveal';
+import CountUp from '../ui/CountUp';
 import Headline from './Headline';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -107,6 +108,56 @@ function Detail({ to }: { to: string }): ReactNode {
   );
 }
 
+// At launch: each row's panel is one number, set large, instead of a drawing.
+// Every figure is a fact of the product today (fees from lib/site.ts pricing).
+const figure: Record<string, { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string }> = {
+  '/personal/celebrate': {
+    kicker: 'Gifts and spray',
+    value: 0,
+    prefix: '₦',
+    punch: 'Every kobo they spray lands with you.',
+    fact: 'Free to make the page, free to receive, free to move it to your account.',
+  },
+  '/personal/everyday': {
+    kicker: 'Transfers',
+    value: 10,
+    prefix: '₦',
+    punch: 'A transfer costs less than pure water.',
+    fact: 'Under ₦10,000 to any Nigerian bank. Airtime, data, light and TV cost nothing extra.',
+  },
+  '/personal/save': {
+    kicker: 'Auto-save',
+    value: 52,
+    suffix: '×',
+    punch: 'Set it once. It saves all year.',
+    fact: 'A weekly goal tops itself up 52 times, and split bills chase the money back for you.',
+  },
+  '/personal/aso-ebi': {
+    kicker: 'Aso-ebi',
+    value: 1,
+    suffix: ' link',
+    punch: 'No spreadsheet. No “who has paid?”',
+    fact: 'Every fabric, size and payment, counted in one link you drop in the family group.',
+  },
+};
+
+function Big({ to }: { to: string }) {
+  const f = figure[to];
+  if (!f) return null;
+  return (
+    <div className="relative flex h-full min-h-[17rem] flex-col justify-between overflow-hidden rounded-3xl bg-secondary p-7 text-white">
+      <p className="text-[13px] font-semibold text-primary">{f.kicker}</p>
+      <div>
+        <p className="text-[clamp(4rem,8vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-primary tabular-nums">
+          <CountUp value={f.value} prefix={f.prefix} suffix={f.suffix} duration={1.2} />
+        </p>
+        <p className="mt-5 max-w-sm text-[1.35rem] font-semibold leading-snug tracking-tight">{f.punch}</p>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/55">{f.fact}</p>
+      </div>
+    </div>
+  );
+}
+
 // What each feature does, in a sentence and three points.
 const more: Record<string, { body: string; points: string[] }> = {
   '/personal/celebrate': {
@@ -203,8 +254,7 @@ export default function FeatureIndex() {
                         transition={{ duration: 0.55, ease }}
                         className="overflow-hidden"
                       >
-                        {/* At launch the rows open to words only, without the drawn panel (lib/launch.ts). */}
-                        <div className={`grid gap-8 pb-10 pl-12 sm:pl-[4.5rem] ${INTERNATIONAL ? 'md:grid-cols-[1.2fr_1fr]' : ''}`}>
+                        <div className="grid gap-8 pb-10 pl-12 sm:pl-[4.5rem] md:grid-cols-[1.2fr_1fr]">
                           <div>
                             <p className="max-w-md text-lg leading-relaxed text-ink/70">{m.body}</p>
                             <ul className="mt-6 space-y-2.5">
@@ -223,10 +273,13 @@ export default function FeatureIndex() {
                               <ArrowRight className="size-4 transition-transform duration-300 group-hover/link:translate-x-1" />
                             </Link>
                           </div>
-                          {INTERNATIONAL && (
+                          {/* At launch: one large figure instead of the drawn panel (lib/launch.ts). */}
+                          {INTERNATIONAL ? (
                             <div className="rounded-3xl bg-white p-5 ring-1 ring-ink/5">
                               <Detail to={p.to} />
                             </div>
+                          ) : (
+                            <Big to={p.to} />
                           )}
                         </div>
                       </motion.div>
