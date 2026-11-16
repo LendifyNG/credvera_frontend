@@ -3,6 +3,7 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -11,7 +12,10 @@ const prices = [
   { value: '₦0', label: 'to open a business account' },
   { value: '₦0', label: 'for invoices and payment links' },
   { value: '₦10', label: 'to pay any Nigerian bank, under ₦10,000' },
-  { value: '₦2,500', label: 'flat, to pay a supplier in the UK or Europe' },
+  // At launch (lib/launch.ts) the transfer fee's ceiling takes the supplier-abroad fee's place.
+  INTERNATIONAL
+    ? { value: '₦2,500', label: 'flat, to pay a supplier in the UK or Europe' }
+    : { value: '₦40', label: 'the most a transfer costs, however large' },
 ];
 
 /** A digit that rolls up into place, like a counter on a till. */

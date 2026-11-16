@@ -4,6 +4,7 @@ import { Link, Navigate } from 'react-router-dom';
 import Headline from '../components/editorial/Headline';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
+import { INTERNATIONAL } from '../lib/launch';
 import { company } from '../lib/site';
 
 type LegalPageProps = {
@@ -52,7 +53,10 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
         short: 'Only who we must, or who you choose. We never sell it.',
         body: [
           'Our licensed payment and banking partners, identity-verification providers, service providers who work on our behalf, and regulators or law enforcement where the law requires. We do not sell your data.',
-          'When you share an Earnings Passport, the person with the link sees only what you chose to show, and only until the link expires or you cancel it.',
+          // At launch (lib/launch.ts) the celebration and aso-ebi pages take the Earnings Passport's place.
+          INTERNATIONAL
+            ? 'When you share an Earnings Passport, the person with the link sees only what you chose to show, and only until the link expires or you cancel it.'
+            : 'When you send a gift or spray, or order aso-ebi, on someone’s celebration or aso-ebi page, the person who made the page sees your name, what you sent or ordered, and any note, sizes or phone number you give. If you spray, your name shows on the celebration’s live screen.',
         ],
       },
       {

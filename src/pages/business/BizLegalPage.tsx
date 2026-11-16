@@ -1,6 +1,7 @@
 import { Printer } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 import { company } from '../../lib/site';
 
 type Kind = 'privacy' | 'terms';
@@ -14,8 +15,16 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
     glance: [
       ['Who they cover', 'Businesses registered in Nigeria, and the people who use the account for them'],
       ['Fees', 'As on the business pricing page, shown before you confirm, with 30 days’ notice of changes'],
-      ['Pay on shipment', 'We confirm shipment with the shipping line, not the quality of the goods'],
-      ['Held money', 'Returned to you if the goods are not loaded by the ship-by date'],
+      // At launch (lib/launch.ts) protected supplier payments replace pay on shipment, here and in the clauses below.
+      ...((INTERNATIONAL
+        ? [
+            ['Pay on shipment', 'We confirm shipment with the shipping line, not the quality of the goods'],
+            ['Held money', 'Returned to you if the goods are not loaded by the ship-by date'],
+          ]
+        : [
+            ['Protected supplier payments', 'You release the held balance. We do not inspect goods or guarantee their quality'],
+            ['Held money', 'Returned to your balance if you call the order off before it is released'],
+          ]) as [string, string][]),
       ['Law', 'The laws of the Federal Republic of Nigeria'],
     ],
     clauses: [
@@ -57,29 +66,57 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
           'Customers pay through our payment partner by card or bank transfer. A payment is yours once it has been received into your account.',
         ],
       },
-      {
-        title: 'Paying suppliers on shipment',
-        items: [
-          'You choose a deposit and a ship-by date. The deposit is paid to the supplier when you confirm.',
-          'We hold the balance and pay it to the supplier when the shipping line confirms the goods are loaded.',
-          'If the goods are not loaded by the ship-by date, the held balance is returned to you. The deposit is a matter between you and your supplier.',
-          'We confirm shipment. We do not inspect goods or guarantee their quality.',
-        ],
-      },
-      {
-        title: 'Currencies and converting',
-        items: [
-          'Our rate is shown beside the market rate before you convert, and is held for thirty seconds while you confirm.',
-          'If the rate changes after the hold, you are asked to confirm the new rate before anything is converted.',
-        ],
-      },
-      {
-        title: 'Business cards',
-        items: [
-          'Cards spend only from the account they are linked to, within any limits you set.',
-          'You can freeze a card at any time. Card details are shown only after your PIN.',
-        ],
-      },
+      ...((INTERNATIONAL
+        ? [
+            {
+              title: 'Paying suppliers on shipment',
+              items: [
+                'You choose a deposit and a ship-by date. The deposit is paid to the supplier when you confirm.',
+                'We hold the balance and pay it to the supplier when the shipping line confirms the goods are loaded.',
+                'If the goods are not loaded by the ship-by date, the held balance is returned to you. The deposit is a matter between you and your supplier.',
+                'We confirm shipment. We do not inspect goods or guarantee their quality.',
+              ],
+            },
+            {
+              title: 'Currencies and converting',
+              items: [
+                'Our rate is shown beside the market rate before you convert, and is held for thirty seconds while you confirm.',
+                'If the rate changes after the hold, you are asked to confirm the new rate before anything is converted.',
+              ],
+            },
+            {
+              title: 'Business cards',
+              items: [
+                'Cards spend only from the account they are linked to, within any limits you set.',
+                'You can freeze a card at any time. Card details are shown only after your PIN.',
+              ],
+            },
+          ]
+        : [
+            {
+              title: 'Protected supplier payments',
+              items: [
+                'You choose a deposit and the time the supplier has to send the goods. The deposit is paid to the supplier when you confirm.',
+                'We hold the balance until you release it. When you release it, it is paid to the supplier’s bank details saved on the order.',
+                'If you call the order off before you release it, the held balance is returned to your balance. The deposit is a matter between you and your supplier.',
+                'We do not inspect goods or guarantee their quality.',
+              ],
+            },
+            {
+              title: 'Bulk and scheduled payments',
+              items: [
+                'Each payment in a bulk or scheduled run is a separate transfer, with its own fee, from your business account.',
+                'You are responsible for the names, bank details and amounts you give us. A scheduled payment goes out on its dates until you pause or stop it.',
+              ],
+            },
+            {
+              title: 'Team members',
+              items: [
+                'You choose who joins the account and the role each person has: admin, payer or viewer. You can change a role or remove someone at any time.',
+                'Payments over the approval amount you set wait for an admin or the owner to approve them.',
+              ],
+            },
+          ]) as Clause[]),
       {
         title: 'Fees',
         items: ['Fees are listed on the business pricing page and shown on each payment before you confirm. We will give you at least 30 days’ notice of any change.'],
@@ -137,11 +174,22 @@ const docs: Record<Kind, { title: string; glance: [string, string][]; clauses: C
         ],
       },
       {
-        title: 'Supplier Passport',
-        items: [
-          'Supplier Passport shows other businesses on Credvera a supplier’s record: how many orders they have shipped and how often on time.',
-          'It is built from order outcomes. It does not show your business’s name, amounts or other details to anyone else.',
-        ],
+        // At launch (lib/launch.ts) team members' details take Supplier Passport's place.
+        ...(INTERNATIONAL
+          ? {
+              title: 'Supplier Passport',
+              items: [
+                'Supplier Passport shows other businesses on Credvera a supplier’s record: how many orders they have shipped and how often on time.',
+                'It is built from order outcomes. It does not show your business’s name, amounts or other details to anyone else.',
+              ],
+            }
+          : {
+              title: 'Your team’s details',
+              items: [
+                'When you invite someone to the account, we process their name, email address and role, and record what they do on the account.',
+                'Each person accepts the invitation themselves before they can use the account.',
+              ],
+            }),
       },
       {
         title: 'How we use it',

@@ -5,6 +5,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import logo from '../../assets/logo.png';
 import { homeOf, useAudience } from '../../lib/audience';
+import { INTERNATIONAL } from '../../lib/launch';
 import { ctaFor, navByAudience, navLinksFor } from '../../lib/site';
 import AudienceSwitch from '../audience/AudienceSwitch';
 import ButtonLink from '../ui/ButtonLink';
@@ -44,9 +45,9 @@ export default function SiteNavbar() {
   const solid = scrolled || mobileOpen;
   // Cream pages (personal, the blog, and the links people open from the app:
   // celebrations, aso-ebi, split bills, receipt checks) get dark text; the
-  // menu overlay stays dark.
+  // menu overlay stays dark. At launch (lib/launch.ts) payouts takes FX's place.
   const light =
-    (pathname === '/' || /^\/(c|a|s|verify)(\/|$)/.test(pathname) || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', '/business/fx', '/business/suppliers', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
+    (pathname === '/' || /^\/(c|a|s|verify)(\/|$)/.test(pathname) || pathname.startsWith('/personal/') || pathname.startsWith('/blog') || pathname.startsWith('/business/blog') || ['/business/payments', INTERNATIONAL ? '/business/fx' : '/business/payouts', '/business/suppliers', '/business/pricing', '/business/security', '/business/about', '/business/faq', '/business/contact', '/business/privacy', '/business/terms', '/pricing', '/security', '/about', '/contact', '/faq', '/privacy', '/terms'].includes(pathname)) &&
     !mobileOpen;
   const linkIdle = light ? 'text-ink/70 hover:text-ink' : 'text-white/80 hover:text-white';
 

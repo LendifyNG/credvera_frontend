@@ -214,6 +214,22 @@ const atLaunch: Record<string, Page> = {
   },
 };
 Object.assign(atLaunch, {
+  '/security': {
+    title: 'Security | Credvera',
+    description: 'Your PIN on every payment, screenshots blocked in the app, extra care on a new phone and the name shown before you send. How Credvera keeps you safe.',
+  },
+  '/about': {
+    title: 'About | Credvera',
+    description: 'Across apps, banks and celebrations, all in naira: Credvera is building one place for all of your money. Meet the company behind the app.',
+  },
+  '/faq': {
+    title: 'FAQ | Credvera',
+    description: 'Answers about opening a Credvera account, celebrations and aso-ebi, bills and transfers, saving and splitting, fees and keeping your account safe.',
+  },
+  '/blog': {
+    title: 'Blog | Credvera',
+    description: 'Short, practical guides to celebration gifts, spraying, aso-ebi, bills and saving with Credvera.',
+  },
   '/business': {
     title: 'Credvera for business — Payments, invoices, payouts and supplier payments',
     description:

@@ -4,14 +4,19 @@ import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { businessPosts, postDate } from '../../lib/blog';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const topics = ['All', 'Getting paid', 'Controls', 'FX', 'Suppliers'] as const;
+// At launch (lib/launch.ts) Payouts takes the FX topic's place. A topic shows
+// only once a note carries it, so no tab opens onto an empty list.
+const topics = (
+  INTERNATIONAL ? (['All', 'Getting paid', 'Controls', 'FX', 'Suppliers'] as const) : (['All', 'Getting paid', 'Controls', 'Payouts', 'Suppliers'] as const)
+).filter((t) => INTERNATIONAL || t === 'All' || businessPosts.some((p) => p.topic === t));
 
 /** Business notes, listed like a journal's contents page. */
 export default function BizBlogPage() {
   const reduce = useReducedMotion();
-  const [topic, setTopic] = useState<(typeof topics)[number]>('All');
+  const [topic, setTopic] = useState<string>('All');
   const [hover, setHover] = useState<string | null>(null);
   const list = businessPosts.filter((p) => topic === 'All' || p.topic === topic);
 

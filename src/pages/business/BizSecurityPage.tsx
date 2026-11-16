@@ -3,6 +3,7 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -23,15 +24,26 @@ const cases = [
       'Big payments wait for a second approval',
     ],
   },
-  {
-    name: 'The supplier who never ships',
-    how: 'A new supplier found online takes the full payment up front, then stops answering.',
-    stops: [
-      'Pay a 30% or 50% deposit, not the whole order',
-      'The balance is held until the shipping line confirms loading',
-      'Supplier Passport shows their record with other Nigerian businesses',
-    ],
-  },
+  // At launch (lib/launch.ts) a protected naira order stops the supplier who never delivers.
+  INTERNATIONAL
+    ? {
+        name: 'The supplier who never ships',
+        how: 'A new supplier found online takes the full payment up front, then stops answering.',
+        stops: [
+          'Pay a 30% or 50% deposit, not the whole order',
+          'The balance is held until the shipping line confirms loading',
+          'Supplier Passport shows their record with other Nigerian businesses',
+        ],
+      }
+    : {
+        name: 'The supplier who never delivers',
+        how: 'A new supplier found online takes the full payment up front, then stops answering.',
+        stops: [
+          'Pay a deposit, not the whole order',
+          'The rest is held until the goods are on their way, and only the owner or an admin can release it',
+          'If the order falls through, call it off and the held money comes back',
+        ],
+      },
   {
     name: 'The payment nobody agreed',
     how: 'Someone with access to the account sends a large payment without anyone else knowing.',
@@ -47,8 +59,16 @@ const controls = [
   ['PIN or Face ID', 'On every payment'],
   ['Daily limits', 'On each account'],
   ['Second approval', 'For big payments'],
-  ['Card freeze', 'In one tap'],
-  ['Card details', 'Only after your PIN'],
+  // At launch (lib/launch.ts) team controls take the business cards' places.
+  ...((INTERNATIONAL
+    ? [
+        ['Card freeze', 'In one tap'],
+        ['Card details', 'Only after your PIN'],
+      ]
+    : [
+        ['Team roles', 'Who can pay, who can only look'],
+        ['New admins', 'Wait a day before approving'],
+      ]) as [string, string][]),
   ['Screenshots', 'Blocked while details show'],
   ['New phone', 'Payments capped for a while'],
   ['Receipts', 'For every payment'],

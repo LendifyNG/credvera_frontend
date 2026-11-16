@@ -1,3 +1,4 @@
+import { INTERNATIONAL } from './launch';
 import { photos, type Photo } from './photos';
 
 // The blog. Short, practical guides that describe only what the app does
@@ -14,7 +15,7 @@ export type Post = {
   audience: 'personal' | 'business';
   category: 'Personal' | 'Business' | 'Guides';
   /** Business notes: what it's about, shown on the index. */
-  topic?: 'Getting paid' | 'Controls' | 'FX' | 'Suppliers';
+  topic?: 'Getting paid' | 'Controls' | 'FX' | 'Payouts' | 'Suppliers';
   date: string; // ISO
   minutes: number;
   /** Personal posts usually have a photo (those without get a plain tile); business notes are set as memos, without one. */
@@ -24,7 +25,9 @@ export type Post = {
   body: Block[];
 };
 
-export const posts: Post[] = [
+// Every post, international ones included. At launch (lib/launch.ts) each
+// international post's slot holds a naira one instead: see atLaunch below.
+const withAbroad: Post[] = [
   {
     slug: 'get-paid-from-abroad',
     audience: 'personal',
@@ -322,6 +325,123 @@ export const posts: Post[] = [
     ],
   },
 ];
+
+// At launch: a naira post in each international post's slot, for the same
+// readers and about as long. The international slugs aren't in the launch list,
+// so their links fall back to the blog index.
+const launchFor: Record<string, Post> = {
+  'get-paid-from-abroad': {
+    slug: 'collect-wedding-gifts-with-one-link',
+    audience: 'personal',
+    title: 'How to collect wedding gifts with one link',
+    dek: 'Make a page for the celebration, share the link, and see every gift and its note in one list.',
+    category: 'Personal',
+    date: '2026-11-08',
+    minutes: 4,
+    cover: photos.celebrateNaira,
+    body: [
+      { p: 'After a wedding, the gifts are everywhere: cash in envelopes, transfers to three different accounts, and alerts with no name on them. A celebration page puts them all in one place, with who sent what.' },
+      { h: 'Make the page' },
+      { list: ['In the app, start a new celebration.', 'Give it a name, like Ada & Tunde’s wedding, and the date.', 'You get a link of your own to share, and a code to print on the invitation.'] },
+      { h: 'Share it' },
+      { p: 'Send the link in the family WhatsApp group, or print the code on the invitation card. Guests open it on their phone. They don’t need the app or an account.' },
+      { h: 'How guests give' },
+      { list: ['On the page, by transfer or card, with a note.', 'Straight to the celebration’s own account number, from their usual bank app.'] },
+      { p: 'Each gift shows in your list with the guest’s name, the amount and their note, so you know who to thank.' },
+      { h: 'When you’re ready' },
+      { p: 'Gifts wait in the celebration, away from your everyday money, until you move them to your account. Making the page, receiving gifts and moving them are all free.' },
+    ],
+  },
+  'what-your-landlord-sees': {
+    slug: 'collect-aso-ebi-without-the-notebook',
+    audience: 'personal',
+    title: 'Collecting aso-ebi money without the notebook',
+    dek: 'One link for the family fabric. Guests pick, add their sizes and pay, and you see who has paid for what.',
+    category: 'Personal',
+    date: '2026-11-15',
+    minutes: 3,
+    cover: photos.asoEbiGroup,
+    body: [
+      { p: 'Whoever collects for the aso-ebi usually ends up with a notebook, a pile of transfer screenshots and a long list of aunties to chase. An aso-ebi page keeps the list for you.' },
+      { h: 'Set it up' },
+      { list: ['In the app, start a new aso-ebi page.', 'Add each fabric with its price, like gele, buba or agbada, and how many pieces you have if there’s a limit.', 'Set the deadline, then share the link.'] },
+      { h: 'What guests do' },
+      { list: ['Open the link and pick what they want, one fabric or several.', 'Add their sizes.', 'Pay on the page, by transfer or card. No sign-in.'] },
+      { h: 'What you see' },
+      { p: 'Each order shows who paid, for which fabrics and in which sizes. An order counts only once the money has arrived, so a screenshot isn’t enough. Add anyone who paid you in cash, call or WhatsApp a guest from their order, and tick people off as they collect.' },
+      { h: 'What it costs' },
+      { p: 'Nothing. Making an aso-ebi page, receiving guests’ payments and moving the money to your account are free.' },
+    ],
+  },
+  'convert-dollars-to-naira': {
+    slug: 'spray-from-your-phone',
+    audience: 'personal',
+    title: 'Spraying from your phone: how it works on the day',
+    dek: 'Guests buy spray notes printed with the couple’s monogram, flick them from their phone, and watch them land on the big screen.',
+    category: 'Guides',
+    date: '2026-11-12',
+    minutes: 3,
+    body: [
+      { p: 'Spraying is half the fun of an owambe. But not everyone carries a wad of crisp notes, and the money on the floor still has to be gathered and counted. Spraying from a phone keeps the fun and loses the counting.' },
+      { h: 'For the guests' },
+      {
+        list: [
+          'Scan the code on the screen in the hall, or open the celebration’s link.',
+          'Choose Spray, then pick ₦200, ₦500 or ₦1,000 notes and how many.',
+          'Pay by transfer or card.',
+          'Flick the notes across your phone. Each one lands on the big screen with your name.',
+        ],
+      },
+      { p: 'If you close the page halfway, open the link again on the same phone and carry on with the notes you have left.' },
+      { h: 'For the celebrants' },
+      { p: 'Put the celebration’s live screen up on a TV or projector in the hall. Spraying opens on the day of the celebration, and the notes carry your monogram.' },
+      { h: 'Where the money goes' },
+      { p: 'Every note is yours the moment the guest pays for it. It waits in the celebration with the gifts until you move it to your account, free.' },
+    ],
+  },
+  'customers-abroad-pay-like-a-local': {
+    slug: 'pay-everyone-from-one-spreadsheet',
+    audience: 'business',
+    category: 'Business',
+    topic: 'Payouts',
+    title: 'Paying everyone at once from one spreadsheet',
+    dek: 'Salaries, riders, vendors: upload one file and pay them all, with every row checked before anything goes.',
+    date: '2026-10-28',
+    minutes: 3,
+    related: { label: 'Bulk and scheduled payouts', to: '/business/payouts' },
+    body: [
+      { p: 'Paying twenty people one at a time is slow, and it’s how a digit gets typed wrong. With bulk payments, you pay them all from one list you already keep.' },
+      { h: 'The file' },
+      { list: ['Download the template from Bulk payments in your business dashboard.', 'One row per person: their name, bank, account number and amount.', 'Save it as CSV and upload it.'] },
+      { h: 'Before you pay' },
+      { p: 'Every row is checked first. A missing name, a bank we don’t recognise or an account number that isn’t 10 digits is marked to fix, and left out. You see how many are ready and the total with fees, then confirm with your PIN. If you’ve set an approval limit, any payment over it waits for a second person.' },
+    ],
+  },
+  'pay-suppliers-when-goods-ship': {
+    slug: 'pay-a-supplier-without-paying-blind',
+    audience: 'business',
+    topic: 'Suppliers',
+    related: { label: 'Protected supplier payments', to: '/business/suppliers' },
+    title: 'Paying a new supplier without paying blind',
+    dek: 'Pay a deposit now and have the rest held until the goods are on their way.',
+    category: 'Business',
+    date: '2026-10-30',
+    minutes: 4,
+    body: [
+      { p: 'Paying a new supplier in full before anything leaves their warehouse is a risk many businesses know too well. With a protected order, only the deposit goes now.' },
+      { h: 'How it works' },
+      { list: ['Choose a saved supplier and say what you’re buying.', 'Enter the order total and pick a deposit: none, 20%, 30% or 50%.', 'Set how soon the goods must ship, from 14 to 45 days.', 'The deposit goes to the supplier. The rest is held until you release it.'] },
+      { h: 'When the goods move' },
+      { p: 'Once you’re happy the goods are on their way, release the rest to the supplier with your PIN. If something’s wrong, raise a problem and the money stays held while you sort it out.' },
+      { h: 'If it falls through' },
+      { p: 'Call the order off and the held money comes back to your balance. Holding it is free; the deposit and the balance each cost the usual transfer fee.' },
+    ],
+  },
+};
+
+const atLaunch: Post[] = withAbroad.map((p) => launchFor[p.slug] ?? p);
+
+export const posts: Post[] = INTERNATIONAL ? withAbroad : atLaunch;
 
 export const postBySlug = (slug?: string) => posts.find((p) => p.slug === slug);
 

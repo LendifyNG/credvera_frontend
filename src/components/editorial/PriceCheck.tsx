@@ -26,6 +26,9 @@ type Case = {
   options?: string[];
 };
 
+/** The fee to send `amount` naira to a Nigerian bank, as the app charges it. */
+const transferFee = (amount: number) => (amount < 10000 ? 10 : amount < 50000 ? 20 : 40);
+
 /** The Remita service fee, as the app charges it. */
 const REMITA_FEE = 150;
 
@@ -123,37 +126,81 @@ const cases: Record<Audience, Case[]> = {
       step: 50000,
       lines: (a) => [
         ['You pay', ngn(a)],
-        ['Transfer fee', ngn(25)],
+        ['Transfer fee', ngn(transferFee(a))],
         ['They get', ngn(a), 'strong'],
-        ['Taken from your balance', ngn(a + 25), 'muted'],
+        ['Taken from your balance', ngn(a + transferFee(a)), 'muted'],
       ],
     },
-    {
-      name: 'Pay a supplier abroad',
-      currency: '$',
-      start: 5000,
-      max: 100000,
-      step: 500,
-      options: ['UK or euro', 'United States', 'China'],
-      lines: (a, o) => [
-        ['Supplier gets', usd(a), 'strong'],
-        ['Payment fee, flat', ngn([2500, 3500, 5000][o] ?? 2500)],
-        ['Same fee for any amount', '', 'muted'],
-      ],
-    },
-    {
-      name: 'Convert dollars to naira',
-      currency: '$',
-      start: 20000,
-      max: 200000,
-      step: 500,
-      lines: (a) => [
-        ['You convert', usd(a)],
-        ['Our rate', ngn(RATE)],
-        ['Market rate', ngn(RATE), 'muted'],
-        ['You get', ngn(a * RATE), 'strong'],
-      ],
-    },
+    // At launch (lib/launch.ts) bulk payouts and a protected supplier order take
+    // the places of the supplier abroad and the conversion.
+    ...(INTERNATIONAL
+      ? ([
+          {
+            name: 'Pay a supplier abroad',
+            currency: '$',
+            start: 5000,
+            max: 100000,
+            step: 500,
+            options: ['UK or euro', 'United States', 'China'],
+            lines: (a, o) => [
+              ['Supplier gets', usd(a), 'strong'],
+              ['Payment fee, flat', ngn([2500, 3500, 5000][o] ?? 2500)],
+              ['Same fee for any amount', '', 'muted'],
+            ],
+          },
+          {
+            name: 'Convert dollars to naira',
+            currency: '$',
+            start: 20000,
+            max: 200000,
+            step: 500,
+            lines: (a) => [
+              ['You convert', usd(a)],
+              ['Our rate', ngn(RATE)],
+              ['Market rate', ngn(RATE), 'muted'],
+              ['You get', ngn(a * RATE), 'strong'],
+            ],
+          },
+        ] as Case[])
+      : ([
+          {
+            name: 'Pay your team in bulk',
+            currency: '₦',
+            start: 2400000,
+            max: 50000000,
+            step: 100000,
+            options: ['10 people', '25 people', '50 people'],
+            // The total is shared evenly, and each payment carries its own transfer fee.
+            lines: (a: number, o: number) => {
+              const people = [10, 25, 50][o] ?? 10;
+              const fees = people * transferFee(a / people);
+              return [
+                ['Payments in the run', String(people)],
+                ['Paid out', ngn(a)],
+                ['Transfer fees', ngn(fees)],
+                ['Taken from your balance', ngn(a + fees), 'strong'],
+              ];
+            },
+          },
+          {
+            name: 'Pay a supplier, protected',
+            currency: '₦',
+            start: 1200000,
+            max: 20000000,
+            step: 50000,
+            options: ['30% deposit', '50% deposit', 'No deposit'],
+            lines: (a: number, o: number) => {
+              const deposit = (a * ([30, 50, 0][o] ?? 30)) / 100;
+              return [
+                ['Paid to the supplier now', ngn(deposit)],
+                ['Held until the goods are on their way', ngn(a - deposit)],
+                ['Holding', 'Free', 'free'],
+                ['Transfer fees', ngn((deposit > 0 ? transferFee(deposit) : 0) + transferFee(a - deposit))],
+                ['Supplier gets in all', ngn(a), 'strong'],
+              ];
+            },
+          },
+        ] as Case[])),
   ],
 };
 

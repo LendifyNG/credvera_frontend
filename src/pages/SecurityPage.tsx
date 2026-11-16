@@ -5,6 +5,7 @@ import PageHeader from '../components/editorial/PageHeader';
 import ScamTest from '../components/editorial/ScamTest';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
+import { INTERNATIONAL } from '../lib/launch';
 
 const habits = [
   ['Keep your PIN to yourself', 'Never share your PIN, password or one-time codes with anyone, including someone who says they work for Credvera.'],
@@ -23,7 +24,11 @@ export default function SecurityPage() {
       <PageHeader
         label="Security"
         title={'Built for the day\n*someone* tries.'}
-        lede="Your PIN on every payment, card details that hide themselves, extra care on a new phone, and the name shown before you send. Here’s how that plays out."
+        lede={
+          INTERNATIONAL
+            ? 'Your PIN on every payment, card details that hide themselves, extra care on a new phone, and the name shown before you send. Here’s how that plays out.'
+            : 'Your PIN on every payment, extra care on a new phone, the name shown before you send, and screenshots blocked in the app. Here’s how that plays out.'
+        }
       />
 
       {/* Think like a scammer */}

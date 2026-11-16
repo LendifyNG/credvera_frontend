@@ -5,6 +5,7 @@ import Headline from '../components/editorial/Headline';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
 import { personalPosts, postDate } from '../lib/blog';
+import { INTERNATIONAL } from '../lib/launch';
 import type { Photo } from '../lib/photos';
 
 /** The blog: one featured post, then the rest as a list. */
@@ -23,7 +24,7 @@ export default function BlogPage() {
           <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50">
             <span className="text-background">The Credvera blog</span>
             <span className="h-px w-8 bg-ink/20" />
-            <span>Guides and notes on money, at home and abroad</span>
+            <span>{INTERNATIONAL ? 'Guides and notes on money, at home and abroad' : 'Guides and notes on money, from owambe to everyday'}</span>
           </div>
         </Reveal>
         <Headline
