@@ -1,4 +1,5 @@
 import { posts } from './blog';
+import { INTERNATIONAL } from './launch';
 import { company } from './site';
 
 // What search engines, AI assistants and link previews (WhatsApp, X,
@@ -15,7 +16,7 @@ export const SITE_URL = 'https://credvera.co';
 
 type Page = { title: string; description: string };
 
-const pages: Record<string, Page> = {
+const allPages: Record<string, Page> = {
   '/': {
     title: 'Credvera — Get paid from abroad, pay bills and save',
     description:
@@ -187,6 +188,34 @@ function privateTitle(path: string): string | null {
   if (path.startsWith('/a/')) return 'Aso-ebi | Credvera';
   return null;
 }
+
+// At launch (lib/launch.ts): the international pages leave the sitemap, the
+// celebration chapters join it, and pages that mention dollars read in naira.
+const INTERNATIONAL_ONLY = ['/personal/abroad', '/personal/passport'];
+const atLaunch: Record<string, Page> = {
+  '/': {
+    title: 'Credvera — Gifts, spray and aso-ebi, plus bills and savings',
+    description:
+      'Collect wedding and birthday gifts with one link, spray from your phone, gather aso-ebi money, split bills, pay airtime and electricity, send to any Nigerian bank and save. One app.',
+  },
+  '/personal/celebrate': {
+    title: 'Celebrations: gifts and spraying | Credvera',
+    description:
+      'Make a page for your wedding, birthday or naming. Guests send gifts by transfer or card, or spray from their phones on the day, and the money lands in your celebration.',
+  },
+  '/personal/everyday': {
+    title: 'Everyday money | Credvera',
+    description: 'Top up airtime, buy electricity, renew your TV, pay government bills and send to any Nigerian bank, with the name checked first.',
+  },
+  '/personal/aso-ebi': {
+    title: 'Aso-ebi collections | Credvera',
+    description:
+      'Share one link for the aso-ebi. Guests choose fabrics, add their sizes and pay by transfer or card; you see who paid for what and tick them off as they collect.',
+  },
+};
+const pages: Record<string, Page> = INTERNATIONAL
+  ? allPages
+  : Object.fromEntries(Object.entries({ ...allPages, ...atLaunch }).filter(([path]) => !INTERNATIONAL_ONLY.includes(path)));
 
 const postPath = (p: (typeof posts)[number]) => (p.audience === 'business' ? `/business/blog/${p.slug}` : `/blog/${p.slug}`);
 

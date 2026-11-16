@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import type { Audience } from '../../lib/audience';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -43,31 +44,61 @@ const cases: Record<Audience, Case[]> = {
         ['Taken from your balance', ngn(a + 10), 'muted'],
       ],
     },
-    {
-      name: 'Receive from abroad',
-      currency: '$',
-      start: 850,
-      max: 10000,
-      step: 50,
-      lines: (a) => [
-        ['Your client sends', usd(a)],
-        ['Fee to receive', 'Free', 'free'],
-        ['Lands in your USD account', usd(a), 'strong'],
-      ],
-    },
-    {
-      name: 'Convert dollars to naira',
-      currency: '$',
-      start: 500,
-      max: 10000,
-      step: 50,
-      lines: (a) => [
-        ['You convert', usd(a)],
-        ['Our rate', ngn(RATE)],
-        ['Market rate', ngn(RATE), 'muted'],
-        ['You get', ngn(a * RATE), 'strong'],
-      ],
-    },
+    // At launch the celebration features take the abroad examples' places (lib/launch.ts).
+    ...(INTERNATIONAL
+      ? ([
+          {
+            name: 'Receive from abroad',
+            currency: '$',
+            start: 850,
+            max: 10000,
+            step: 50,
+            lines: (a) => [
+              ['Your client sends', usd(a)],
+              ['Fee to receive', 'Free', 'free'],
+              ['Lands in your USD account', usd(a), 'strong'],
+            ],
+          },
+          {
+            name: 'Convert dollars to naira',
+            currency: '$',
+            start: 500,
+            max: 10000,
+            step: 50,
+            lines: (a) => [
+              ['You convert', usd(a)],
+              ['Our rate', ngn(RATE)],
+              ['Market rate', ngn(RATE), 'muted'],
+              ['You get', ngn(a * RATE), 'strong'],
+            ],
+          },
+        ] as Case[])
+      : ([
+          {
+            name: 'Receive a wedding gift',
+            currency: '₦',
+            start: 20000,
+            max: 1000000,
+            step: 5000,
+            lines: (a: number) => [
+              ['A guest sends', ngn(a)],
+              ['Fee to receive', 'Free', 'free'],
+              ['Lands in your celebration', ngn(a), 'strong'],
+            ],
+          },
+          {
+            name: 'Collect for aso-ebi',
+            currency: '₦',
+            start: 35000,
+            max: 500000,
+            step: 5000,
+            lines: (a: number) => [
+              ['A guest pays', ngn(a)],
+              ['Fee to receive', 'Free', 'free'],
+              ['Lands in your aso-ebi', ngn(a), 'strong'],
+            ],
+          },
+        ] as Case[])),
     {
       name: 'Pay a bill',
       currency: '₦',

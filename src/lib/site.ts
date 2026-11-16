@@ -1,4 +1,5 @@
 import type { Audience } from './audience';
+import { INTERNATIONAL } from './launch';
 
 // Single source of truth for company details, links, statistics and navigation.
 // Every statistic below is a real, published figure with its source.
@@ -20,8 +21,10 @@ export const company = {
   supportHours: 'Monday to Friday, 8am – 6pm WAT', // placeholder
   // What the company does, in CAC's words (principal business activity), then
   // what the app does. Shown in the footer and the legal pages.
-  description:
-    'Credvera Technologies Limited carries on software programming, development and provision of computer applications and related digital technology solutions. Its product, Credvera, is a mobile and web app that individuals and businesses in Nigeria use to receive and make payments, pay bills and buy airtime, save, send invoices and payment links, receive money from abroad, convert currencies, pay suppliers abroad and pay online with cards.',
+  // At launch (lib/launch.ts) it lists only naira services; keep the Monnify dashboard's wording the same.
+  description: INTERNATIONAL
+    ? 'Credvera Technologies Limited carries on software programming, development and provision of computer applications and related digital technology solutions. Its product, Credvera, is a mobile and web app that individuals and businesses in Nigeria use to receive and make payments, pay bills and buy airtime, save, send invoices and payment links, receive money from abroad, convert currencies, pay suppliers abroad and pay online with cards.'
+    : 'Credvera Technologies Limited carries on software programming, development and provision of computer applications and related digital technology solutions. Its product, Credvera, is a mobile and web app that individuals and businesses in Nigeria use to receive and make naira payments, send money to Nigerian banks, pay bills and buy airtime, save, split bills, collect gifts and aso-ebi payments for celebrations, and send invoices and payment links.',
   licenceStatement:
     'Credvera is a software company, not a bank. Payment services in the app are provided by licensed partners.',
   // Shown in the footer and sent to search engines as the company's profiles.
@@ -190,10 +193,17 @@ export const navByAudience: Record<Audience, NavEntry[]> = {
     {
       label: 'Features',
       items: [
-        { label: 'Get paid from abroad', to: '/personal/abroad', description: 'Dollar, pound and euro accounts in your name' },
-        { label: 'Everyday money', to: '/personal/everyday', description: 'Bills, airtime, transfers and a dollar card' },
+        // At launch the celebration features take the international places (lib/launch.ts).
+        INTERNATIONAL
+          ? { label: 'Get paid from abroad', to: '/personal/abroad', description: 'Dollar, pound and euro accounts in your name' }
+          : { label: 'Celebrations', to: '/personal/celebrate', description: 'Gift links and spraying from your phone' },
+        INTERNATIONAL
+          ? { label: 'Everyday money', to: '/personal/everyday', description: 'Bills, airtime, transfers and a dollar card' }
+          : { label: 'Everyday money', to: '/personal/everyday', description: 'Bills, airtime and transfers to any bank' },
         { label: 'Save and split', to: '/personal/save', description: 'Goals, auto-save and getting paid back' },
-        { label: 'Earnings Passport', to: '/personal/passport', description: 'Prove your income without a bank statement' },
+        INTERNATIONAL
+          ? { label: 'Earnings Passport', to: '/personal/passport', description: 'Prove your income without a bank statement' }
+          : { label: 'Aso-ebi', to: '/personal/aso-ebi', description: 'Collect for the fabric with one link' },
       ],
     },
     { label: 'Pricing', to: '/pricing' },
@@ -243,20 +253,43 @@ export const pricingFor: Record<Audience, { product: string; to: string; rows: [
         ['Remita bills', '₦150 service fee'],
       ],
     },
-    {
-      product: 'Money from abroad',
-      to: '/personal/abroad',
-      rows: [
-        ['Dollar, pound and euro accounts', 'Free to open'],
-        ['Receiving money', 'Free'],
-        ['Converting', 'Our rate, shown beside the market rate'],
-      ],
-    },
-    {
-      product: 'Earnings Passport',
-      to: '/personal/passport',
-      rows: [['Creating and sharing a Passport', 'Free']],
-    },
+    ...(INTERNATIONAL
+      ? [
+          {
+            product: 'Money from abroad',
+            to: '/personal/abroad',
+            rows: [
+              ['Dollar, pound and euro accounts', 'Free to open'],
+              ['Receiving money', 'Free'],
+              ['Converting', 'Our rate, shown beside the market rate'],
+            ] as [string, string][],
+          },
+          {
+            product: 'Earnings Passport',
+            to: '/personal/passport',
+            rows: [['Creating and sharing a Passport', 'Free']] as [string, string][],
+          },
+        ]
+      : [
+          {
+            product: 'Celebrations',
+            to: '/personal/celebrate',
+            rows: [
+              ['Making a celebration page', 'Free'],
+              ['Receiving gifts and spray', 'Free'],
+              ['Moving it to your account', 'Free'],
+            ] as [string, string][],
+          },
+          {
+            product: 'Aso-ebi',
+            to: '/personal/aso-ebi',
+            rows: [
+              ['Making an aso-ebi page', 'Free'],
+              ['Receiving guests’ payments', 'Free'],
+              ['Moving it to your account', 'Free'],
+            ] as [string, string][],
+          },
+        ]),
   ],
   business: [
     {

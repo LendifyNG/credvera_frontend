@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Plus } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 import { personalPages } from '../../lib/personalPages';
 import Reveal from '../ui/Reveal';
 import Headline from './Headline';
@@ -10,6 +11,38 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 // A small drawn detail for each feature, shown when its row is open.
 function Detail({ to }: { to: string }): ReactNode {
+  if (to === '/personal/celebrate')
+    return (
+      <div className="space-y-2">
+        {[
+          ['AB', 'Aunty Bisi', '₦50,000'],
+          ['CO', 'Chidi O.', '₦20,000'],
+          ['MT', 'Mama Tolu', '₦100,000'],
+        ].map(([initials, name, amount]) => (
+          <div key={name} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3">
+            <span className="grid size-7 place-items-center rounded-full bg-primary text-[11px] font-semibold text-secondary">{initials}</span>
+            <span className="text-sm font-semibold">{name}</span>
+            <span className="ml-auto text-sm tabular-nums text-ink/60">{amount}</span>
+          </div>
+        ))}
+      </div>
+    );
+  if (to === '/personal/aso-ebi')
+    return (
+      <div className="space-y-2">
+        {[
+          ['Gele only', '₦15,000', 'Unlimited'],
+          ['Gele and buba', '₦35,000', '12 left'],
+          ['Agbada set', '₦60,000', '4 left'],
+        ].map(([name, price, left]) => (
+          <div key={name} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3">
+            <span className="text-sm font-semibold">{name}</span>
+            <span className="text-xs text-ink/45">{left}</span>
+            <span className="ml-auto text-sm tabular-nums text-ink/60">{price}</span>
+          </div>
+        ))}
+      </div>
+    );
   if (to === '/personal/abroad')
     return (
       <div className="space-y-2">
@@ -29,7 +62,7 @@ function Detail({ to }: { to: string }): ReactNode {
   if (to === '/personal/everyday')
     return (
       <div className="flex flex-wrap gap-2">
-        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer', 'Dollar card'].map((b) => (
+        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer', ...(INTERNATIONAL ? ['Dollar card'] : [])].map((b) => (
           <span key={b} className="rounded-full border border-ink/10 bg-paper px-3.5 py-1.5 text-sm text-ink/70">
             {b}
           </span>
@@ -76,13 +109,21 @@ function Detail({ to }: { to: string }): ReactNode {
 
 // What each feature does, in a sentence and three points.
 const more: Record<string, { body: string; points: string[] }> = {
+  '/personal/celebrate': {
+    body: 'One page for your wedding, birthday or naming. Guests send gifts with a note, and spray from their phones on the day.',
+    points: ['A gift link and an account number of its own', 'Spray notes with your monogram, live on a big screen', 'Every gift and who sent it, in one list'],
+  },
+  '/personal/aso-ebi': {
+    body: 'Share one link for the fabric. Guests choose, add their sizes and pay, and you tick them off as they collect.',
+    points: ['Several fabrics, prices and a deadline', 'Stock that counts down as guests pay', 'Add guests who paid you in cash'],
+  },
   '/personal/abroad': {
     body: 'Clients, employers and platforms pay you straight into US, UK and euro account details in your own name.',
     points: ['Your own USD, GBP and EUR account details', 'Our rate always beside the market rate', 'A PayPal link for clients who pay that way'],
   },
   '/personal/everyday': {
     body: 'Everything you pay for every month, from the same place as your money.',
-    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', 'A dollar card for online, a naira card for shops'],
+    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', INTERNATIONAL ? 'A dollar card for online, a naira card for shops' : 'The name checked before you send'],
   },
   '/personal/save': {
     body: 'Put money aside for what’s next, and stop chasing friends for their share.',

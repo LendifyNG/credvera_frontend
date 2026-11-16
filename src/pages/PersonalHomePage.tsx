@@ -11,11 +11,13 @@ import CountUp from '../components/ui/CountUp';
 import Reveal from '../components/ui/Reveal';
 import { photos } from '../lib/photos';
 import { ctaFor, marketStats, type Stat } from '../lib/site';
+import { SprayFan } from '../components/editorial/CelebratePieces';
+import { INTERNATIONAL } from '../lib/launch';
 
 const cta = ctaFor('personal');
 
 // The banner along the bottom of the opening.
-const banner = [
+const bannerAbroad = [
   'Get paid in dollars, pounds and euros',
   'Our rate beside the market rate',
   'Airtime, electricity and TV',
@@ -25,8 +27,39 @@ const banner = [
   'Earnings Passport',
   'Your PIN or Face ID on every payment',
 ];
+// At launch: the celebration features take the international lines' places (lib/launch.ts).
+const bannerLaunch = [
+  'One link for every gift',
+  'Spray from your phone',
+  'Aso-ebi, collected and matched',
+  'Airtime, electricity and TV',
+  'Send to any Nigerian bank',
+  'Savings goals that fill themselves',
+  'Split bills and get paid back',
+  'Your PIN or Face ID on every payment',
+];
+const banner = INTERNATIONAL ? bannerAbroad : bannerLaunch;
 
-const numbers: Stat[] = [marketStats.remittances, marketStats.migrants, marketStats.remittanceCost];
+const numbersAbroad: Stat[] = [marketStats.remittances, marketStats.migrants, marketStats.remittanceCost];
+const numbersLaunch: Stat[] = [
+  marketStats.instantPayments,
+  { value: 0, prefix: '₦', label: 'to make a celebration or an aso-ebi page, and to receive gifts and spray', source: 'Credvera pricing', sourceUrl: '/pricing' },
+  { value: 3, label: 'ways for guests to give: a gift link, the celebration’s own account number, or spraying on the day', source: 'How celebrations work', sourceUrl: '/personal/celebrate' },
+];
+const numbers = INTERNATIONAL ? numbersAbroad : numbersLaunch;
+
+// The opening's words.
+const hero = INTERNATIONAL
+  ? {
+      kicker: 'In more than one currency',
+      title: 'Your money,\n*home* and\n==abroad==.',
+      lede: 'Get paid in dollars, pounds and euros. Pay your bills, save for what matters, and prove your income when it counts. Built for Nigerians whose money moves between home and the rest of the world.',
+    }
+  : {
+      kicker: 'For every owambe',
+      title: 'Your money,\nfor every\n==celebration==.',
+      lede: 'Collect gifts with one link, spray from your phone, gather the aso-ebi money and split the bill after. Pay your bills and save for what’s next, all in naira.',
+    };
 
 function GetTheApp({ light = false }: { light?: boolean }) {
   return (
@@ -77,19 +110,18 @@ export default function PersonalHomePage() {
             <div className="flex items-center gap-4 border-b border-ink/10 pb-5 text-[13px] font-semibold text-ink/50 whitespace-nowrap lg:max-w-[54%]">
               <span className="text-background">Credvera Personal</span>
               <span className="h-px w-8 bg-ink/20" />
-              <span className="hidden sm:inline">In more than one currency</span>
+              <span className="hidden sm:inline">{hero.kicker}</span>
             </div>
           </Reveal>
           <div className="mt-12 max-w-[46rem]">
             <Headline
               as="h1"
-              text={'Your money,\n*home* and\n==abroad==.'}
+              text={hero.title}
               className="text-[clamp(3rem,8.4vw,7.4rem)] font-semibold leading-[0.9] tracking-[-0.045em]"
             />
             <Reveal delay={0.3}>
               <p className="mt-10 max-w-lg text-lg leading-relaxed text-ink/70 sm:text-xl">
-                Get paid in dollars, pounds and euros. Pay your bills, save for what matters, and prove your income when it
-                counts. Built for Nigerians whose money moves between home and the rest of the world.
+                {hero.lede}
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
                 <GetTheApp />
@@ -122,7 +154,8 @@ export default function PersonalHomePage() {
 
       <EverydayPeople />
 
-      {/* Earnings Passport, the part nobody else has */}
+      {/* Earnings Passport, the part nobody else has; at launch, spraying takes its place (lib/launch.ts). */}
+      {INTERNATIONAL ? (
       <section className="overflow-x-clip bg-secondary text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
           <div>
@@ -146,11 +179,36 @@ export default function PersonalHomePage() {
           <PassportDoc dark />
         </div>
       </section>
+      ) : (
+        <section className="overflow-x-clip bg-secondary text-white">
+          <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
+            <div>
+              <Reveal>
+                <p className="text-[13px] font-semibold text-primary">Only on Credvera</p>
+              </Reveal>
+              <Headline
+                text={'Spray from\nyour *phone*,\nlive in the hall.'}
+                className="mt-6 text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.035em]"
+              />
+              <Reveal delay={0.2}>
+                <p className="mt-8 max-w-md text-lg leading-relaxed text-white/65">
+                  Guests buy a wad of spray notes printed with your monogram and flick them across their screen. Every note
+                  lands on the big screen, and the money is yours the moment it’s paid. No cash to gather off the floor.
+                </p>
+                <Link to="/personal/celebrate" className="mt-10 inline-flex items-center gap-3 text-[15px] font-semibold text-primary">
+                  Read the chapter <ArrowRight className="size-4" />
+                </Link>
+              </Reveal>
+            </div>
+            <SprayFan />
+          </div>
+        </section>
+      )}
 
       {/* The numbers behind it */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
         <Headline
-          text={'Millions of Nigerians\nearn from *abroad*.'}
+          text={INTERNATIONAL ? 'Millions of Nigerians\nearn from *abroad*.' : 'Nigeria pays\nin *naira*, instantly.'}
           className="max-w-3xl text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[0.98] tracking-[-0.03em]"
         />
         <div className="mt-16 grid gap-12 border-t border-ink/15 pt-12 md:grid-cols-3">
@@ -165,9 +223,15 @@ export default function PersonalHomePage() {
                 </p>
                 <figcaption className="mt-5 max-w-xs leading-relaxed text-ink/65">
                   {n.label}
-                  <a href={n.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block text-xs text-ink/40 underline-offset-4 hover:underline">
-                    Source: {n.source}
-                  </a>
+                  {n.sourceUrl.startsWith('/') ? (
+                    <Link to={n.sourceUrl} className="mt-3 block text-xs text-ink/40 underline-offset-4 hover:underline">
+                      Source: {n.source}
+                    </Link>
+                  ) : (
+                    <a href={n.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block text-xs text-ink/40 underline-offset-4 hover:underline">
+                      Source: {n.source}
+                    </a>
+                  )}
                 </figcaption>
               </figure>
             </Reveal>
@@ -181,7 +245,9 @@ export default function PersonalHomePage() {
           {[
             ['Nothing hidden', 'Every fee and rate is shown before you pay, and every payment gets a receipt.'],
             ['Your PIN, every time', 'Payments need your PIN or Face ID. We never ask for your PIN by phone or chat.'],
-            ['Card details stay hidden', 'Shown only after your PIN, hidden again on their own, and screenshots are blocked.'],
+            INTERNATIONAL
+              ? ['Card details stay hidden', 'Shown only after your PIN, hidden again on their own, and screenshots are blocked.']
+              : ['Event money kept apart', 'Gifts, spray and aso-ebi money wait in their own place until you move them to your account.'],
             ['Care on a new phone', 'After a new phone or a SIM change, payments are capped for a while.'],
           ].map(([t, b], i) => (
             <Reveal key={t} delay={i * 0.06}>

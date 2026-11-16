@@ -53,6 +53,9 @@ import BlogPostPage from './pages/BlogPostPage';
 import AbroadPage from './pages/personal/AbroadPage';
 import EverydayPage from './pages/personal/EverydayPage';
 import PassportPage from './pages/personal/PassportPage';
+import CelebratePage from './pages/personal/CelebratePage';
+import AsoEbiChapterPage from './pages/personal/AsoEbiChapterPage';
+import { INTERNATIONAL } from './lib/launch';
 import SavePage from './pages/personal/SavePage';
 import ContactPage from './pages/ContactPage';
 import FaqPage from './pages/FaqPage';
@@ -192,10 +195,13 @@ export default function App() {
           <Route path="/business/blog/:slug" element={<BizPostPage />} />
           <Route path="/business/privacy" element={<BizLegalPage kind="privacy" />} />
           <Route path="/business/terms" element={<BizLegalPage kind="terms" />} />
-          <Route path="/personal/abroad" element={<AbroadPage />} />
+          {/* International pages wait for partner licences (lib/launch.ts); their links lead to the launch chapters. */}
+          <Route path="/personal/abroad" element={INTERNATIONAL ? <AbroadPage /> : <Navigate to="/personal/celebrate" replace />} />
+          <Route path="/personal/celebrate" element={<CelebratePage />} />
+          <Route path="/personal/aso-ebi" element={<AsoEbiChapterPage />} />
           <Route path="/personal/everyday" element={<EverydayPage />} />
           <Route path="/personal/save" element={<SavePage />} />
-          <Route path="/personal/passport" element={<PassportPage />} />
+          <Route path="/personal/passport" element={INTERNATIONAL ? <PassportPage /> : <Navigate to="/personal/aso-ebi" replace />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           {/* Earlier product pages, now sections of the two home pages. */}
