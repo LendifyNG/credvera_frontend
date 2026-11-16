@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { INTERNATIONAL } from '../../lib/launch';
 import { personalPages } from '../../lib/personalPages';
 import Reveal from '../ui/Reveal';
+import tailor from '../../assets/photos/business/trade-tailor.webp';
+import { photos } from '../../lib/photos';
 import CountUp from '../ui/CountUp';
 import Headline from './Headline';
 
@@ -108,36 +110,47 @@ function Detail({ to }: { to: string }): ReactNode {
   );
 }
 
-// At launch: each row's panel is one number, set large, instead of a drawing.
-// Every figure is a fact of the product today (fees from lib/site.ts pricing).
-const figure: Record<string, { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string }> = {
+// At launch: each row opens to a photograph, with one number and a punchline
+// set over it, instead of a drawing. Fees are the ones in lib/site.ts pricing.
+const figure: Record<
+  string,
+  { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string; img: string; alt: string }
+> = {
   '/personal/celebrate': {
     kicker: 'Gifts and spray',
     value: 0,
     prefix: '₦',
     punch: 'Every kobo they spray lands with you.',
-    fact: 'Free to make the page, free to receive, free to move it to your account.',
+    fact: 'Free to make the page, receive, and move it to your account.',
+    img: photos.blogKaftan.src,
+    alt: photos.blogKaftan.alt,
   },
   '/personal/everyday': {
     kicker: 'Transfers',
     value: 10,
     prefix: '₦',
     punch: 'A transfer costs less than pure water.',
-    fact: 'Under ₦10,000 to any Nigerian bank. Airtime, data, light and TV cost nothing extra.',
+    fact: 'Under ₦10,000, to any Nigerian bank. Airtime, data, light and TV: free.',
+    img: photos.womanBraidsPhone.src,
+    alt: photos.womanBraidsPhone.alt,
   },
   '/personal/save': {
     kicker: 'Auto-save',
     value: 52,
     suffix: '×',
     punch: 'Set it once. It saves all year.',
-    fact: 'A weekly goal tops itself up 52 times, and split bills chase the money back for you.',
+    fact: 'A weekly goal tops itself up, and split bills chase the money back.',
+    img: photos.friendsSelfie.src,
+    alt: photos.friendsSelfie.alt,
   },
   '/personal/aso-ebi': {
     kicker: 'Aso-ebi',
     value: 1,
     suffix: ' link',
     punch: 'No spreadsheet. No “who has paid?”',
-    fact: 'Every fabric, size and payment, counted in one link you drop in the family group.',
+    fact: 'Every fabric, size and payment, counted in one link.',
+    img: tailor,
+    alt: 'A smiling tailor at his work table',
   },
 };
 
@@ -145,14 +158,30 @@ function Big({ to }: { to: string }) {
   const f = figure[to];
   if (!f) return null;
   return (
-    <div className="relative flex h-full min-h-[17rem] flex-col justify-between overflow-hidden rounded-3xl bg-secondary p-7 text-white">
-      <p className="text-[13px] font-semibold text-primary">{f.kicker}</p>
-      <div>
-        <p className="text-[clamp(4rem,8vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-primary tabular-nums">
-          <CountUp value={f.value} prefix={f.prefix} suffix={f.suffix} duration={1.2} />
-        </p>
-        <p className="mt-5 max-w-sm text-[1.35rem] font-semibold leading-snug tracking-tight">{f.punch}</p>
-        <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/55">{f.fact}</p>
+    <div className="relative isolate h-full min-h-[22rem] overflow-hidden rounded-3xl bg-secondary text-white">
+      <motion.img
+        src={f.img}
+        alt={f.alt}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 -z-10 h-full w-full object-cover"
+        initial={{ scale: 1.15 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+      />
+      {/* Darkens the lower half so the words read on any photo. */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-secondary via-secondary/55 to-transparent" />
+      <div className="flex h-full min-h-[22rem] flex-col justify-between p-6 sm:p-7">
+        <span className="self-start rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-semibold text-white ring-1 ring-white/25 backdrop-blur-md">
+          {f.kicker}
+        </span>
+        <div>
+          <p className="text-[clamp(3.75rem,7vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-primary tabular-nums">
+            <CountUp value={f.value} prefix={f.prefix} suffix={f.suffix} duration={1.2} />
+          </p>
+          <p className="mt-4 max-w-sm text-[1.3rem] font-semibold leading-snug tracking-tight">{f.punch}</p>
+          <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-white/65">{f.fact}</p>
+        </div>
       </div>
     </div>
   );
