@@ -5,6 +5,7 @@ import { company, ctaFor, isGroup, navByAudience, type NavLinkItem } from '../..
 import StoreButtons from '../business/StoreButtons';
 import ButtonLink from '../ui/ButtonLink';
 import PaintedWordmark from './PaintedWordmark';
+import { INTERNATIONAL } from '../../lib/launch';
 
 // Each audience has its own legal pages.
 const legalFor = {
@@ -20,7 +21,7 @@ const legalFor = {
 
 // One line on what Credvera is, for each audience.
 const tagline = {
-  personal: 'Get paid from abroad, pay your bills and save, from one app.',
+  personal: INTERNATIONAL ? 'Get paid from abroad, pay your bills and save, from one app.' : 'Gifts, spray and aso-ebi, bills and savings, from one app.',
   business: 'Collect, pay suppliers, invoice and trade across borders, from one account.',
 };
 

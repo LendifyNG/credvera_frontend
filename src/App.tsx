@@ -15,6 +15,9 @@ import BizContactPage from './pages/business/BizContactPage';
 import BizFaqPage from './pages/business/BizFaqPage';
 import BizLegalPage from './pages/business/BizLegalPage';
 import BizFxPage from './pages/business/FxPage';
+import BizPayoutsPage from './pages/business/PayoutsPage';
+import BizProtectedPage from './pages/business/ProtectedPage';
+import BizTeamPage from './pages/business/TeamPage';
 import BizPaymentsPage from './pages/business/PaymentsPage';
 import BizPostPage from './pages/business/BizPostPage';
 import BizPricingPage from './pages/business/BizPricingPage';
@@ -53,6 +56,9 @@ import BlogPostPage from './pages/BlogPostPage';
 import AbroadPage from './pages/personal/AbroadPage';
 import EverydayPage from './pages/personal/EverydayPage';
 import PassportPage from './pages/personal/PassportPage';
+import CelebratePage from './pages/personal/CelebratePage';
+import AsoEbiChapterPage from './pages/personal/AsoEbiChapterPage';
+import { INTERNATIONAL } from './lib/launch';
 import SavePage from './pages/personal/SavePage';
 import ContactPage from './pages/ContactPage';
 import FaqPage from './pages/FaqPage';
@@ -180,9 +186,12 @@ export default function App() {
           <Route path="/" element={<PersonalHomePage />} />
           <Route path="/business" element={<BusinessHomePage />} />
           <Route path="/business/payments" element={<BizPaymentsPage />} />
-          <Route path="/business/fx" element={<BizFxPage />} />
-          <Route path="/business/suppliers" element={<BizSuppliersPage />} />
-          <Route path="/business/cards" element={<BizCardsPage />} />
+          {/* At launch payouts, protected orders and team take the international places (lib/launch.ts). */}
+          <Route path="/business/fx" element={INTERNATIONAL ? <BizFxPage /> : <Navigate to="/business/payouts" replace />} />
+          <Route path="/business/suppliers" element={INTERNATIONAL ? <BizSuppliersPage /> : <BizProtectedPage />} />
+          <Route path="/business/cards" element={INTERNATIONAL ? <BizCardsPage /> : <Navigate to="/business/team" replace />} />
+          <Route path="/business/payouts" element={INTERNATIONAL ? <Navigate to="/business/fx" replace /> : <BizPayoutsPage />} />
+          <Route path="/business/team" element={INTERNATIONAL ? <Navigate to="/business/cards" replace /> : <BizTeamPage />} />
           <Route path="/business/pricing" element={<BizPricingPage />} />
           <Route path="/business/security" element={<BizSecurityPage />} />
           <Route path="/business/about" element={<BizAboutPage />} />
@@ -192,10 +201,13 @@ export default function App() {
           <Route path="/business/blog/:slug" element={<BizPostPage />} />
           <Route path="/business/privacy" element={<BizLegalPage kind="privacy" />} />
           <Route path="/business/terms" element={<BizLegalPage kind="terms" />} />
-          <Route path="/personal/abroad" element={<AbroadPage />} />
+          {/* International pages wait for partner licences (lib/launch.ts); their links lead to the launch chapters. */}
+          <Route path="/personal/abroad" element={INTERNATIONAL ? <AbroadPage /> : <Navigate to="/personal/celebrate" replace />} />
+          <Route path="/personal/celebrate" element={<CelebratePage />} />
+          <Route path="/personal/aso-ebi" element={<AsoEbiChapterPage />} />
           <Route path="/personal/everyday" element={<EverydayPage />} />
           <Route path="/personal/save" element={<SavePage />} />
-          <Route path="/personal/passport" element={<PassportPage />} />
+          <Route path="/personal/passport" element={INTERNATIONAL ? <PassportPage /> : <Navigate to="/personal/aso-ebi" replace />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           {/* Earlier product pages, now sections of the two home pages. */}

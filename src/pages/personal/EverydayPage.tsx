@@ -2,6 +2,7 @@ import AppBand from '../../components/editorial/AppBand';
 import BillerRail from '../../components/editorial/BillerRail';
 import Headline from '../../components/editorial/Headline';
 import HoldReveal from '../../components/editorial/HoldReveal';
+import HoldToSend from '../../components/editorial/HoldToSend';
 import LightsBack from '../../components/editorial/LightsBack';
 import Masthead from '../../components/editorial/Masthead';
 import NameCheck from '../../components/editorial/NameCheck';
@@ -9,6 +10,7 @@ import NextChapter from '../../components/editorial/NextChapter';
 import PaymentDay from '../../components/editorial/PaymentDay';
 import Receipt from '../../components/editorial/Receipt';
 import Reveal from '../../components/ui/Reveal';
+import { INTERNATIONAL } from '../../lib/launch';
 
 /** Personal, chapter 02: everyday money. */
 export default function EverydayPage() {
@@ -18,8 +20,12 @@ export default function EverydayPage() {
         chapter="02"
         of="04"
         section="Everyday money"
-        title={'Bills, airtime\nand a card that\nworks *online*.'}
-        lede="Top up airtime, buy electricity, renew your TV and pay government bills in a few taps. Send to any Nigerian bank, and pay online with a dollar card."
+        title={INTERNATIONAL ? 'Bills, airtime\nand a card that\nworks *online*.' : 'Bills, airtime\nand transfers,\n*in one place*.'}
+        lede={
+          INTERNATIONAL
+            ? 'Top up airtime, buy electricity, renew your TV and pay government bills in a few taps. Send to any Nigerian bank, and pay online with a dollar card.'
+            : 'Top up airtime, buy electricity, renew your TV and pay government bills in a few taps. Send to any Nigerian bank in seconds, with the name checked first.'
+        }
         aside={<PaymentDay />}
       />
 
@@ -27,7 +33,8 @@ export default function EverydayPage() {
 
       <LightsBack />
       <NameCheck />
-      <HoldReveal />
+      {/* The dollar card waits for partner licences; transfers take its place (lib/launch.ts). */}
+      {INTERNATIONAL ? <HoldReveal /> : <HoldToSend />}
 
       <section className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
         <div>

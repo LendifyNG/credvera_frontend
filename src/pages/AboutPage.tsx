@@ -7,26 +7,45 @@ import PageHeader from '../components/editorial/PageHeader';
 import StatStack from '../components/editorial/StatStack';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
-import { photos } from '../lib/photos';
-import { marketStats } from '../lib/site';
+import { INTERNATIONAL } from '../lib/launch';
+import { photos, type Photo } from '../lib/photos';
+import { marketStats, type Stat } from '../lib/site';
 
 // TODO(credvera): the team to review this copy before launch.
-const MANIFESTO =
-  'Money in Nigeria is harder than it should be. A freelancer waits for dollars that land in someone else’s name. A trader juggles four apps to pay one supplier. A family abroad pays too much to send money home. None of that has to be true. Credvera puts earning, spending, saving and paying in one place, for people and for the businesses they run.';
+// At launch (lib/launch.ts) the naira lines take the international ones' places.
+const MANIFESTO = INTERNATIONAL
+  ? 'Money in Nigeria is harder than it should be. A freelancer waits for dollars that land in someone else’s name. A trader juggles four apps to pay one supplier. A family abroad pays too much to send money home. None of that has to be true. Credvera puts earning, spending, saving and paying in one place, for people and for the businesses they run.'
+  : 'Money in Nigeria is harder than it should be. A couple counts wedding gifts across a hundred bank alerts. An aunty keeps the aso-ebi list in a notebook and chases half the family to pay. A trader juggles four apps to pay one supplier. None of that has to be true. Credvera puts celebrating, spending, saving and paying in one place, for people and for the businesses they run.';
+
+const lede = INTERNATIONAL
+  ? 'Across apps, banks and borders, in naira and in dollars. We’re building one place for all of it.'
+  : 'Across apps, banks and celebrations, all in naira. We’re building one place for all of it.';
+
+// The fourth card: money sent home from abroad, or at launch what a celebration costs.
+const fourth: { stat: Stat; photo: Photo } = INTERNATIONAL
+  ? { stat: marketStats.remittances, photo: photos.womanBraidsPhone }
+  : {
+      stat: { value: 0, prefix: '₦', label: 'to make a page for your wedding, birthday or aso-ebi, and to receive every gift and spray note', source: 'Credvera pricing', sourceUrl: '/pricing' },
+      photo: photos.celebrateNaira,
+    };
 
 const doors = [
   {
     to: '/',
     label: 'Personal',
     title: 'For your own money',
-    body: 'Get paid from abroad, pay bills, save and split, and prove your income.',
+    body: INTERNATIONAL
+      ? 'Get paid from abroad, pay bills, save and split, and prove your income.'
+      : 'Collect gifts and aso-ebi, pay bills, send money, save and split.',
     photo: photos.manCapSunglasses,
   },
   {
     to: '/business',
     label: 'Business',
     title: 'For the business you run',
-    body: 'Collect, pay suppliers at home and abroad, send invoices and hold dollars.',
+    body: INTERNATIONAL
+      ? 'Collect, pay suppliers at home and abroad, send invoices and hold dollars.'
+      : 'Collect, send invoices, pay your team in bulk and pay suppliers with protection.',
     photo: photos.marketNutsSeller,
   },
 ];
@@ -41,7 +60,7 @@ export default function AboutPage() {
       <PageHeader
         label="About Credvera"
         title={'Money that moves\nlike *Nigerians* do.'}
-        lede="Across apps, banks and borders, in naira and in dollars. We’re building one place for all of it."
+        lede={lede}
       />
 
       <section className="mx-auto max-w-5xl px-6 pb-24 lg:px-8 lg:pb-36">
@@ -60,7 +79,7 @@ export default function AboutPage() {
             { stat: marketStats.msmes, video: { name: 'market-cash', label: 'A trader counting cash at a Lagos market' } },
             { stat: marketStats.msmeGdp, photo: photos.marketLagosScene },
             { stat: marketStats.instantPayments, video: { name: 'lagos-aerial', label: 'Lagos traffic and market streets from above' } },
-            { stat: marketStats.remittances, photo: photos.womanBraidsPhone },
+            fourth,
           ]}
         />
       </section>

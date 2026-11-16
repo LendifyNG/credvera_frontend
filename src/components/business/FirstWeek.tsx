@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 import { ctaFor } from '../../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -27,12 +28,20 @@ const days = [
     body: 'Your customer pays by card or transfer. The invoice marks itself paid.',
     tag: 'Card or transfer',
   },
-  {
-    day: 'Thu',
-    title: 'Order from your supplier',
-    body: 'Pay a 30% deposit to Shenzhen. The rest waits until the goods are loaded.',
-    tag: 'From ₦2,500',
-  },
+  // At launch (lib/launch.ts) a protected naira order takes the supplier abroad's place.
+  INTERNATIONAL
+    ? {
+        day: 'Thu',
+        title: 'Order from your supplier',
+        body: 'Pay a 30% deposit to Shenzhen. The rest waits until the goods are loaded.',
+        tag: 'From ₦2,500',
+      }
+    : {
+        day: 'Thu',
+        title: 'Order from your supplier',
+        body: 'Pay a 30% deposit now. The rest is held until the goods are on their way.',
+        tag: 'Holding is free',
+      },
   {
     day: 'Fri',
     title: 'Pay salaries',

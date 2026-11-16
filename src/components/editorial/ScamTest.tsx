@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useInView } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -48,17 +49,30 @@ const attempts: Attempt[] = [
     verdict: 'Slowed right down',
     why: 'After a new phone or a SIM change, payments are capped for a while, and you’re told, so there’s time to stop it.',
   },
-  {
-    move: 'Screenshot the card details',
-    lines: [
-      ['them', 'Opens your dollar card'],
-      ['app', 'PIN or Face ID needed to show details'],
-      ['them', 'Takes a screenshot'],
-    ],
-    verdict: 'Nothing captured',
-    why: 'Card details show only after your PIN, hide again on their own, alert you every time, and screenshots come out black.',
-    blackout: true,
-  },
+  // At launch (lib/launch.ts) there's no card, so a fake aso-ebi payment takes its place.
+  INTERNATIONAL
+    ? {
+        move: 'Screenshot the card details',
+        lines: [
+          ['them', 'Opens your dollar card'],
+          ['app', 'PIN or Face ID needed to show details'],
+          ['them', 'Takes a screenshot'],
+        ],
+        verdict: 'Nothing captured',
+        why: 'Card details show only after your PIN, hide again on their own, alert you every time, and screenshots come out black.',
+        blackout: true,
+      }
+    : {
+        move: 'Fake a payment for the aso-ebi',
+        lines: [
+          ['them', 'Shows you a transfer screenshot for their fabric'],
+          ['them', '“I’ve paid. Let me take it now.”'],
+          ['you', 'Checks the aso-ebi orders'],
+          ['app', 'No paid order in their name'],
+        ],
+        verdict: 'Caught before collecting',
+        why: 'An aso-ebi order counts as paid only once the money has really arrived, so a screenshot proves nothing.',
+      },
   {
     move: 'Get you to pay the wrong account',
     lines: [

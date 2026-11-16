@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import JsonLd, { faqLd } from '../../components/seo/JsonLd';
+import { INTERNATIONAL } from '../../lib/launch';
 import { company } from '../../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -19,7 +20,7 @@ const topics: Topic[] = [
       { q: 'Who can open a business account?', a: 'Businesses registered in Nigeria with the Corporate Affairs Commission. Each director and owner is checked against their BVN.' },
       { q: 'What do I need?', a: 'Your CAC registration number, the BVN of each director and owner, and your registration documents from CAC.' },
       { q: 'How long does it take?', a: 'A few minutes to apply in the app. We review your documents, usually within one or two working days, and you can use the account meanwhile.' },
-      { q: 'Can I have a personal and a business account?', a: 'Yes. One person can have both, each with its own details, and switch between them in the app. Switching asks for your PIN.' },
+      { q: 'Can I have a personal and a business account?', a: 'Yes. One person can have both. Each has its own details and its own sign-in, so business and personal money never mix.' },
       { q: 'How much does it cost?', a: 'Opening a business account is free. Every fee is on the business pricing page and on the payment screen before you confirm.', more: ['Business pricing', '/business/pricing'] },
     ],
   },
@@ -28,7 +29,10 @@ const topics: Topic[] = [
     items: [
       { q: 'How do my customers pay me?', a: 'Send an invoice or a payment link. Your customer pays by card or bank transfer, and the invoice marks itself paid when the money lands.', more: ['Payments and invoices', '/business/payments'] },
       { q: 'Do reminders go out on their own?', a: 'Yes. If an invoice isn’t paid by its due date, a reminder goes out for you.' },
-      { q: 'Can customers abroad pay me?', a: 'Yes, into dollar, pound and euro accounts in your business’s name. They pay you with local details: ACH in the US, sort code in the UK, IBAN in the euro area.', more: ['FX and currencies', '/business/fx'] },
+      // At launch (lib/launch.ts) payment links take the customers-abroad question's place.
+      INTERNATIONAL
+        ? { q: 'Can customers abroad pay me?', a: 'Yes, into dollar, pound and euro accounts in your business’s name. They pay you with local details: ACH in the US, sort code in the UK, IBAN in the euro area.', more: ['FX and currencies', '/business/fx'] }
+        : { q: 'Can I get paid without an invoice?', a: 'Yes. Make a payment link for any amount and share it on WhatsApp, Instagram or email. Your customer pays by card or bank transfer.', more: ['Payments and invoices', '/business/payments'] },
     ],
   },
   {
@@ -39,33 +43,66 @@ const topics: Topic[] = [
       { q: 'Can I save the people I pay often?', a: 'Yes. Staff, suppliers and landlords are saved once and paid again in a few taps.' },
     ],
   },
-  {
-    name: 'FX',
-    items: [
-      { q: 'How does converting work?', a: 'You see our rate beside the market rate. The rate is held for thirty seconds while you confirm. If it moves after that, we show you the new rate and ask again.', more: ['FX and currencies', '/business/fx'] },
-      { q: 'Does it cost anything to open a currency account?', a: 'No. Dollar, pound and euro accounts are free to open.' },
-    ],
-  },
-  {
-    name: 'Suppliers',
-    items: [
-      { q: 'How does paying on shipment work?', a: 'You pay a 30% or 50% deposit and set the date the goods must ship by. We hold the rest and pay it when the shipping line confirms your goods are loaded.', more: ['Pay suppliers abroad', '/business/suppliers'] },
-      { q: 'What if the goods don’t ship?', a: 'If nothing is loaded by the ship-by date, the held money comes back to you. Only the deposit you chose was at stake.' },
-      { q: 'What does it cost to pay a supplier?', a: 'One flat fee per payment: ₦2,500 for the UK and euro countries, ₦3,500 for the United States and ₦5,000 for China.' },
-      { q: 'What is Supplier Passport?', a: 'A supplier’s record with Nigerian businesses on Credvera: how many orders they’ve shipped and how often on time. We confirm shipment, not the quality of the goods.' },
-    ],
-  },
-  {
-    name: 'Cards',
-    items: [
-      { q: 'Which cards does a business get?', a: 'A virtual dollar card that spends from your dollar account, and a virtual naira card that spends from your naira account. Physical cards are on the way.', more: ['Business cards', '/business/cards'] },
-      { q: 'Can I set limits or freeze a card?', a: 'Yes. Set a monthly limit on each card, and freeze or unfreeze it in one tap.' },
-    ],
-  },
+  // At launch (lib/launch.ts) payouts, protected supplier payments and team take
+  // the places of FX, suppliers abroad and cards.
+  ...((INTERNATIONAL
+    ? [
+        {
+          name: 'FX',
+          items: [
+            { q: 'How does converting work?', a: 'You see our rate beside the market rate. The rate is held for thirty seconds while you confirm. If it moves after that, we show you the new rate and ask again.', more: ['FX and currencies', '/business/fx'] },
+            { q: 'Does it cost anything to open a currency account?', a: 'No. Dollar, pound and euro accounts are free to open.' },
+          ],
+        },
+        {
+          name: 'Suppliers',
+          items: [
+            { q: 'How does paying on shipment work?', a: 'You pay a 30% or 50% deposit and set the date the goods must ship by. We hold the rest and pay it when the shipping line confirms your goods are loaded.', more: ['Pay suppliers abroad', '/business/suppliers'] },
+            { q: 'What if the goods don’t ship?', a: 'If nothing is loaded by the ship-by date, the held money comes back to you. Only the deposit you chose was at stake.' },
+            { q: 'What does it cost to pay a supplier?', a: 'One flat fee per payment: ₦2,500 for the UK and euro countries, ₦3,500 for the United States and ₦5,000 for China.' },
+            { q: 'What is Supplier Passport?', a: 'A supplier’s record with Nigerian businesses on Credvera: how many orders they’ve shipped and how often on time. We confirm shipment, not the quality of the goods.' },
+          ],
+        },
+        {
+          name: 'Cards',
+          items: [
+            { q: 'Which cards does a business get?', a: 'A virtual dollar card that spends from your dollar account, and a virtual naira card that spends from your naira account. Physical cards are on the way.', more: ['Business cards', '/business/cards'] },
+            { q: 'Can I set limits or freeze a card?', a: 'Yes. Set a monthly limit on each card, and freeze or unfreeze it in one tap.' },
+          ],
+        },
+      ]
+    : [
+        {
+          name: 'Payouts',
+          items: [
+            { q: 'Can I pay many people at once?', a: 'Yes. Upload a spreadsheet of up to 500 names, banks and amounts. Every row is checked before anything goes, and one bad row sends nothing.', more: ['Bulk and scheduled payouts', '/business/payouts'] },
+            { q: 'Can a payment repeat on its own?', a: 'Yes. Set it to go every week or every month. The name on the account is checked before the first one goes.' },
+            { q: 'What does a bulk or scheduled payment cost?', a: 'Only the transfer fee on each payment: ₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. Setting up a schedule is free.' },
+          ],
+        },
+        {
+          name: 'Suppliers',
+          items: [
+            { q: 'How does a protected supplier payment work?', a: 'You pay a deposit of 0%, 20%, 30% or 50% now and give the supplier 14 to 45 days to send the goods. We hold the rest, and you release it when the goods are on their way.', more: ['Protected supplier payments', '/business/suppliers'] },
+            { q: 'What if the order falls through?', a: 'Call it off and the held money comes back to your balance. Only the deposit you chose was at stake. If something is wrong with the goods, raise a problem and the money stays held while you sort it out.' },
+            { q: 'What does it cost?', a: 'Holding the money is free. You pay the normal transfer fee on the deposit and on the balance when it goes to the supplier.' },
+            { q: 'Can I save the suppliers I pay?', a: 'Yes. Save a supplier once with their bank details. A protected order pays the deposit and the rest only to the details saved when it started.' },
+          ],
+        },
+        {
+          name: 'Team',
+          items: [
+            { q: 'Can my staff use the account?', a: 'Yes. Invite them by email as an admin, a payer or a viewer. Admins pay and approve, payers pay, and viewers see everything but move nothing.', more: ['Team and approvals', '/business/team'] },
+            { q: 'How do approvals work?', a: 'You set an amount. Payments over it wait for an admin or the owner, who approves with their own PIN. A new admin waits a day before they can approve.' },
+          ],
+        },
+      ]) as Topic[]),
   {
     name: 'Safety',
     items: [
-      { q: 'How is a business account protected?', a: 'Your PIN or Face ID on every payment, a daily limit on each account, a second approval for big payments, and card details shown only after your PIN.', more: ['Business security', '/business/security'] },
+      INTERNATIONAL
+        ? { q: 'How is a business account protected?', a: 'Your PIN or Face ID on every payment, a daily limit on each account, a second approval for big payments, and card details shown only after your PIN.', more: ['Business security', '/business/security'] }
+        : { q: 'How is a business account protected?', a: 'Your PIN or Face ID on every payment, a daily limit on each account, a second approval for big payments, and roles that decide who on your team can pay.', more: ['Business security', '/business/security'] },
       { q: 'Will Credvera ever ask for my PIN?', a: 'Never. Not by phone, chat or email. Anyone who asks for your PIN, password or codes isn’t us.' },
       { q: 'Is Credvera a bank?', a: company.licenceStatement },
     ],

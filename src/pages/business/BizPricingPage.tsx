@@ -3,30 +3,55 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
 // The business tariff. Keep in step with pricingFor.business in lib/site.ts.
-// TODO(credvera): confirm with the partner bank and Verto before launch.
+// TODO(credvera): confirm with the partner bank (and, for the international rows, Verto) before launch.
 const tariff: [string, string, string][] = [
   ['Opening a business account', 'Free', 'Once'],
   ['Transfer under ₦10,000', '₦10', 'Per transfer'],
   ['Transfer of ₦10,000 to ₦49,999', '₦20', 'Per transfer'],
   ['Transfer of ₦50,000 and over', '₦40', 'Per transfer'],
   ['Invoices and payment links', 'Free', 'To create and send'],
-  ['Dollar, pound and euro accounts', 'Free', 'To open'],
-  ['Converting between currencies', 'Our rate, beside the market rate', 'Per conversion'],
-  ['Supplier payment · UK and euro countries', '₦2,500', 'Flat, per payment'],
-  ['Supplier payment · United States', '₦3,500', 'Flat, per payment'],
-  ['Supplier payment · China', '₦5,000', 'Flat, per payment'],
+  // At launch (lib/launch.ts) the naira business tools take the international rows' places.
+  ...((INTERNATIONAL
+    ? [
+        ['Dollar, pound and euro accounts', 'Free', 'To open'],
+        ['Converting between currencies', 'Our rate, beside the market rate', 'Per conversion'],
+        ['Supplier payment · UK and euro countries', '₦2,500', 'Flat, per payment'],
+        ['Supplier payment · United States', '₦3,500', 'Flat, per payment'],
+        ['Supplier payment · China', '₦5,000', 'Flat, per payment'],
+      ]
+    : [
+        ['Bulk and scheduled payouts', 'Transfer fee only', 'Per payment in the run'],
+        ['Setting up a schedule', 'Free', 'Once'],
+        ['Protected supplier payment · holding the balance', 'Free', 'Per order'],
+        ['Protected supplier payment · deposit and balance', 'Transfer fee only', 'Per payment'],
+        ['Team members and approvals', 'Free', 'Always'],
+      ]) as [string, string, string][]),
 ];
 
-const inputs = [
+type Input = { key: string; label: string; fee: number; start: number; step: number; max: number; note?: string };
+
+const withAbroad: Input[] = [
   { key: 'transfers', label: 'Transfers to Nigerian banks', fee: 25, start: 120, step: 10, max: 2000 },
   { key: 'uk', label: 'Supplier payments, UK and euro', fee: 2500, start: 2, step: 1, max: 60 },
   { key: 'us', label: 'Supplier payments, US', fee: 3500, start: 1, step: 1, max: 60 },
   { key: 'cn', label: 'Supplier payments, China', fee: 5000, start: 3, step: 1, max: 60 },
-] as const;
+];
+
+// At launch (lib/launch.ts): the same month in naira, one line per transfer fee
+// band plus a protected order's two payments, at the fees in the tariff above.
+const atLaunch: Input[] = [
+  { key: 'small', label: 'Transfers under ₦10,000', fee: 10, start: 60, step: 10, max: 2000 },
+  { key: 'mid', label: 'Transfers of ₦10,000 to ₦49,999', fee: 20, start: 40, step: 10, max: 2000 },
+  { key: 'large', label: 'Transfers of ₦50,000 and over', fee: 40, start: 30, step: 5, max: 2000 },
+  { key: 'orders', label: 'Protected supplier orders', fee: 80, start: 3, step: 1, max: 60, note: '₦40 on the deposit + ₦40 on the balance' },
+];
+
+const inputs = INTERNATIONAL ? withAbroad : atLaunch;
 
 const ngn = (n: number) => `₦${n.toLocaleString('en-NG')}`;
 
@@ -94,7 +119,7 @@ export default function BizPricingPage() {
                 <li key={l.key} className="flex items-center justify-between gap-4 py-4">
                   <div>
                     <p className="text-[15px]">{l.label}</p>
-                    <p className="font-ledger text-[11px] text-white/45">{ngn(l.fee)} each</p>
+                    <p className="font-ledger text-[11px] text-white/45">{l.note ?? `${ngn(l.fee)} each`}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -146,7 +171,11 @@ export default function BizPricingPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-[14px] text-white/45">Invoices, payment links and currency accounts add nothing to this.</p>
+            <p className="mt-8 text-[14px] text-white/45">
+              {INTERNATIONAL
+                ? 'Invoices, payment links and currency accounts add nothing to this.'
+                : 'Invoices, payment links, schedules, holding and approvals add nothing to this.'}
+            </p>
           </div>
         </div>
       </section>
@@ -163,7 +192,12 @@ export default function BizPricingPage() {
             {[
               ['Before you confirm', 'The fee is on every payment screen before you press pay. Never after.'],
               ['Thirty days’ notice', 'If a price changes, we tell you in the app at least thirty days before it applies.'],
-              ['Free stays free', 'Opening the account, invoices, payment links and currency accounts cost nothing.'],
+              [
+                'Free stays free',
+                INTERNATIONAL
+                  ? 'Opening the account, invoices, payment links and currency accounts cost nothing.'
+                  : 'Opening the account, invoices, payment links, holding a supplier’s balance and approvals cost nothing.',
+              ],
             ].map(([t, b], i) => (
               <li key={t} className="bg-white p-8">
                 <span className="font-ledger text-[12px] text-graphite/40">{String(i + 1).padStart(2, '0')}</span>

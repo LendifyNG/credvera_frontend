@@ -2,13 +2,19 @@ import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SplitFlap from '../components/editorial/SplitFlap';
+import { INTERNATIONAL } from '../lib/launch';
 
 // Where you can go instead, as rows on a departures board.
 const departures = [
   { to: '/', place: 'HOME', status: 'ON TIME' },
-  { to: '/personal/abroad', place: 'GET PAID FROM ABROAD', status: 'BOARDING' },
+  // At launch (lib/launch.ts) the celebration chapters take the international rows.
+  INTERNATIONAL
+    ? { to: '/personal/abroad', place: 'GET PAID FROM ABROAD', status: 'BOARDING' }
+    : { to: '/personal/celebrate', place: 'CELEBRATIONS', status: 'BOARDING' },
   { to: '/personal/everyday', place: 'EVERYDAY MONEY', status: 'ON TIME' },
-  { to: '/personal/passport', place: 'EARNINGS PASSPORT', status: 'ON TIME' },
+  INTERNATIONAL
+    ? { to: '/personal/passport', place: 'EARNINGS PASSPORT', status: 'ON TIME' }
+    : { to: '/personal/aso-ebi', place: 'ASO-EBI', status: 'ON TIME' },
   { to: '/pricing', place: 'PRICING', status: 'ON TIME' },
   { to: '/faq', place: 'FAQ', status: 'ON TIME' },
 ];

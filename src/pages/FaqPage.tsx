@@ -6,6 +6,7 @@ import Headline from '../components/editorial/Headline';
 import JsonLd, { faqLd } from '../components/seo/JsonLd';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
+import { INTERNATIONAL } from '../lib/launch';
 import { company } from '../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -18,14 +19,17 @@ const personalGroups: Group[] = [
     id: 'start',
     title: 'Getting started',
     items: [
-      { q: 'What is Credvera?', a: 'An app for getting paid from abroad, paying bills and sending money at home, saving and splitting, and proving your income with Earnings Passport. There’s a business account too.' },
+      INTERNATIONAL
+        ? { q: 'What is Credvera?', a: 'An app for getting paid from abroad, paying bills and sending money at home, saving and splitting, and proving your income with Earnings Passport. There’s a business account too.' }
+        : { q: 'What is Credvera?', a: 'An app for collecting gifts, spray and aso-ebi money for your celebrations, paying bills and sending money to any Nigerian bank, saving and splitting. There’s a business account too.' },
       { q: 'What do I need to open an account?', a: 'Your phone number, your email and your BVN or NIN. You sign up in the app, check your identity, and can start straight away. Some features open as you verify a little more.' },
       { q: 'Can I sign up from outside Nigeria?', a: 'Not yet. For now, sign-up is for people in Nigeria with a Nigerian phone number and a BVN or NIN.' },
       { q: 'How do I get the app?', a: 'Use the Get the app button on this site, which takes you to the official store listing. Don’t install Credvera from links sent to you by anyone else.' },
       { q: 'How much does it cost?', a: 'Opening an account is free, and most things are free. A transfer to a Nigerian bank is ₦10 under ₦10,000, ₦20 up to ₦50,000 and ₦40 above. Every fee is on the Pricing page and shown in the app before you confirm.' },
     ],
   },
-  {
+  // At launch (lib/launch.ts) celebrations and aso-ebi take the international groups' places.
+  INTERNATIONAL ? {
     id: 'abroad',
     title: 'Money from abroad',
     items: [
@@ -33,6 +37,15 @@ const personalGroups: Group[] = [
       { q: 'What do I need to receive from abroad?', a: 'Add your NIN and a selfie in the app. It takes about a minute.' },
       { q: 'Does it cost anything to receive?', a: 'No. Receiving into your dollar, pound or euro account is free.' },
       { q: 'How does converting to naira work?', a: 'You see our rate beside the market rate before you confirm, and the rate is held while you do. Keep your money in the currency for as long as you like.' },
+    ],
+  } : {
+    id: 'celebrate',
+    title: 'Celebrations',
+    items: [
+      { q: 'How do I collect gifts for my wedding or birthday?', a: 'Make a celebration page in the app and share the link, or print its code on the invitation. Guests send a gift by transfer or card, with a note. They don’t need an account.' },
+      { q: 'What is the celebration’s account number?', a: 'Each celebration gets an account number of its own. Guests who would rather use their bank app send straight to it, and their gift shows in your list with the rest.' },
+      { q: 'How does spraying from a phone work?', a: 'On the day, guests buy spray notes printed with your monogram, by transfer or card, and flick them from their phone. Put the live screen up in the hall and everyone sees the notes land.' },
+      { q: 'What does a celebration cost?', a: 'Nothing. Making the page, receiving gifts and spray, and moving the money to your account are free.' },
     ],
   },
   {
@@ -42,7 +55,9 @@ const personalGroups: Group[] = [
       { q: 'Which bills can I pay?', a: 'Airtime and data on MTN, Airtel, Glo and 9mobile; prepaid and postpaid electricity with Ikeja, Eko and Abuja Electric; DStv, GOtv and StarTimes; and government and school payments through Remita.' },
       { q: 'When do I get my electricity token?', a: 'The moment you pay. It shows in the app and stays with the payment, ready to copy or share.' },
       { q: 'Can I send money to any Nigerian bank?', a: 'Yes, from ₦10 a transfer. The name on the account shows before you send, so you know it’s the right person.' },
-      { q: 'What is the dollar card for?', a: 'Paying online in dollars: streaming, courses, subscriptions and shopping. Its details show only after your PIN or Face ID and hide again on their own.' },
+      INTERNATIONAL
+        ? { q: 'What is the dollar card for?', a: 'Paying online in dollars: streaming, courses, subscriptions and shopping. Its details show only after your PIN or Face ID and hide again on their own.' }
+        : { q: 'Do airtime, data, electricity and TV cost extra?', a: 'No. You pay for the airtime, data, units or subscription, and nothing more. Remita bills have a ₦150 service fee, shown before you confirm.' },
     ],
   },
   {
@@ -53,7 +68,7 @@ const personalGroups: Group[] = [
       { q: 'How does splitting a bill work?', a: 'Split any bill, or a payment you’ve already made, with the people who owe you. You see who has paid, who paid part and who hasn’t, and Credvera can send the reminder with a link to pay.' },
     ],
   },
-  {
+  INTERNATIONAL ? {
     id: 'passport',
     title: 'Earnings Passport',
     items: [
@@ -61,12 +76,22 @@ const personalGroups: Group[] = [
       { q: 'What can the person I share it with see?', a: 'Your name, that your identity was checked, your monthly income from abroad as a range, and how many months you were paid. Who paid you, only if you choose. Never your balance, exact amounts or other payments.' },
       { q: 'Can I stop sharing it?', a: 'Yes. You can see how often each Passport was opened, and cancel any of them. The link stops working straight away.' },
     ],
+  } : {
+    id: 'aso-ebi',
+    title: 'Aso-ebi',
+    items: [
+      { q: 'How does aso-ebi on Credvera work?', a: 'Set the fabrics, their prices and a deadline in the app, and share one link. Guests pick what they want, add their sizes and pay by transfer or card. It’s free.' },
+      { q: 'How do I know who has paid?', a: 'Every paid order shows who it’s from, the fabrics and the sizes. An order counts only once the money arrives. Add guests who paid you in cash, and tick people off as they collect.' },
+      { q: 'Can a guest buy more than one fabric?', a: 'Yes. Gele, buba and agbada can go in one order, each with its size. If you set how many pieces you have, the count goes down as people buy.' },
+    ],
   },
   {
     id: 'safety',
     title: 'Safety',
     items: [
-      { q: 'How is my account protected?', a: 'Your PIN or Face ID for every payment, card details that hide themselves, extra care after a new phone or a SIM change, and the account name shown before every transfer.' },
+      INTERNATIONAL
+        ? { q: 'How is my account protected?', a: 'Your PIN or Face ID for every payment, card details that hide themselves, extra care after a new phone or a SIM change, and the account name shown before every transfer.' }
+        : { q: 'How is my account protected?', a: 'Your PIN or Face ID for every payment, extra care after a new phone or a SIM change, the account name shown before every transfer, and screenshots blocked in the app.' },
       { q: 'Will Credvera ever ask for my PIN?', a: 'Never. Not by phone, chat or email. Anyone who asks for your PIN, password or codes isn’t us.' },
       { q: 'What should I do if I lose my phone?', a: 'Contact us straight away and we’ll help you secure your account. Without your PIN or Face ID, nobody can open the app or make a payment.' },
       { q: 'Is Credvera a bank?', a: company.licenceStatement },
@@ -76,7 +101,9 @@ const personalGroups: Group[] = [
 
 
 // Example questions that cycle in the empty search box.
-const hints = ['How do I get paid from Upwork?', 'When do I get my electricity token?', 'Can I stop sharing my Passport?', 'Will Credvera ever ask for my PIN?'];
+const hints = INTERNATIONAL
+  ? ['How do I get paid from Upwork?', 'When do I get my electricity token?', 'Can I stop sharing my Passport?', 'Will Credvera ever ask for my PIN?']
+  : ['How does spraying from a phone work?', 'When do I get my electricity token?', 'Who has paid for the aso-ebi?', 'Will Credvera ever ask for my PIN?'];
 
 /** Wraps each match of the search in a lime highlight. */
 function Highlight({ text, query }: { text: string; query: string }) {

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import logoDark from '../../assets/logo-dark.png';
 import logoLight from '../../assets/logo.png';
 import { businessPages } from '../../lib/businessPages';
+import { INTERNATIONAL } from '../../lib/launch';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -131,7 +132,108 @@ function CardsBody() {
   );
 }
 
-const bodies: ReactNode[] = [<PaymentsBody key="p" />, <FxBody key="f" />, <SuppliersBody key="s" />, <CardsBody key="c" />];
+/** Payouts: one run, row by row with its fee, and the ways it goes out. */
+function PayoutsBody() {
+  return (
+    <div className="grid gap-8 sm:grid-cols-2">
+      <table className="w-full text-[14px]">
+        <thead>
+          <tr className="font-medium text-[12.5px] text-white/40">
+            <th className="pb-2 text-left font-normal">Payee</th>
+            <th className="pb-2 text-right font-normal">Amount</th>
+            <th className="pb-2 text-right font-normal">Fee</th>
+          </tr>
+        </thead>
+        <tbody className="font-ledger">
+          {[
+            ['Kemi Adeyemi', '₦650,000', '₦40'],
+            ['Chinedu Logistics', '₦24,000', '₦20'],
+            ['Bola, driver', '₦8,500', '₦10'],
+          ].map(([who, amount, fee]) => (
+            <tr key={who} className="border-t border-white/10">
+              <td className="py-2">{who}</td>
+              <td className="py-2 text-right">{amount}</td>
+              <td className="py-2 text-right text-white/45">{fee}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <dl className="space-y-3 text-[14px]">
+        {[
+          ['Bulk', 'Up to 500 payments from one spreadsheet'],
+          ['Scheduled', 'Every week or every month, on the day you set'],
+          ['Checked first', 'Every row is checked before anything goes'],
+        ].map(([k, v]) => (
+          <div key={k}>
+            <dt className="font-medium text-[12.5px] text-white/40">{k}</dt>
+            <dd className="text-white/80">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+/** Protected supplier payments: the order, split into what's paid and what's held. */
+function ProtectedBody() {
+  return (
+    <div>
+      <div className="flex h-14 overflow-hidden rounded-lg font-ledger text-[12px]">
+        <div className="flex w-[30%] flex-col justify-center bg-graphite px-3 text-white">
+          <span className="text-white/60">Paid now</span>
+          <span>30% deposit</span>
+        </div>
+        <div className="flex flex-1 flex-col justify-center border-2 border-dashed border-graphite/25 px-3">
+          <span className="text-graphite/55">Held by Credvera</span>
+          <span>70%, released when the goods are on their way</span>
+        </div>
+      </div>
+      <p className="mt-5 text-[15px] leading-relaxed text-graphite/70">
+        You release the rest when the goods are on their way. If the order falls through, call it off and the held money comes back.
+      </p>
+      <p className="mt-4 font-ledger text-[12px] text-graphite/55">Deposit 0%, 20%, 30% or 50% · holding is free · transfer fee only</p>
+    </div>
+  );
+}
+
+/** Team: two people on the account, small, with what keeps them in step. */
+function TeamBody() {
+  const face = (dark: boolean, name: string, role: string, sign: string) => (
+    <div
+      className={`relative aspect-[1.586] w-40 overflow-hidden rounded-lg p-3 sm:w-44 ${dark ? 'bg-[#0e1511] text-white ring-1 ring-white/10' : 'bg-[#eef1ec] text-graphite'}`}
+    >
+      <span aria-hidden className={`absolute -bottom-6 -right-1 font-ledger text-7xl leading-none ${dark ? 'text-white/[0.07]' : 'text-graphite/[0.08]'}`}>
+        {sign}
+      </span>
+      <img src={dark ? logoLight : logoDark} alt="" className="h-3.5 w-auto" />
+      <span className="absolute bottom-3 left-3 font-ledger text-[10px]">
+        {name} · {role}
+      </span>
+    </div>
+  );
+  return (
+    <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+      <div className="flex gap-3">
+        {face(true, 'Tunde', 'Admin', 'A')}
+        {face(false, 'Kemi', 'Payer', 'P')}
+      </div>
+      <ul className="space-y-2 text-[14px] text-white/80">
+        {['Owner, admin, payer or viewer', 'Big payments wait for approval', 'Approved with their own PIN'].map((x) => (
+          <li key={x} className="flex gap-2.5">
+            <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+            {x}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// At launch (lib/launch.ts) payouts, protected orders and team take the places
+// of FX, suppliers abroad and cards, in the same order as businessPages.
+const bodies: ReactNode[] = INTERNATIONAL
+  ? [<PaymentsBody key="p" />, <FxBody key="f" />, <SuppliersBody key="s" />, <CardsBody key="c" />]
+  : [<PaymentsBody key="p" />, <PayoutsBody key="o" />, <ProtectedBody key="s" />, <TeamBody key="t" />];
 
 /**
  * The four business features as panels side by side. The open one widens and

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 
 // Gentle deceleration for panels arriving; smooth ease-in-out for them leaving. No overshoot.
 const easeArrive = [0.22, 1, 0.36, 1] as const;
@@ -19,12 +20,13 @@ const FADE_OUT = 0.5;
 const looks = {
   personal: {
     bg: '#0e0f11',
-    statement: 'Your money, home and abroad.',
+    // At launch (lib/launch.ts) the line and panels follow the launch chapters.
+    statement: INTERNATIONAL ? 'Your money, home and abroad.' : 'Your money, for every celebration.',
     panels: [
-      { word: 'Get paid', bg: '#dcf17e', fg: '#0e0f11' },
+      { word: INTERNATIONAL ? 'Get paid' : 'Celebrate', bg: '#dcf17e', fg: '#0e0f11' },
       { word: 'Pay bills', bg: '#15171a', fg: '#dcf17e' },
       { word: 'Save', bg: '#f3f4ef', fg: '#15171a' },
-      { word: 'Prove it', bg: '#0e0f11', fg: '#dcf17e' },
+      { word: INTERNATIONAL ? 'Prove it' : 'Aso-ebi', bg: '#0e0f11', fg: '#dcf17e' },
     ],
   },
   business: {
@@ -33,8 +35,8 @@ const looks = {
     panels: [
       { word: 'Collect', bg: '#1c1e21', fg: '#eeefea' },
       { word: 'Pay out', bg: '#eeefea', fg: '#1c1e21' },
-      { word: 'Convert', bg: '#e4e8e2', fg: '#1c1e21' },
-      { word: 'Trade', bg: '#26302a', fg: '#dcf17e' },
+      { word: INTERNATIONAL ? 'Convert' : 'Protect', bg: '#e4e8e2', fg: '#1c1e21' },
+      { word: INTERNATIONAL ? 'Trade' : 'Approve', bg: '#26302a', fg: '#dcf17e' },
     ],
   },
 };

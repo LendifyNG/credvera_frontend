@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
-import { CreditCard, Lightbulb, Landmark, Smartphone, Tv, ArrowUpRight } from 'lucide-react';
+import { CreditCard, Gift, Lightbulb, Landmark, Smartphone, Tv, ArrowUpRight } from 'lucide-react';
+import { INTERNATIONAL } from '../../lib/launch';
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import SplitFlap from './SplitFlap';
 
@@ -22,7 +23,9 @@ const day: Moment[] = [
   { at: 12 * 60 + 20, icon: ArrowUpRight, title: 'Sent to Chiamaka Obi', detail: 'GTBank · “Lunch, thank you!”', amount: '₦4,500.00' },
   { at: 15 * 60 + 5, icon: Landmark, title: 'Remita', detail: 'Government payment · RRR 2810 ••• 7736', amount: '₦12,500.00' },
   { at: 19 * 60 + 30, icon: Tv, title: 'DStv Compact', detail: 'Renewed for a month', amount: '₦19,000.00' },
-  { at: 21 * 60 + 45, icon: CreditCard, title: 'Netflix', detail: 'Dollar card •• 0291', amount: '$9.99' },
+  INTERNATIONAL
+    ? { at: 21 * 60 + 45, icon: CreditCard, title: 'Netflix', detail: 'Dollar card •• 0291', amount: '$9.99' }
+    : { at: 21 * 60 + 45, icon: Gift, title: 'Ada & Tunde’s wedding', detail: 'Gift · “God bless your home”', amount: '₦20,000.00' },
 ];
 
 const START = 6 * 60; // 06:00

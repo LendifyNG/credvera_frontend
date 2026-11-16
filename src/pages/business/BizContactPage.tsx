@@ -3,6 +3,7 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight, Check } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { errorMessage, useContactSupport } from '../../api';
+import { INTERNATIONAL } from '../../lib/launch';
 import { company } from '../../lib/site';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -11,8 +12,13 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const reasons = [
   { name: 'Opening an account', ready: ['Your CAC registration number', 'Where you are in the sign-up'] },
   { name: 'A payment or invoice', ready: ['The date and amount', 'The invoice number, if there is one', 'Who it was to or from'] },
-  { name: 'A supplier order', ready: ['The supplier’s name', 'The order date and ship-by date', 'The bill of lading, if you have it'] },
-  { name: 'FX or large volumes', ready: ['The currencies you use', 'Roughly how much you move each month'] },
+  // At launch (lib/launch.ts) naira wording takes the shipping and currency details' places.
+  INTERNATIONAL
+    ? { name: 'A supplier order', ready: ['The supplier’s name', 'The order date and ship-by date', 'The bill of lading, if you have it'] }
+    : { name: 'A supplier order', ready: ['The supplier’s name', 'The order number and date', 'What was agreed for delivery'] },
+  INTERNATIONAL
+    ? { name: 'FX or large volumes', ready: ['The currencies you use', 'Roughly how much you move each month'] }
+    : { name: 'Payouts or large volumes', ready: ['How many people you pay each month', 'Roughly how much you move each month'] },
   { name: 'A security concern', ready: ['What happened, and when', 'Don’t send your PIN, password or codes, ever'] },
   { name: 'Something else', ready: ['Anything that helps us understand'] },
 ];

@@ -3,6 +3,7 @@ import { useReducedMotion } from '../../lib/motion';
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 import { ctaFor } from '../../lib/site';
 import LoopVideo from '../editorial/LoopVideo';
 import StoreButtons from './StoreButtons';
@@ -12,13 +13,24 @@ const cta = ctaFor('business');
 
 // What a business asks for, and what the app does with it, in one line each.
 // Example names and amounts, matching the app's example business account.
-const commands: { text: string; result: string; waiting?: boolean }[] = [
+type Command = { text: string; result: string; waiting?: boolean };
+const withAbroad: Command[] = [
   { text: 'Pay Shenzhen Hongda $12,400 when the goods ship', result: 'Deposit of $3,720 paid. The rest waits until the goods are loaded.' },
   { text: 'Invoice Lekki Grill ₦420,000, due Friday', result: 'INV-0143 sent to Lekki Grill by email and WhatsApp.' },
   { text: 'Pay Kemi’s September salary, ₦650,000', result: 'Sent to Tunde in Finance for a second approval.', waiting: true },
   { text: 'Convert $5,000 to naira', result: '₦7,675,000.00 in your naira account, at ₦1,535.00 to the dollar.' },
   { text: 'Send a payment link for ₦85,000', result: 'Link ready. Your customer pays by card or bank transfer.' },
 ];
+// At launch (lib/launch.ts) a protected supplier order and a scheduled payment
+// take the places of the supplier abroad and the conversion.
+const atLaunch: Command[] = [
+  { text: 'Pay Ade Fabrics ₦1,200,000 when the order is on its way', result: 'Deposit of ₦360,000 paid. The rest is held until the goods are on their way.' },
+  { text: 'Invoice Lekki Grill ₦420,000, due Friday', result: 'INV-0143 sent to Lekki Grill by email and WhatsApp.' },
+  { text: 'Pay Kemi’s September salary, ₦650,000', result: 'Sent to Tunde in Finance for a second approval.', waiting: true },
+  { text: 'Pay the shop rent, ₦350,000, on the 1st of every month', result: 'Scheduled. The name on the account is checked, and the first one goes on 1 October.' },
+  { text: 'Send a payment link for ₦85,000', result: 'Link ready. Your customer pays by card or bank transfer.' },
+];
+const commands = INTERNATIONAL ? withAbroad : atLaunch;
 
 const TYPE_MS = 34;
 const HOLD_MS = 3000;

@@ -1,6 +1,7 @@
 import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'framer-motion';
 import { useReducedMotion } from '../../lib/motion';
 import { useRef, type ReactNode } from 'react';
+import { INTERNATIONAL } from '../../lib/launch';
 
 // Billers the app supports today, with what you pay each one.
 const billers: [string, string][] = [
@@ -17,7 +18,7 @@ const billers: [string, string][] = [
   ['Remita', 'Government · school fees'],
 ];
 
-const things = ['airtime', 'data', 'electricity', 'TV', 'school fees', 'government bills', 'any Nigerian bank', 'online, in dollars'];
+const things = ['airtime', 'data', 'electricity', 'TV', 'school fees', 'government bills', 'any Nigerian bank', INTERNATIONAL ? 'online, in dollars' : 'a wedding gift'];
 
 const wrap = (min: number, max: number, v: number) => {
   const r = max - min;

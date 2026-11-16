@@ -2,14 +2,49 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Plus } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { INTERNATIONAL } from '../../lib/launch';
 import { personalPages } from '../../lib/personalPages';
 import Reveal from '../ui/Reveal';
+import { photos } from '../../lib/photos';
+import CountUp from '../ui/CountUp';
 import Headline from './Headline';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
 // A small drawn detail for each feature, shown when its row is open.
 function Detail({ to }: { to: string }): ReactNode {
+  if (to === '/personal/celebrate')
+    return (
+      <div className="space-y-2">
+        {[
+          ['AB', 'Aunty Bisi', '₦50,000'],
+          ['CO', 'Chidi O.', '₦20,000'],
+          ['MT', 'Mama Tolu', '₦100,000'],
+        ].map(([initials, name, amount]) => (
+          <div key={name} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3">
+            <span className="grid size-7 place-items-center rounded-full bg-primary text-[11px] font-semibold text-secondary">{initials}</span>
+            <span className="text-sm font-semibold">{name}</span>
+            <span className="ml-auto text-sm tabular-nums text-ink/60">{amount}</span>
+          </div>
+        ))}
+      </div>
+    );
+  if (to === '/personal/aso-ebi')
+    return (
+      <div className="space-y-2">
+        {[
+          ['Gele only', '₦15,000', 'Unlimited'],
+          ['Gele and buba', '₦35,000', '12 left'],
+          ['Agbada set', '₦60,000', '4 left'],
+        ].map(([name, price, left]) => (
+          <div key={name} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3">
+            <span className="text-sm font-semibold">{name}</span>
+            <span className="text-xs text-ink/45">{left}</span>
+            <span className="ml-auto text-sm tabular-nums text-ink/60">{price}</span>
+          </div>
+        ))}
+      </div>
+    );
   if (to === '/personal/abroad')
     return (
       <div className="space-y-2">
@@ -29,7 +64,7 @@ function Detail({ to }: { to: string }): ReactNode {
   if (to === '/personal/everyday')
     return (
       <div className="flex flex-wrap gap-2">
-        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer', 'Dollar card'].map((b) => (
+        {['Airtime', 'Data', 'Electricity', 'DStv', 'GOtv', 'StarTimes', 'Remita', 'Bank transfer', ...(INTERNATIONAL ? ['Dollar card'] : [])].map((b) => (
           <span key={b} className="rounded-full border border-ink/10 bg-paper px-3.5 py-1.5 text-sm text-ink/70">
             {b}
           </span>
@@ -74,15 +109,115 @@ function Detail({ to }: { to: string }): ReactNode {
   );
 }
 
+// At launch: each row opens to two photographs of the feature in use (a large
+// one, and a small print pinned over its corner), with one number and a
+// punchline set over them, instead of a drawing. Fees are lib/site.ts pricing.
+type Shot = { src: string; alt: string };
+const figure: Record<
+  string,
+  { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string; main: Shot; inset: Shot }
+> = {
+  '/personal/celebrate': {
+    kicker: 'Gifts and spray',
+    value: 0,
+    prefix: '₦',
+    punch: 'Every kobo they spray lands with you.',
+    fact: 'Free to make the page, receive, and move it to your account.',
+    main: photos.celebrateCouple,
+    inset: photos.celebrateNaira,
+  },
+  '/personal/everyday': {
+    kicker: 'Transfers',
+    value: 10,
+    prefix: '₦',
+    punch: 'A transfer costs less than pure water.',
+    fact: 'Under ₦10,000, to any Nigerian bank. Airtime, data, light and TV: free.',
+    main: photos.womanBraidsPhone,
+    inset: photos.everydayPhonePay,
+  },
+  '/personal/save': {
+    kicker: 'Auto-save',
+    value: 52,
+    suffix: '×',
+    punch: 'Set it once. It saves all year.',
+    fact: 'A weekly goal tops itself up, and split bills chase the money back.',
+    main: photos.splitDinner,
+    inset: photos.saveJar,
+  },
+  '/personal/aso-ebi': {
+    kicker: 'Aso-ebi',
+    value: 1,
+    suffix: ' link',
+    punch: 'No spreadsheet. No “who has paid?”',
+    fact: 'Every fabric, size and payment, counted in one link.',
+    main: photos.asoEbiGroup,
+    inset: photos.asoEbiTailor,
+  },
+};
+
+const settle = [0.16, 1, 0.3, 1] as const;
+
+function Big({ to }: { to: string }) {
+  const f = figure[to];
+  if (!f) return null;
+  return (
+    <div className="relative isolate h-full min-h-[24rem] overflow-hidden rounded-3xl bg-secondary text-white">
+      <motion.img
+        src={f.main.src}
+        alt={f.main.alt}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_20%]"
+        initial={{ scale: 1.15 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 2.4, ease: settle }}
+      />
+      {/* Darkens the lower half so the words read on any photo. */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-secondary via-secondary/60 to-transparent" />
+
+      {/* The second photo: a small print pinned over the top corner, tilted. */}
+      <motion.div
+        className="absolute right-5 top-5 w-[34%] max-w-[9.5rem] overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.55)]"
+        initial={{ opacity: 0, y: -24, rotate: 14 }}
+        animate={{ opacity: 1, y: 0, rotate: 5 }}
+        transition={{ type: 'spring', stiffness: 140, damping: 15, delay: 0.25 }}
+      >
+        <img src={f.inset.src} alt={f.inset.alt} loading="lazy" decoding="async" className="aspect-[4/5] w-full rounded-xl object-cover" />
+      </motion.div>
+
+      <div className="flex h-full min-h-[24rem] flex-col justify-between p-6 sm:p-7">
+        <span className="self-start rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-semibold text-white ring-1 ring-white/25 backdrop-blur-md">
+          {f.kicker}
+        </span>
+        <div>
+          <p className="text-[clamp(3.75rem,7vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-primary tabular-nums">
+            <CountUp value={f.value} prefix={f.prefix} suffix={f.suffix} duration={1.2} />
+          </p>
+          <p className="mt-4 max-w-sm text-[1.3rem] font-semibold leading-snug tracking-tight">{f.punch}</p>
+          <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-white/65">{f.fact}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // What each feature does, in a sentence and three points.
 const more: Record<string, { body: string; points: string[] }> = {
+  '/personal/celebrate': {
+    body: 'One page for your wedding, birthday or naming. Guests send gifts with a note, and spray from their phones on the day.',
+    points: ['A gift link and an account number of its own', 'Spray notes with your monogram, live on a big screen', 'Every gift and who sent it, in one list'],
+  },
+  '/personal/aso-ebi': {
+    body: 'Share one link for the fabric. Guests choose, add their sizes and pay, and you tick them off as they collect.',
+    points: ['Several fabrics, prices and a deadline', 'Stock that counts down as guests pay', 'Add guests who paid you in cash'],
+  },
   '/personal/abroad': {
     body: 'Clients, employers and platforms pay you straight into US, UK and euro account details in your own name.',
     points: ['Your own USD, GBP and EUR account details', 'Our rate always beside the market rate', 'A PayPal link for clients who pay that way'],
   },
   '/personal/everyday': {
     body: 'Everything you pay for every month, from the same place as your money.',
-    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', 'A dollar card for online, a naira card for shops'],
+    points: ['Airtime, data, electricity, TV and Remita', 'Send to any Nigerian bank in seconds', INTERNATIONAL ? 'A dollar card for online, a naira card for shops' : 'The name checked before you send'],
   },
   '/personal/save': {
     body: 'Put money aside for what’s next, and stop chasing friends for their share.',
@@ -181,9 +316,14 @@ export default function FeatureIndex() {
                               <ArrowRight className="size-4 transition-transform duration-300 group-hover/link:translate-x-1" />
                             </Link>
                           </div>
-                          <div className="rounded-3xl bg-white p-5 ring-1 ring-ink/5">
-                            <Detail to={p.to} />
-                          </div>
+                          {/* At launch: one large figure instead of the drawn panel (lib/launch.ts). */}
+                          {INTERNATIONAL ? (
+                            <div className="rounded-3xl bg-white p-5 ring-1 ring-ink/5">
+                              <Detail to={p.to} />
+                            </div>
+                          ) : (
+                            <Big to={p.to} />
+                          )}
                         </div>
                       </motion.div>
                     )}

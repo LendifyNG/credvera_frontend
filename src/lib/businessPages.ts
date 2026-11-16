@@ -1,6 +1,8 @@
 // The business feature pages, in order. Used by the business home page index,
 // the menu and footer (via site.ts), and each page's "Next" link.
-export const businessPages = [
+import { INTERNATIONAL } from './launch';
+
+const withAbroad = [
   {
     to: '/business/payments',
     label: 'Payments and invoices',
@@ -23,4 +25,27 @@ export const businessPages = [
   },
 ] as const;
 
-export type BusinessPage = (typeof businessPages)[number];
+// At launch (lib/launch.ts) the naira features take the international places:
+// payouts for FX, protected orders for suppliers abroad, team for cards.
+const atLaunch = [
+  withAbroad[0],
+  {
+    to: '/business/payouts',
+    label: 'Bulk and scheduled payouts',
+    proof: 'Pay your whole team from one list, or on a date you set. From ₦10 a transfer.',
+  },
+  {
+    to: '/business/suppliers',
+    label: 'Protected supplier payments',
+    proof: 'Pay a deposit now. The rest is held until the goods are on their way.',
+  },
+  {
+    to: '/business/team',
+    label: 'Team and approvals',
+    proof: 'Invite your team, set who can pay, and approve big payments before they go.',
+  },
+] as const;
+
+export type BusinessPage = { to: string; label: string; proof: string };
+
+export const businessPages: readonly [BusinessPage, BusinessPage, BusinessPage, BusinessPage] = INTERNATIONAL ? withAbroad : atLaunch;

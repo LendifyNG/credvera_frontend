@@ -5,6 +5,7 @@ import { Link, Navigate } from 'react-router-dom';
 import PageHeader from '../components/editorial/PageHeader';
 import Reveal from '../components/ui/Reveal';
 import { useAudience } from '../lib/audience';
+import { INTERNATIONAL } from '../lib/launch';
 import { company } from '../lib/site';
 
 const channels = [
@@ -17,11 +18,12 @@ const channels = [
 const topics = [
   'my personal account',
   'a payment',
-  'getting paid from abroad',
-  'my dollar card',
-  'Earnings Passport',
+  // At launch (lib/launch.ts) the naira features take the international topics' places.
+  INTERNATIONAL ? 'getting paid from abroad' : 'a celebration page',
+  INTERNATIONAL ? 'my dollar card' : 'spray money',
+  INTERNATIONAL ? 'Earnings Passport' : 'an aso-ebi page',
   'my business account',
-  'paying suppliers abroad',
+  INTERNATIONAL ? 'paying suppliers abroad' : 'paying suppliers',
   'a security concern',
   'something else',
 ];
