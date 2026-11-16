@@ -5,6 +5,7 @@ import Masthead from '../../components/editorial/Masthead';
 import NextChapter from '../../components/editorial/NextChapter';
 import NudgeChat from '../../components/editorial/NudgeChat';
 import SplitBill from '../../components/editorial/SplitBill';
+import SplitPhoto from '../../components/editorial/SplitPhoto';
 
 /** Personal, chapter 03: saving and splitting bills. */
 export default function SavePage() {
@@ -23,6 +24,9 @@ export default function SavePage() {
       <section className="mx-auto max-w-7xl px-6 pb-24 lg:px-8 lg:pb-32">
         <GoalJar />
       </section>
+
+      {/* Split the picture, and the goal you saved for */}
+      <SplitPhoto />
 
       <AutoSaveYear />
       <NudgeChat />
