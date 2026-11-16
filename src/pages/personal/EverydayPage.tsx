@@ -8,6 +8,7 @@ import Masthead from '../../components/editorial/Masthead';
 import NameCheck from '../../components/editorial/NameCheck';
 import NextChapter from '../../components/editorial/NextChapter';
 import PaymentDay from '../../components/editorial/PaymentDay';
+import PhoneWindow from '../../components/editorial/PhoneWindow';
 import Receipt from '../../components/editorial/Receipt';
 import Reveal from '../../components/ui/Reveal';
 import { INTERNATIONAL } from '../../lib/launch';
@@ -30,6 +31,7 @@ export default function EverydayPage() {
       />
 
       <BillerRail />
+      <PhoneWindow />
 
       <LightsBack />
       <NameCheck />

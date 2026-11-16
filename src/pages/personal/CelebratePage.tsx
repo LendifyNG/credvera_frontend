@@ -3,6 +3,7 @@ import { GiftTicket, SprayFan } from '../../components/editorial/CelebratePieces
 import Headline from '../../components/editorial/Headline';
 import Masthead from '../../components/editorial/Masthead';
 import NextChapter from '../../components/editorial/NextChapter';
+import SprayPhotos from '../../components/editorial/SprayPhotos';
 import Reveal from '../../components/ui/Reveal';
 
 /** Personal, chapter 01 at launch: celebrations, their gifts and spraying. */
@@ -39,6 +40,9 @@ export default function CelebratePage() {
           <SprayFan />
         </div>
       </section>
+
+      {/* The spray: photos printed as notes, flicked across the page */}
+      <SprayPhotos />
 
       {/* Its own number */}
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">

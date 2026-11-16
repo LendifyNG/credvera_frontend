@@ -1,3 +1,4 @@
+import SwatchBoard from '../../components/asoebi/SwatchBoard';
 import AppBand from '../../components/editorial/AppBand';
 import { AsoEbiTicket } from '../../components/editorial/CelebratePieces';
 import Figure from '../../components/editorial/Figure';
@@ -19,6 +20,8 @@ export default function AsoEbiChapterPage() {
         lede="Set the fabrics, their prices and a deadline, and share one link. Guests pick what they want, add their sizes and pay. You see who paid for what, and tick them off as they collect."
         aside={<AsoEbiTicket />}
       />
+
+      <SwatchBoard />
 
       <section className="mx-auto grid max-w-7xl items-center gap-16 px-6 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
         <div>
