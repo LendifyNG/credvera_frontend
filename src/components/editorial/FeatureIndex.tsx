@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { INTERNATIONAL } from '../../lib/launch';
 import { personalPages } from '../../lib/personalPages';
 import Reveal from '../ui/Reveal';
-import tailor from '../../assets/photos/business/trade-tailor.webp';
 import { photos } from '../../lib/photos';
 import CountUp from '../ui/CountUp';
 import Headline from './Headline';
@@ -110,11 +109,13 @@ function Detail({ to }: { to: string }): ReactNode {
   );
 }
 
-// At launch: each row opens to a photograph, with one number and a punchline
-// set over it, instead of a drawing. Fees are the ones in lib/site.ts pricing.
+// At launch: each row opens to two photographs of the feature in use (a large
+// one, and a small print pinned over its corner), with one number and a
+// punchline set over them, instead of a drawing. Fees are lib/site.ts pricing.
+type Shot = { src: string; alt: string };
 const figure: Record<
   string,
-  { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string; img: string; alt: string }
+  { kicker: string; value: number; prefix?: string; suffix?: string; punch: string; fact: string; main: Shot; inset: Shot }
 > = {
   '/personal/celebrate': {
     kicker: 'Gifts and spray',
@@ -122,8 +123,8 @@ const figure: Record<
     prefix: '₦',
     punch: 'Every kobo they spray lands with you.',
     fact: 'Free to make the page, receive, and move it to your account.',
-    img: photos.blogKaftan.src,
-    alt: photos.blogKaftan.alt,
+    main: photos.celebrateCouple,
+    inset: photos.celebrateNaira,
   },
   '/personal/everyday': {
     kicker: 'Transfers',
@@ -131,8 +132,8 @@ const figure: Record<
     prefix: '₦',
     punch: 'A transfer costs less than pure water.',
     fact: 'Under ₦10,000, to any Nigerian bank. Airtime, data, light and TV: free.',
-    img: photos.womanBraidsPhone.src,
-    alt: photos.womanBraidsPhone.alt,
+    main: photos.womanBraidsPhone,
+    inset: photos.everydayPhonePay,
   },
   '/personal/save': {
     kicker: 'Auto-save',
@@ -140,8 +141,8 @@ const figure: Record<
     suffix: '×',
     punch: 'Set it once. It saves all year.',
     fact: 'A weekly goal tops itself up, and split bills chase the money back.',
-    img: photos.friendsSelfie.src,
-    alt: photos.friendsSelfie.alt,
+    main: photos.splitDinner,
+    inset: photos.saveJar,
   },
   '/personal/aso-ebi': {
     kicker: 'Aso-ebi',
@@ -149,29 +150,42 @@ const figure: Record<
     suffix: ' link',
     punch: 'No spreadsheet. No “who has paid?”',
     fact: 'Every fabric, size and payment, counted in one link.',
-    img: tailor,
-    alt: 'A smiling tailor at his work table',
+    main: photos.asoEbiGroup,
+    inset: photos.asoEbiTailor,
   },
 };
+
+const settle = [0.16, 1, 0.3, 1] as const;
 
 function Big({ to }: { to: string }) {
   const f = figure[to];
   if (!f) return null;
   return (
-    <div className="relative isolate h-full min-h-[22rem] overflow-hidden rounded-3xl bg-secondary text-white">
+    <div className="relative isolate h-full min-h-[24rem] overflow-hidden rounded-3xl bg-secondary text-white">
       <motion.img
-        src={f.img}
-        alt={f.alt}
+        src={f.main.src}
+        alt={f.main.alt}
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 -z-10 h-full w-full object-cover"
+        className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_20%]"
         initial={{ scale: 1.15 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 2.4, ease: settle }}
       />
       {/* Darkens the lower half so the words read on any photo. */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-secondary via-secondary/55 to-transparent" />
-      <div className="flex h-full min-h-[22rem] flex-col justify-between p-6 sm:p-7">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-secondary via-secondary/60 to-transparent" />
+
+      {/* The second photo: a small print pinned over the top corner, tilted. */}
+      <motion.div
+        className="absolute right-5 top-5 w-[34%] max-w-[9.5rem] overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.55)]"
+        initial={{ opacity: 0, y: -24, rotate: 14 }}
+        animate={{ opacity: 1, y: 0, rotate: 5 }}
+        transition={{ type: 'spring', stiffness: 140, damping: 15, delay: 0.25 }}
+      >
+        <img src={f.inset.src} alt={f.inset.alt} loading="lazy" decoding="async" className="aspect-[4/5] w-full rounded-xl object-cover" />
+      </motion.div>
+
+      <div className="flex h-full min-h-[24rem] flex-col justify-between p-6 sm:p-7">
         <span className="self-start rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-semibold text-white ring-1 ring-white/25 backdrop-blur-md">
           {f.kicker}
         </span>

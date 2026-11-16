@@ -17,6 +17,13 @@ import familySofa from '../assets/photos/personal/family-sofa-home.webp';
 import menYellowBus from '../assets/photos/personal/men-yellow-bus.webp';
 import manWorkWatch from '../assets/photos/personal/man-work-watch.webp';
 import marketOnions from '../assets/photos/personal/market-onions.webp';
+import celebrateCouple from '../assets/photos/personal/celebrate-couple-dancing.webp';
+import celebrateNaira from '../assets/photos/personal/celebrate-hands-naira.webp';
+import everydayPhonePay from '../assets/photos/personal/everyday-phone-pay.webp';
+import splitDinner from '../assets/photos/personal/split-friends-dinner.webp';
+import saveJar from '../assets/photos/personal/save-money-jar.webp';
+import asoEbiGroup from '../assets/photos/personal/asoebi-matching-group.webp';
+import asoEbiTailor from '../assets/photos/personal/asoebi-tailor-sewing.webp';
 
 export type Photo = { src: string; width: number; height: number; alt: string; credit: string };
 
@@ -37,4 +44,12 @@ export const photos = {
   womanBraidsPhone: { src: womanBraidsPhone, width: 1200, height: 1800, alt: 'A young woman with long braids on a phone call', credit: 'Pexels 33837423' },
   manCapSunglasses: { src: manCapSunglasses, width: 1200, height: 1800, alt: 'A young man in a patterned cap and sunglasses', credit: 'Pexels 33539805' },
   marketNutsSeller: { src: marketNutsSeller, width: 1200, height: 1680, alt: 'A trader serving a customer at her market stall', credit: 'Pexels 38519852' },
+  // The feature rows on the home page (two each)
+  celebrateCouple: { src: celebrateCouple, width: 800, height: 1200, alt: 'A newly married couple dancing in traditional attire', credit: 'Pexels 9838562' },
+  celebrateNaira: { src: celebrateNaira, width: 800, height: 1200, alt: 'Hands holding naira notes at a wedding', credit: 'Pexels 26288592' },
+  everydayPhonePay: { src: everydayPhonePay, width: 1200, height: 800, alt: 'A woman paying with her phone at the counter', credit: 'Pexels 4226272' },
+  splitDinner: { src: splitDinner, width: 1200, height: 800, alt: 'Friends eating and talking together at a restaurant', credit: 'Pexels 9961871' },
+  saveJar: { src: saveJar, width: 800, height: 1200, alt: 'Money going into a glass savings jar', credit: 'Pexels 7680464' },
+  asoEbiGroup: { src: asoEbiGroup, width: 1200, height: 723, alt: 'Friends in matching aso-ebi and gele at a celebration', credit: 'Pexels 20367616' },
+  asoEbiTailor: { src: asoEbiTailor, width: 795, height: 1200, alt: 'A tailor sewing bright traditional fabric', credit: 'Pexels 38500516' },
 } satisfies Record<string, Photo>;
