@@ -203,7 +203,8 @@ export default function FeatureIndex() {
                         transition={{ duration: 0.55, ease }}
                         className="overflow-hidden"
                       >
-                        <div className="grid gap-8 pb-10 pl-12 sm:pl-[4.5rem] md:grid-cols-[1.2fr_1fr]">
+                        {/* At launch the rows open to words only, without the drawn panel (lib/launch.ts). */}
+                        <div className={`grid gap-8 pb-10 pl-12 sm:pl-[4.5rem] ${INTERNATIONAL ? 'md:grid-cols-[1.2fr_1fr]' : ''}`}>
                           <div>
                             <p className="max-w-md text-lg leading-relaxed text-ink/70">{m.body}</p>
                             <ul className="mt-6 space-y-2.5">
@@ -222,9 +223,11 @@ export default function FeatureIndex() {
                               <ArrowRight className="size-4 transition-transform duration-300 group-hover/link:translate-x-1" />
                             </Link>
                           </div>
-                          <div className="rounded-3xl bg-white p-5 ring-1 ring-ink/5">
-                            <Detail to={p.to} />
-                          </div>
+                          {INTERNATIONAL && (
+                            <div className="rounded-3xl bg-white p-5 ring-1 ring-ink/5">
+                              <Detail to={p.to} />
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
