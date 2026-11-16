@@ -182,7 +182,7 @@ export default function FeatureIndex() {
                           }`}
                         />
                       </span>
-                      <span className="mt-3 block text-base text-ink/55 sm:text-lg">{p.line}</span>
+                      <span className="mt-3 block font-serif text-lg italic text-ink/55 sm:text-xl">{p.line}</span>
                     </span>
                     <span
                       className={`grid size-10 place-items-center rounded-full border transition-all duration-500 ${
