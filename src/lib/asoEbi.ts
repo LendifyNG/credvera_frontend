@@ -28,6 +28,8 @@ export type AsoEbiPage = {
   organiser: string; // "Adaeze O."
   options: AsoEbiOption[];
   celebration: { slug: string; title: string } | null;
+  /** False while card checkout is off: bank transfer only. */
+  card?: boolean;
 };
 
 export type OrderMethod = 'transfer' | 'card';

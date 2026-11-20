@@ -245,7 +245,7 @@ export default function OrderForm({ c, onNext, busy, error }: { c: AsoEbiPage; o
         </p>
       </div>
 
-      <MethodPicker method={method} onChange={setMethod} />
+      <MethodPicker method={method} onChange={setMethod} card={c.card !== false} />
 
       {lines.length > 0 && (
         <div className="flex items-end justify-between gap-4 rounded-[24px] bg-ink/[0.04] px-5 py-4">

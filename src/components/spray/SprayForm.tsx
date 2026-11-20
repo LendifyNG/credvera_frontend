@@ -18,7 +18,7 @@ const minNotes = (note: SprayNoteValue) => Math.ceil(MIN_SPRAY / note);
  * Buying spray money: pick the note, then how thick the wad is. The wad on
  * screen grows as the amount does, so the guest sees what they'll be holding.
  */
-export default function SprayForm({ mark, onNext, busy, error }: { mark: string; onNext: (d: SprayDraft) => void; busy: boolean; error: string | null }) {
+export default function SprayForm({ mark, card = true, onNext, busy, error }: { mark: string; card?: boolean; onNext: (d: SprayDraft) => void; busy: boolean; error: string | null }) {
   const [note, setNote] = useState<SprayNoteValue>(500);
   const [notes, setNotes] = useState(20);
   const [name, setName] = useState('');
@@ -147,7 +147,7 @@ export default function SprayForm({ mark, onNext, busy, error }: { mark: string;
         />
       </div>
 
-      <MethodPicker method={method} onChange={setMethod} />
+      <MethodPicker method={method} onChange={setMethod} card={card} />
 
       {error && <p className="text-[14px] font-medium text-[#b42318]">{error}</p>}
       <Pill type="submit" disabled={!ready || busy}>

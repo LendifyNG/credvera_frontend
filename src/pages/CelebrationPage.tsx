@@ -84,7 +84,7 @@ function DirectAccount({ account }: { account: NonNullable<Celebration['account'
   );
 }
 
-function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; busy: boolean; error: string | null }) {
+function GiftForm({ card, onNext, busy, error }: { card: boolean; onNext: (d: GiftDraft) => void; busy: boolean; error: string | null }) {
   const [digits, setDigits] = useState('');
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
@@ -157,7 +157,7 @@ function GiftForm({ onNext, busy, error }: { onNext: (d: GiftDraft) => void; bus
         </div>
       </div>
 
-      <MethodPicker method={method} onChange={setMethod} />
+      <MethodPicker method={method} onChange={setMethod} card={card} />
 
       {error && <p className="text-[14px] font-medium text-[#b42318]">{error}</p>}
       <Pill type="submit" disabled={!ready || busy}>
@@ -371,6 +371,7 @@ export default function CelebrationPage() {
   const back: Partial<Record<Step, Step>> = { transfer: 'form', card: 'form' };
   const confirming = !!returning && step === 'form';
   const spraying = mode === 'spray' && !!e.sprayOn;
+  const card = e.card !== false;
   const mark = monogram(e.title);
   const what = gift?.kind === 'spray' ? 'spray money' : 'gift';
 
@@ -383,8 +384,8 @@ export default function CelebrationPage() {
           e.closed && !confirming
             ? 'This celebration has ended and isn’t taking gifts any more. Thank you for thinking of them.'
             : spraying
-              ? 'It’s the day. Get spray money by transfer or card, then flick it from your phone onto the big screen. Every note goes straight to them.'
-              : 'Pay by bank transfer from any bank app, or by card. Your gift and your message go straight to them.'
+              ? `It’s the day. Get spray money by ${card ? 'transfer or card' : 'bank transfer'}, then flick it from your phone onto the big screen. Every note goes straight to them.`
+              : `Pay by bank transfer from any bank app${card ? ', or by card' : ''}. Your gift and your message go straight to them.`
         }
       />
 
@@ -414,7 +415,7 @@ export default function CelebrationPage() {
                   {confirming ? (
                     <Confirming reference={returning!} ask={celebrationsApi.gift} onDone={done} />
                   ) : step === 'form' ? (
-                    spraying ? <SprayForm mark={mark} onNext={start} busy={busy} error={error} /> : <GiftForm onNext={start} busy={busy} error={error} />
+                    spraying ? <SprayForm mark={mark} card={card} onNext={start} busy={busy} error={error} /> : <GiftForm card={card} onNext={start} busy={busy} error={error} />
                   ) : step === 'transfer' && gift && state?.account ? (
                     <Transfer amount={gift.amount} what={what} state={state} ask={celebrationsApi.gift} onDone={done} />
                   ) : step === 'card' && gift && state ? (

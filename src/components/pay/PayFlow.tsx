@@ -235,7 +235,9 @@ export function Expired({ what, onAgain }: { what: string; onAgain: () => void }
 }
 
 /** Bank transfer or card, as two big tiles. */
-export function MethodPicker({ method, onChange, dark = false }: { method: 'transfer' | 'card'; onChange: (m: 'transfer' | 'card') => void; dark?: boolean }) {
+export function MethodPicker({ method, onChange, dark = false, card = true }: { method: 'transfer' | 'card'; onChange: (m: 'transfer' | 'card') => void; dark?: boolean; card?: boolean }) {
+  // Card checkout off: bank transfer is the only way, so there's nothing to pick.
+  if (!card) return null;
   return (
     <fieldset>
       <legend className={`text-[13px] font-semibold ${dark ? 'text-white/50' : 'text-ink/50'}`}>How you’ll pay</legend>

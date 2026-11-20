@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Check, CreditCard, Landmark, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../api/errors';
 import PageHeader from '../components/editorial/PageHeader';
-import { Card, Confirming, Expired, naira, Pill, returnedReference, Transfer, type PaymentState } from '../components/pay/PayFlow';
+import { Card, Confirming, Expired, MethodPicker, naira, Pill, returnedReference, Transfer, type PaymentState } from '../components/pay/PayFlow';
 import { splitsApi, type SplitShare } from '../lib/splits';
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -82,27 +82,7 @@ function PayForm({ s, onNext, busy, error }: { s: SplitShare; onNext: (d: Draft)
         </p>
       </div>
 
-      <fieldset>
-        <legend className="text-[13px] font-semibold text-ink/50">How you’ll pay</legend>
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          {([
-            ['transfer', 'Bank transfer', 'From any bank app', Landmark],
-            ['card', 'Card', 'Debit or credit', CreditCard],
-          ] as const).map(([key, title, sub, Icon]) => (
-            <label
-              key={key}
-              className={`flex cursor-pointer flex-col gap-3 rounded-2xl p-4 transition-all ${method === key ? 'bg-background text-white' : 'bg-white text-ink ring-1 ring-ink/10 hover:ring-ink/30'}`}
-            >
-              <input type="radio" name="method" value={key} checked={method === key} onChange={() => setMethod(key)} className="sr-only" />
-              <Icon className={`size-5 ${method === key ? 'text-primary' : ''}`} />
-              <span>
-                <span className="block text-[15px] font-semibold">{title}</span>
-                <span className={`block text-[13px] ${method === key ? 'text-white/55' : 'text-ink/50'}`}>{sub}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <MethodPicker method={method} onChange={setMethod} card={s.card !== false} />
 
       {error && <p className="text-[14px] font-medium text-[#b42318]">{error}</p>}
       <Pill type="submit" disabled={!ready || busy}>
@@ -220,7 +200,7 @@ export default function SplitPayPage() {
             ? `You’ve paid your share. Thank you.`
             : s.closed && !confirming
               ? `${s.from} has closed this split, so it isn’t taking payments any more.`
-              : `${s.from} asked you to pay ${naira(Number(s.left))}. Pay by bank transfer from any bank app, or by card. It goes straight to them.`
+              : `${s.from} asked you to pay ${naira(Number(s.left))}. Pay by bank transfer from any bank app${s.card !== false ? ', or by card' : ''}. It goes straight to them.`
         }
       />
 
