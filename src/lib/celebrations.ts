@@ -24,6 +24,8 @@ export type Celebration = {
   sprayOn?: boolean;
   /** The family's aso-ebi on sale for it (open, before its deadline), each at /a/:slug. */
   asoEbi?: { slug: string; title: string; deadline: string }[];
+  /** False while card checkout is off: bank transfer only. */
+  card?: boolean;
 };
 
 export type GiftMethod = 'transfer' | 'card';

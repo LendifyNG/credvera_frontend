@@ -16,6 +16,8 @@ export type SplitShare = {
   left: string;
   settled: boolean;
   closed: boolean;
+  /** False while card checkout is off: bank transfer only. */
+  card?: boolean;
 };
 
 const path = (token: string) => `/splits/pay/${encodeURIComponent(token)}`;

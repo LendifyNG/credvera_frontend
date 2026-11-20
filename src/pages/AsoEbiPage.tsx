@@ -252,7 +252,7 @@ export default function AsoEbiPage() {
       <PageHeader
         label="Aso-ebi"
         title={'Get your\n*aso-ebi*.'}
-        lede={`Choose your fabric and pay by bank transfer or card. ${c.organiser} sees your order as soon as it’s paid.`}
+        lede={`Choose your fabric and pay by bank transfer${c.card !== false ? ' or card' : ''}. ${c.organiser} sees your order as soon as it’s paid.`}
       />
     ) : (
       <PageHeader
