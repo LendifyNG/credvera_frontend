@@ -75,6 +75,10 @@ const allPages: Record<string, Page> = {
     title: 'Privacy policy | Credvera',
     description: 'How Credvera Technologies Limited collects, uses and protects your personal data when you use the Credvera app and website.',
   },
+  '/delete-account': {
+    title: 'Delete your account | Credvera',
+    description: 'How to close your Credvera account and have your data deleted, what we delete and what Nigerian law makes us keep.',
+  },
   '/terms': {
     title: 'Terms of use | Credvera',
     description: 'The terms that apply when you use the Credvera app and website.',

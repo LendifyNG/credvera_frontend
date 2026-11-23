@@ -8,7 +8,7 @@ import { INTERNATIONAL } from '../lib/launch';
 import { company } from '../lib/site';
 
 type LegalPageProps = {
-  kind: 'privacy' | 'terms';
+  kind: 'privacy' | 'terms' | 'delete-account';
 };
 
 type Section = { heading: string; short: string; body: string[] };
@@ -80,6 +80,49 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
       },
     ],
   },
+  'delete-account': {
+    title: 'Delete your *account*',
+    intro: 'How to close your Credvera account and have your data deleted, what we delete, and what the law makes us keep.',
+    sections: [
+      {
+        heading: 'How to ask',
+        short: 'Email us from the address on your account.',
+        body: [
+          `Email ${company.supportEmail} from the email address on your Credvera account, with the subject “Delete my account”. Include the phone number you signed up with.`,
+          'If you can’t reach that email, use the same address and tell us; we’ll confirm it’s you another way before we delete anything.',
+        ],
+      },
+      {
+        heading: 'What happens next',
+        short: 'We check it’s you, then close the account.',
+        body: [
+          'We reply within three working days to confirm it’s you. Any money left in your account must be sent out first, to a bank account in your name.',
+          'Once your balance is zero we close the account, sign you out on every device and finish the deletion within 30 days.',
+        ],
+      },
+      {
+        heading: 'What we delete',
+        short: 'Everything the law lets us.',
+        body: [
+          'Your profile and sign-in details, saved beneficiaries and contacts you picked in the app, notes, savings goals, events, notification settings and the devices linked to your account.',
+        ],
+      },
+      {
+        heading: 'What we keep, and for how long',
+        short: 'Five years, because the law says so.',
+        body: [
+          'Nigerian anti-money laundering rules make us keep your identity details (name, date of birth, BVN or NIN, ID and selfie) and your transaction records for at least five years after the account closes. We keep them locked away, use them only for the law, and delete them when that period ends.',
+        ],
+      },
+      {
+        heading: 'Deleting some data only',
+        short: 'You don’t have to close your account.',
+        body: [
+          `To have some of your data deleted without closing your account, email ${company.supportEmail} and tell us what you want removed. We’ll delete what the law allows and tell you what we must keep.`,
+        ],
+      },
+    ],
+  },
   terms: {
     title: 'Terms of *use*',
     intro: 'The terms that apply when you use Credvera’s website and app.',
@@ -140,7 +183,7 @@ const content: Record<LegalPageProps['kind'], { title: string; intro: string; se
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z]+/g, '-');
 
-/** Privacy and terms: the full text, with a plain summary beside each part. */
+/** Privacy, terms and account deletion: the full text, with a plain summary beside each part. */
 export default function LegalPage({ kind }: LegalPageProps) {
   const { audience } = useAudience();
   const { title, intro, sections } = content[kind];
@@ -160,7 +203,7 @@ export default function LegalPage({ kind }: LegalPageProps) {
   }, [sections]);
 
   // Business has its own legal pages.
-  if (audience === 'business') return <Navigate to={`/business/${kind}`} replace />;
+  if (audience === 'business' && kind !== 'delete-account') return <Navigate to={`/business/${kind}`} replace />;
 
   return (
     <>

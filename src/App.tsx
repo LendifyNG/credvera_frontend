@@ -223,6 +223,7 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="/terms" element={<LegalPage kind="terms" />} />
+          <Route path="/delete-account" element={<LegalPage kind="delete-account" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
