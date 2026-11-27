@@ -17,7 +17,7 @@ export const authApi = {
   /** A code texted to the phone on the account; the same answer whether or not there is one. */
   sendCode: (phone: string) => http.post<{ message: string; sentTo?: string }>('/auth/login/code', { phone }, { skipAuth: true }),
   checkCode: (phone: string, code: string) => http.post<{ pinStep: string; expiresInSeconds: number }>('/auth/login/code/verify', { phone, code }, { skipAuth: true }),
-  finishWithPin: (pinStep: string, pin: string) => http.post<SignInResponse>('/auth/login/code/pin', { pinStep, pin }, { skipAuth: true }),
+  finishWithPin: (pinStep: string, pin: string) => http.post<SignInResponse>('/auth/login/code/pin', { pinStep, pin }, { skipAuth: true, headers: deviceHeaders() }),
 
   signOut: () => http.post<{ message: string }>('/auth/logout'),
 };
